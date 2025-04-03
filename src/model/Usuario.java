@@ -1,8 +1,15 @@
 package model;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
-public class Usuario {
+@SuppressWarnings("deprecation")
+public class Usuario implements Observer{
 	private String nickname;
 	private int puerto;
 	private String ip;
@@ -14,6 +21,12 @@ public class Usuario {
 		this.puerto = puerto;
 		this.ip = ip;
 		this.contactos = new ArrayList<Contacto>();
+		
+		this.servidor = new Servidor(this.ip,this.puerto);
+		this.servidor.addObserver(this);
+		
+		Thread hiloServidor = new Thread(this.servidor);
+		hiloServidor.start();
 	}
 
 	public String getNickname() {
@@ -34,5 +47,29 @@ public class Usuario {
 
 	public void agregarContacto(Contacto contacto) {
 		this.contactos.add(contacto);
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		Mensaje mensaje = (Mensaje) arg;
+		System.out.println(mensaje.getNickEmisor() + ": " + mensaje.getCuerpo());
+	}
+	
+	/**
+	 * Envia un mensaje al contacto. En caso de no poder establecer la conexión, lanza una exception. 
+	 * 
+	 * @param mensaje: Tiene que tener todos los campos declarados y validados. 
+	 * @param contacto: Tiene que tener todos los campos declarados y validados. 
+	 * 
+	 * @throws UnknownHostException: No se puede conectar con el contacto. 
+	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
+	 */
+	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
+		Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
+		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+		out.writeObject(mensaje);
+		out.flush();
+		out.close();
+		socket.close();
 	}
 }

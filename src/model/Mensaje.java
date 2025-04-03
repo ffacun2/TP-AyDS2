@@ -1,8 +1,9 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Mensaje {
+public class Mensaje implements Serializable{
 	private String cuerpo;
 	private String nickEmisor;
 	private Date  hora;
