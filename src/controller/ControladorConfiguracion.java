@@ -3,17 +3,19 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import model.Usuario;
+import javax.swing.JOptionPane;
+
+import view.VentanaConfiguracion;
 
 public class ControladorConfiguracion implements ActionListener{
 
-	private VentanaConfiguracion ventanaConfiguracion;
+	private VentanaConfiguracion VentanaConfiguracion;
 	private ControladorPrincipal controladorPrincipal;
 	
 	public ControladorConfiguracion() {
-		this.ventanaConfiguracion = new VentanaConfiguracion("Sistema de Mensajeria Instantanea");
-		this.ventanaConfiguracion.setLocationRelativeTo(null);
-		this.ventanaConfiguracion.setVisible(true);
+		this.VentanaConfiguracion = new VentanaConfiguracion("Sistema de Mensajeria Instantanea",this);
+		this.VentanaConfiguracion.setLocationRelativeTo(null);
+		this.VentanaConfiguracion.setVisible(true);
 		this.controladorPrincipal = new ControladorPrincipal();
 	}
 	
@@ -26,20 +28,20 @@ public class ControladorConfiguracion implements ActionListener{
 			// Si el metodo crear usuario devuelve true, se cierra la ventana de configuracion y se abre la ventana principal
 			// Caso contrario se muestra un mensaje de error.
 			if(controladorPrincipal.crearUsuario(
-					this.ventanaConfiguracion.getIp(), 
-					this.ventanaConfiguracion.getPuerto(), 
-					this.ventanaConfiguracion.getNickname())) {
-				this.ventanaConfiguracion.dispose();
+					this.VentanaConfiguracion.getIp(), 
+					this.VentanaConfiguracion.getPuerto(), 
+					this.VentanaConfiguracion.getNickname())) {
+				this.VentanaConfiguracion.dispose();
 				this.controladorPrincipal.mostrarVentanaPrincipal();
 			}
 			else {
-				ventanaConfiguracion.mostrarError("Error al crear el usuario");
+				VentanaConfiguracion.mostrarError("Error al crear el usuario");
 			}
 		}
 	}
 	
 	private void mostratError(String mensaje) {
-		JOptionPane.showMessageDialog(ventanaConfiguracion, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(VentanaConfiguracion, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 }

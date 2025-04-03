@@ -4,6 +4,8 @@ import java.awt.event.ActionListener;
 
 import model.Contacto;
 import model.Conversacion;
+import model.Usuario;
+import view.VentanaPrincipal;
 
 
 public class ControladorPrincipal implements ActionListener {
