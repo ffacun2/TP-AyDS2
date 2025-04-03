@@ -35,12 +35,13 @@ public class ControladorConfiguracion implements ActionListener{
 				this.controladorPrincipal.mostrarVentanaPrincipal();
 			}
 			else {
-				VentanaConfiguracion.mostrarError("Error al crear el usuario");
+				//VentanaConfiguracion.mostrarError("Error al crear el usuario");
+				this.mostrarError(null);
 			}
 		}
 	}
 	
-	private void mostratError(String mensaje) {
+	private void mostrarError(String mensaje) {
 		JOptionPane.showMessageDialog(VentanaConfiguracion, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 

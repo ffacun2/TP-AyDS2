@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 
-
+@SuppressWarnings("deprecation")
 public class Servidor extends Observable implements Runnable{
 	private String ip;
 	private int puerto;
