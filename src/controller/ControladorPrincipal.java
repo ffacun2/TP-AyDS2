@@ -68,6 +68,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
+			this.contactoActivo = contacto;
 			this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contacto);
 			System.out.println(contacto.toString());
 			System.out.println(this.usuario.getContactos().contains(contacto));
@@ -159,7 +160,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
- 		System.out.println(contactoActivo.toString());
+ 		System.out.println("envio ("+mensaje+") a "+contactoActivo.toString());
 		try {
 			this.usuario.enviarMensaje(msjObj, contactoActivo);
 			this.ventanaPrincipal.agregarMensaje(this.usuario.getNickname() + ": "+ mensaje);
@@ -177,9 +178,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	@Override
 	public void update(Observable o, Object arg) {
 		Mensaje mensaje = (Mensaje) arg;
-		System.out.println(mensaje.getNickEmisor() + ": " + mensaje.getCuerpo());
+		System.out.println("recibo de "+mensaje.getNickEmisor() + ": " + mensaje.getCuerpo());
 		
-		Contacto contacto = new Contacto(mensaje.getIp(), mensaje.getPuerto(), mensaje.getNickEmisor());
+		Contacto contacto = new Contacto( mensaje.getNickEmisor(), mensaje.getPuerto(),mensaje.getIp());
 		List<Contacto> agenda = this.usuario.getContactos();
 		int i = 0;
 		
@@ -190,16 +191,22 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				i++;
 			}
 			if (agenda.get(i).equals(contacto)) {
-				contacto.getConversacion().agregarMensajeReceptor(mensaje);
+				agenda.get(i).getConversacion().agregarMensajeReceptor(mensaje);
 				//this.ventanaPrincipal.modificarPanelContacto(contacto);
+				if (this.contactoActivo != null && this.contactoActivo.equals(contacto)) {
+					this.ventanaPrincipal.cargarConversacion(this.usuario.getNickname(), contacto);
+				}
 			}	
 		}
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
+			System.out.println("Entra else update");
 			this.usuario.agregarContacto(contacto);
 			contacto.setConversacion(new Conversacion());
 			contacto.getConversacion().agregarMensajeReceptor(mensaje);
 			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+			
+			System.out.println("recept conversacion se creo?: "+contacto.getConversacion() == null);
 			
 		}
 	}

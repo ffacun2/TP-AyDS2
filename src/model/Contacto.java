@@ -33,6 +33,15 @@ public class Contacto {
 		this.conversacion = conversacion;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		Contacto contacto = (Contacto) obj;
+		return puerto == contacto.puerto && ip.equals(contacto.ip);
+	}
 	
 	@Override
 	public String toString() {
