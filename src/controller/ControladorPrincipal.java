@@ -1,16 +1,18 @@
 package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
+import javax.swing.JButton;
 
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
 import utils.Utils;
+import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
 
 
@@ -18,6 +20,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	
 	private ControladorConfiguracion controladorConfiguracion;
 	private VentanaPrincipal ventanaPrincipal;
+	private DialogSeleccionarContacto dialogContactos;
 	private Usuario usuario;
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	
@@ -30,6 +33,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * Si el evento se obtiene del boton CREAR_CONTACTO, se abre la una ventana para ingresar los datos del contacto y crearlo.
 	 * Si el evento se obtiene del boton CREAR_CONVERSACION, se muestra la lista de contactos y al seleccionar uno se abre el chat.
 	 * Si el evento se obtiene del boton ENVIAR_MENSAJE, se llama al metodo enviarMensaje y se envia el mensaje al contacto seleccionado.
+	 * Si el evento se obtiene del boton CONFIRMAR_CONTACTO, se llama al metodo
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -37,17 +41,37 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
 			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
-			this.ventanaPrincipal.bloqueoAgrContacto(true); //Si quiero agregar un contacto pero despues me arrepiento se queda bloqueado el boton
-			//TODO terminar de implementar la creacion de contactos
+			this.ventanaPrincipal.bloqueoAgrContacto(false); //Si quiero agregar un contacto pero despues me arrepiento se queda bloqueado el boton
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
-			//Se abre una ventana con la lista de contactos ??
+			
+			//Llama a la ventada de dialog con los contactos
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos());
+			this.dialogContactos.setVisible(true);	
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
 			if (!this.ventanaPrincipal.getMensaje().isEmpty()) {
 				this.enviarMensaje(this.ventanaPrincipal.getMensaje());
 			}
+			
+		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
+			//Esto se llama desde el boton del dialog
+			Contacto contacto = this.dialogContactos.getContactoElegido();
+			this.dialogContactos.dispose();
+			this.crearConversacion(contacto);
+			
+		}else if(e.getActionCommand().equals(Utils.MENSAJE)) {
+			/**
+			 * Cuando se apreta el boton de la conversacion se carga en el JTextArea
+			 * la conversacion de ese contacto.
+			 */
+			
+			JButton boton =(JButton) e.getSource();
+			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
+			this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contacto);
 		}
+		
+		
 		
 	}
 	
@@ -100,7 +124,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void crearContacto(String ip, int puerto, String nickname) {
 		//Tengo que validar que el contacto exista? es decir, que el socket este abierto?
 		//Lo deberia validar el constructor del contacto, si no se puede construir que tire una excepcion y que se catchee aca, y se muestra el mensaje de  -G
-		this.usuario.agregarContacto(new Contacto(ip, puerto, nickname));
+		this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
 	}
 	
 	/**
@@ -109,14 +133,19 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
  	public void crearConversacion(Contacto contacto) {
  		Contacto contact = null;
- 		if (this.usuario.getContactos().contains(contacto) ) {
- 			for (Contacto c : this.usuario.getContactos()) {
- 				if (c.equals(contacto)) {
- 					contact = c;
- 				}
- 			}
- 		//contact.setConversacion(new Conversacion());
- 		}
+ 		if(contacto == null) {
+			//mostrar error
+		}else {
+			if(contacto.getConversacion() == null) {
+				contacto.setConversacion(new Conversacion());
+				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+				this.ventanaPrincipal.setNuevaConversacion();
+				this.contactoActivo = contacto; 
+			}else {
+				//mostrar error ya tiene conversacion, mostrar conversacion?
+				System.out.println("ya tiene conversacion");
+			}
+		}
  	}
  	
  	/**
@@ -127,7 +156,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
 		try {
-			this.usuario.enviarMensaje(msjObj, contactoActivo);
+			//this.usuario.enviarMensaje(msjObj, contactoActivo);
+			this.ventanaPrincipal.agregarMensaje(this.usuario.getNickname() + ": "+ mensaje);
 		} catch (Exception exc) {
 			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
 		}
@@ -161,15 +191,17 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
 			this.usuario.agregarContacto(contacto);
-			//contacto.setConversacion(new Conversacion());
+			contacto.setConversacion(new Conversacion());
 			contacto.getConversacion().agregarMensajeReceptor(mensaje);
+			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+			
 		}
 	}
  	
  	
  	public void mostrarVentanaPrincipal() {
  		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea");
- 		this.ventanaPrincipal.setActionListener(this);
+ 		this.ventanaPrincipal.setControlador(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
  	}
@@ -177,4 +209,5 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void cerrarConfig() {
  		this.ventanaPrincipal.bloqueoAgrContacto(false);
  	}
+ 	
 }

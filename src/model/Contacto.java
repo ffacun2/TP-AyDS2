@@ -29,4 +29,14 @@ public class Contacto {
 		return ip;
 	}
 	
+	public void setConversacion(Conversacion conversacion) {
+		this.conversacion = conversacion;
+	}
+
+	
+	@Override
+	public String toString() {
+		String texto = this.nickname + " - " + this.ip + " - " + this.puerto;
+		return texto;
+	}
 }

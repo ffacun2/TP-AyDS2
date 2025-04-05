@@ -12,6 +12,8 @@ public class Utils {
 	public static String MODO_AGR_CONTACTO = "MODO_AGREGAR_CONTACTO";
 	public static String TITULO = "Sistema de mensajeria instantanea";
 	public static String TITULO_AGR_CONTACTO = "Agregar contacto";
+	public static String CONFIRMAR_CONTACTO = "Aceptar contacto nueva conversacion";
+	public static String MENSAJE = "mensaje conversacion";
 	
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
