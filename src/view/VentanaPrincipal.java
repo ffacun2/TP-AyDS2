@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -110,6 +111,11 @@ public class VentanaPrincipal extends JFrame {
 		panelNueConv.add(btnNueConv, BorderLayout.CENTER);
 		btnNueConv.setActionCommand(Utils.CREAR_CONVERSACION);
 		this.btnNueConv = btnNueConv;
+	}
+	
+	public void setActionListener(ActionListener controlador) {
+		this.btnAgrContacto.addActionListener(controlador);
+		this.btnNueConv.addActionListener(controlador);
 	}
 
 	public String getMensaje() {

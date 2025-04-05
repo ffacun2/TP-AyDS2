@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import utils.Utils;
 import view.VentanaConfiguracion;
@@ -15,11 +16,19 @@ public class ControladorConfiguracion implements ActionListener{
 	private ControladorPrincipal controladorPrincipal;
 	
 	public ControladorConfiguracion() {
-		
+		//Esta ventana config es la que se abre al inicio de la aplicacion, para crear el usuario
 		this.mostrarVentanaConfiguracion(Utils.TITULO, Utils.MODO_CONFIG);
-		this.controladorPrincipal = new ControladorPrincipal(); //TODO Chequear si esta bien que el controlador config cree el otro controlador
+		this.controladorPrincipal = new ControladorPrincipal(this); //TODO Chequear si esta bien que el controlador config cree el otro controlador
 	}
 	
+	/**
+	 * Si el evento se obtiene del boton INGRESAR, se llama al metodo crearUsuario, es decir, cuando se inicia la aplicacion
+	 * y el cliente se quiere conectar al servidor.
+	 * 
+	 * Si el evento se obtiene del boton CREAR_CONTACTO, se llama al metodo agregarContacto, es decir, cuando el cliente ya
+	 * se encuentra conectado al servidor y quiere agregar un contacto a su lista de contactos.
+	 * 
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
@@ -42,23 +51,25 @@ public class ControladorConfiguracion implements ActionListener{
 	
 		if (controladorPrincipal
 				.crearUsuario(
-						this.ventanaConfiguracion.getIp(), 
+						this.ventanaConfiguracion.getNickname(),
 						Integer.parseInt(this.ventanaConfiguracion.getPuerto()), 
-						this.ventanaConfiguracion.getNickname()
+						this.ventanaConfiguracion.getIp()
 						)
 			) {
 			this.ventanaConfiguracion.dispose();
 			this.controladorPrincipal.mostrarVentanaPrincipal();
 		}
 		else {
-			this.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.");
+			Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
 		}
 	}
 	
-	private void mostrarError(String mensaje) {
-		JOptionPane.showMessageDialog(ventanaConfiguracion, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
-	}
 	
+	
+	/**
+	 * Crea un nuevo contacto en la aplicacion, si este se crea correctamente se cierra.
+	 * 
+	 */
 	private void agregarContacto() {
 		//Creo que por tema de responsabilidades es mejor que este controlador solo tome los datos necesarios de la ventana y se lo pase al controlador principal, porque para agregar el contacto tmb necesito
 		//el usuario, que lo tiene el controlador principal
@@ -66,15 +77,18 @@ public class ControladorConfiguracion implements ActionListener{
 			this.controladorPrincipal.crearContacto(
 					this.ventanaConfiguracion.getIp(),
 					Integer.parseInt(this.ventanaConfiguracion.getPuerto()),
-					this.ventanaConfiguracion.getNickname());
+					this.ventanaConfiguracion.getNickname()
+					);
 			this.ventanaConfiguracion.dispose();
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Utils.mostrarError("No se ha podido crear el contacto. Verifique los datos ingresados.",this.ventanaConfiguracion);
 		}
 	}
 
-	
+	/**
+	 *	 Muestra la ventana de configuracion, para agregar un contacto. 
+	 */
 	public void mostrarVentanaConfiguracion(String title, String mode) {
 		this.ventanaConfiguracion = new VentanaConfiguracion(title, this, mode);
 		this.ventanaConfiguracion.setLocationRelativeTo(null);

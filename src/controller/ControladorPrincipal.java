@@ -2,6 +2,7 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -21,12 +22,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	
 	
-	public ControladorPrincipal() {
-		//TODO Implementar
-		this.controladorConfiguracion = new ControladorConfiguracion();
-		
+	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion) {
+		this.controladorConfiguracion = controladorConfiguracion;
 	}
 	
+	/**
+	 * Si el evento se obtiene del boton CREAR_CONTACTO, se abre la una ventana para ingresar los datos del contacto y crearlo.
+	 * Si el evento se obtiene del boton CREAR_CONVERSACION, se muestra la lista de contactos y al seleccionar uno se abre el chat.
+	 * Si el evento se obtiene del boton ENVIAR_MENSAJE, se llama al metodo enviarMensaje y se envia el mensaje al contacto seleccionado.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
@@ -41,12 +45,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
 			if (!this.ventanaPrincipal.getMensaje().isEmpty()) {
-				Mensaje mensaje = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),this.ventanaPrincipal.getMensaje());
-				try {
-					this.usuario.enviarMensaje(mensaje, contactoActivo);
-				} catch (Exception exc) {
-					exc.printStackTrace();
-				}
+				this.enviarMensaje(this.ventanaPrincipal.getMensaje());
 			}
 		}
 		
@@ -63,14 +62,14 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param nickname - nombre del usuario
 	 */
 	public boolean crearUsuario(String ip, int puerto, String nickname) {
-		try {
+//		try {
 			this.usuario = new Usuario(ip, puerto, nickname);	
 			return true;
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+//		}
+//		catch (IOException e) {
+//			e.printStackTrace();
+//			return false;
+//		}
 	}
 
 	
@@ -84,6 +83,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		//Al seleccionar un contacto, que me devuelve? objeto contacto?
 		//Se puede hacer que los contactos sean botones, cuando se apreta el controlador le devuelve el contacto a la ventana y se actualiza -G
+		
+		
+		//obtiene el contacto seleccionado y devuleve su conversacion. La ventana se encarga de mostrarla
+		//tambien modificar el panel de contacto por si estaba como mensaje no leido
 		return null;
 	}
 	
@@ -112,30 +115,61 @@ public class ControladorPrincipal implements ActionListener, Observer {
  					contact = c;
  				}
  			}
- 		//contact.createConversacion();
+ 		//contact.setConversacion(new Conversacion());
  		}
  	}
  	
+ 	/**
+ 	 *  Envia un mensaje al contacto activo, es decir, al contacto con el que se esta conversando.
+ 	 *  El mensaje sale del campo de texto.
+ 	 * @param mensaje - mensaje a enviar
+ 	 */
+ 	protected void enviarMensaje(String mensaje) {
+ 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
+		try {
+			this.usuario.enviarMensaje(msjObj, contactoActivo);
+		} catch (Exception exc) {
+			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
+		}
+ 	}
+ 	
+ 	/**
+ 	 * Esta observando al servidor, si recibe un mensaje el servidor lo notifica y este metodo lo recibe.
+ 	 * En base a si el contacto que envio el mensaje existe o no, se crea una nueva conversacion o 
+ 	 * se agrega el mensaje a la conversacion existente.
+ 	 */
  	@Override
 	public void update(Observable o, Object arg) {
 		Mensaje mensaje = (Mensaje) arg;
 		System.out.println(mensaje.getNickEmisor() + ": " + mensaje.getCuerpo());
 		
 		Contacto contacto = new Contacto(mensaje.getIp(), mensaje.getPuerto(), mensaje.getNickEmisor());
-		if (this.usuario.getContactos().contains(contacto)) {
+		List<Contacto> agenda = this.usuario.getContactos();
+		int i = 0;
+		
+		if (agenda.contains(contacto)) {
 			//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
 			//Para avisar que tiene un nuevo mensaje
+			while (!agenda.get(0).equals(contacto) && i < agenda.size()) {
+				i++;
+			}
+			if (agenda.get(i).equals(contacto)) {
+				contacto.getConversacion().agregarMensajeReceptor(mensaje);
+				//this.ventanaPrincipal.modificarPanelContacto(contacto);
+			}	
 		}
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
 			this.usuario.agregarContacto(contacto);
-			//this.crearConversacion(contacto);
+			//contacto.setConversacion(new Conversacion());
+			contacto.getConversacion().agregarMensajeReceptor(mensaje);
 		}
 	}
  	
  	
  	public void mostrarVentanaPrincipal() {
  		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea");
+ 		this.ventanaPrincipal.setActionListener(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
  	}
