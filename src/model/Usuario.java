@@ -36,6 +36,10 @@ public class Usuario implements Observer{
 	public int getPuerto() {
 		return puerto;
 	}
+	
+	public String getIp() {
+		return this.ip;
+	}
 
 	public ArrayList<Contacto> getContactos() {
 		return contactos;

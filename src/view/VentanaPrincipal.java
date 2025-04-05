@@ -14,12 +14,17 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import utils.Utils;
+
 public class VentanaPrincipal extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldMensaje;
 
+	private JButton btnAgrContacto;
+	private JButton btnNueConv;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -69,6 +74,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		JButton btnEnviar = new JButton("Enviar");
 		panelBtnEnviar.add(btnEnviar, BorderLayout.NORTH);
+		btnEnviar.setActionCommand(Utils.ENVIAR_MENSAJE);
 		
 		JScrollPane scrollPaneConv = new JScrollPane();
 		panel.add(scrollPaneConv, BorderLayout.CENTER);
@@ -93,6 +99,8 @@ public class VentanaPrincipal extends JFrame {
 		
 		JButton btnAgrContacto = new JButton("Agregar contacto");
 		panelAgrCont.add(btnAgrContacto, BorderLayout.CENTER);
+		btnAgrContacto.setActionCommand(Utils.CREAR_CONTACTO);
+		this.btnAgrContacto = btnAgrContacto;
 		
 		JPanel panelNueConv = new JPanel();
 		panelOpt.add(panelNueConv);
@@ -100,10 +108,19 @@ public class VentanaPrincipal extends JFrame {
 		
 		JButton btnNueConv = new JButton("Nueva conversacion");
 		panelNueConv.add(btnNueConv, BorderLayout.CENTER);
+		btnNueConv.setActionCommand(Utils.CREAR_CONVERSACION);
+		this.btnNueConv = btnNueConv;
 	}
 
 	public String getMensaje() {
 		return this.textFieldMensaje.getText();
 	}
+	
+	public void bloqueoAgrContacto(boolean cond) {
+		this.btnAgrContacto.setEnabled(!cond);
+	}
 
+	public void bloqueoNueConv(boolean cond) {
+		this.btnNueConv.setEnabled(!cond);
+	}
 }

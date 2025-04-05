@@ -4,20 +4,23 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import controller.ControladorConfiguracion;
+import utils.Utils;
 
 public class VentanaConfiguracion extends JFrame {
 
 	private ControladorConfiguracion controlador;
+	private String mode;
 	
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -32,7 +35,8 @@ public class VentanaConfiguracion extends JFrame {
 	  public static void main(String[] args) { 
 		  //TESTING
 		  
-		  EventQueue.invokeLater(new Runnable() { public void run() { try { VentanaConfiguracion frame = new VentanaConfiguracion("Sistema de mensajeria instantanea",new ControladorConfiguracion());
+		  EventQueue.invokeLater(new Runnable() { public void run() { 
+		  try { VentanaConfiguracion frame = new VentanaConfiguracion("Sistema de mensajeria instantanea",new ControladorConfiguracion(),Utils.MODO_CONFIG);
 		  //frame.setVisible(true);
 		  } catch (Exception e) {
 			  e.printStackTrace(); }
@@ -41,15 +45,27 @@ public class VentanaConfiguracion extends JFrame {
 	  }
 	 
 
+
 	/**
-	 * Create the frame.
+	 * Crea una instancia de JFrame de configuracion de usuario o para agregar un contacto
+	 * 
+	 * @param titulo: 
+	 * @param controlador
+	 * @param mode
 	 */
-	public VentanaConfiguracion(String titulo,ControladorConfiguracion controlador) {
+	public VentanaConfiguracion(String titulo,ControladorConfiguracion controlador,String mode) {
 		this.controlador = controlador;
+		this.mode = mode;
 		
 		this.setMinimumSize(new Dimension(250,175));
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				controlador.cerrar();
+				dispose();
+			}
+		});
 		setBounds(100, 100, 314, 211);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -61,10 +77,14 @@ public class VentanaConfiguracion extends JFrame {
 		JPanel panelS = new JPanel();
 		contentPane.add(panelS, BorderLayout.SOUTH);
 		
-		JButton btnIngresar = new JButton("Ingresar");
+		JButton btnIngresar;
+		if (this.mode == Utils.MODO_CONFIG)
+			btnIngresar = new JButton("Ingresar");
+		else
+			btnIngresar = new JButton("Agregar contacto");
 		panelS.add(btnIngresar);
-		btnIngresar.addActionListener(controlador);
-		btnIngresar.setActionCommand("INGRESAR");
+		btnIngresar.addActionListener(this.controlador);
+		btnIngresar.setActionCommand(Utils.INGRESAR);
 		
 		JPanel panel_6 = new JPanel();
 		contentPane.add(panel_6, BorderLayout.CENTER);
@@ -121,4 +141,5 @@ public class VentanaConfiguracion extends JFrame {
 	public String getNickname() {
 		return this.textFieldNickname.getText();
 	}
+	
 }

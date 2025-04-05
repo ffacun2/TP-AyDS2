@@ -9,29 +9,44 @@ import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
+import utils.Utils;
 import view.VentanaPrincipal;
 
 
 public class ControladorPrincipal implements ActionListener, Observer {
 	
+	private ControladorConfiguracion controladorConfiguracion;
 	private VentanaPrincipal ventanaPrincipal;
 	private Usuario usuario;
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	
 	
+	public ControladorPrincipal() {
+		//TODO Implementar
+		this.controladorConfiguracion = new ControladorConfiguracion();
+		
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals("CREAR_CONTACTO")) {
-			//Para crear un contacto se abre otra ventana con los campos necesarios??
+		if (comando.equals(Utils.CREAR_CONTACTO)) {
+			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
+			this.ventanaPrincipal.bloqueoAgrContacto(true); //Si quiero agregar un contacto pero despues me arrepiento se queda bloqueado el boton
+			//TODO terminar de implementar la creacion de contactos
 		}
-		else if (comando.equals("CREAR_CONVERSACION")) {
+		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
 			//Se abre una ventana con la lista de contactos ??
 		}
-		else if ( comando.equals("ENVIAR_MENSAJE")) {
+		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
 			if (!this.ventanaPrincipal.getMensaje().isEmpty()) {
-				this.usuario.enviarMensaje(this.ventanaPrincipal.getMensaje(), contactoActivo);
+				Mensaje mensaje = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),this.ventanaPrincipal.getMensaje());
+				try {
+					this.usuario.enviarMensaje(mensaje, contactoActivo);
+				} catch (Exception exc) {
+					exc.printStackTrace();
+				}
 			}
 		}
 		
@@ -67,7 +82,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public Conversacion mostrarConversacionSeleccionada() {	
 		//ventanaPrincipal.getContactoSeleccionado();
 		
-		//Al seleccionar un contacto, que me devuelve? objeto contacto? 
+		//Al seleccionar un contacto, que me devuelve? objeto contacto?
+		//Se puede hacer que los contactos sean botones, cuando se apreta el controlador le devuelve el contacto a la ventana y se actualiza -G
 		return null;
 	}
 	
@@ -80,6 +96,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public void crearContacto(String ip, int puerto, String nickname) {
 		//Tengo que validar que el contacto exista? es decir, que el socket este abierto?
+		//Lo deberia validar el constructor del contacto, si no se puede construir que tire una excepcion y que se catchee aca, y se muestra el mensaje de  -G
 		this.usuario.agregarContacto(new Contacto(ip, puerto, nickname));
 	}
 	
@@ -121,5 +138,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea");
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
+ 	}
+ 	
+ 	public void cerrarConfig() {
+ 		this.ventanaPrincipal.bloqueoAgrContacto(false);
  	}
 }
