@@ -4,6 +4,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
+import java.util.Observer;
 
 @SuppressWarnings("deprecation")
 public class Servidor extends Observable implements Runnable{
@@ -31,6 +32,10 @@ public class Servidor extends Observable implements Runnable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setObservador(Observer o) {
+		this.addObserver(o);
 	}
 
 }

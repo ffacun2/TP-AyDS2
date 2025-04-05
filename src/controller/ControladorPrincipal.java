@@ -60,7 +60,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.dialogContactos.dispose();
 			this.crearConversacion(contacto);
 			
-		}else if(e.getActionCommand().equals(Utils.MENSAJE)) {
+		}else if(comando.equals(Utils.MENSAJE)) {
 			/**
 			 * Cuando se apreta el boton de la conversacion se carga en el JTextArea
 			 * la conversacion de ese contacto.
@@ -69,6 +69,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
 			this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contacto);
+			System.out.println(contacto.toString());
+			System.out.println(this.usuario.getContactos().contains(contacto));
 		}
 		
 		
@@ -88,6 +90,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public boolean crearUsuario(String ip, int puerto, String nickname) {
 //		try {
 			this.usuario = new Usuario(ip, puerto, nickname);	
+			this.usuario.getServidor().setObservador(this);
 			return true;
 //		}
 //		catch (IOException e) {
@@ -144,6 +147,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			}else {
 				//mostrar error ya tiene conversacion, mostrar conversacion?
 				System.out.println("ya tiene conversacion");
+				this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contacto);
 			}
 		}
  	}
@@ -155,11 +159,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
+ 		System.out.println(contactoActivo.toString());
 		try {
-			//this.usuario.enviarMensaje(msjObj, contactoActivo);
+			this.usuario.enviarMensaje(msjObj, contactoActivo);
 			this.ventanaPrincipal.agregarMensaje(this.usuario.getNickname() + ": "+ mensaje);
 		} catch (Exception exc) {
 			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
+			exc.printStackTrace();
 		}
  	}
  	

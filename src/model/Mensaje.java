@@ -1,12 +1,12 @@
 package model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalTime;
 
 public class Mensaje implements Serializable{
 	private String cuerpo;
 	private String nickEmisor;
-	private Date  hora;
+	private LocalTime  hora;
 	private String ip;
 	private int puerto;
 	
@@ -15,7 +15,7 @@ public class Mensaje implements Serializable{
 		this.nickEmisor = nickEmisor;
 		this.ip = ip;
 		this.puerto = puerto;
-		this.hora = new Date();
+		this.hora = LocalTime.now();
 	}
 
 	public String getCuerpo() {
@@ -26,7 +26,7 @@ public class Mensaje implements Serializable{
 		return nickEmisor;
 	}
 
-	public Date getHora() {
+	public LocalTime getHora() {
 		return hora;
 	}
 

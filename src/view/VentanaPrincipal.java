@@ -183,6 +183,33 @@ public class VentanaPrincipal extends JFrame {
 		 * "Contacto:......"
 		 * "Usuario:......"
 		 */
+		int recept = contacto.getConversacion().getMensajeContacto().size() - 1;
+		int emisor = contacto.getConversacion().getMensajesUsuario().size() - 1;
+		
+		while (recept > 0 && emisor > 0) {
+			if (contacto.getConversacion().getMensajeContacto().get(recept).getHora()
+					.isBefore(contacto.getConversacion().getMensajesUsuario().get(emisor).getHora())) 
+			{
+				textAreaConv.append(contacto.getConversacion().getMensajeContacto().get(recept) + "\n");
+				recept--;
+			}
+			else {
+				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajeContacto().get(emisor) + "\n");
+				emisor--;
+			}
+		}
+		if (recept > 0) {
+			while (recept > 0) {
+				textAreaConv.append(contacto.getConversacion().getMensajeContacto().get(recept) + "\n");
+				recept--;
+			}
+		}
+		if (emisor > 0) {
+			while (emisor > 0) {
+				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor) + "\n");
+				emisor--;
+			}
+		}
 	}
 	
 	public void agregarMensaje(String mensaje) {
