@@ -183,30 +183,31 @@ public class VentanaPrincipal extends JFrame {
 		 * "Contacto:......"
 		 * "Usuario:......"
 		 */
-		int recept = contacto.getConversacion().getMensajeContacto().size() - 1;
+		this.textAreaConv.setText("");
+		int recept = contacto.getConversacion().getMensajesContacto().size() - 1;
 		int emisor = contacto.getConversacion().getMensajesUsuario().size() - 1;
 		
-		while (recept > 0 && emisor > 0) {
-			if (contacto.getConversacion().getMensajeContacto().get(recept).getHora()
-					.isBefore(contacto.getConversacion().getMensajesUsuario().get(emisor).getHora())) 
-			{
-				textAreaConv.append(contacto.getConversacion().getMensajeContacto().get(recept) + "\n");
+		while (recept >= 0 && emisor >= 0) {
+//			if (contacto.getConversacion().getMensajesContacto().get(recept).getHora()
+//					.isBefore(contacto.getConversacion().getMensajesUsuario().get(emisor).getHora())) 
+//			{
+				textAreaConv.append(contacto.getNickname()+":"+contacto.getConversacion().getMensajesContacto().get(recept).getCuerpo() + "\n");
 				recept--;
-			}
-			else {
-				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajeContacto().get(emisor) + "\n");
+//			}
+//			else {
+				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor).getCuerpo() + "\n");
 				emisor--;
-			}
+//			}
 		}
-		if (recept > 0) {
-			while (recept > 0) {
-				textAreaConv.append(contacto.getConversacion().getMensajeContacto().get(recept) + "\n");
+		if (recept >= 0) {
+			while (recept >= 0) {
+				textAreaConv.append(contacto.getNickname()+":"+contacto.getConversacion().getMensajesContacto().get(recept).getCuerpo() + "\n");
 				recept--;
 			}
 		}
-		if (emisor > 0) {
-			while (emisor > 0) {
-				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor) + "\n");
+		if (emisor >= 0) {
+			while (emisor >= 0) {
+				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor).getCuerpo() + "\n");
 				emisor--;
 			}
 		}
@@ -218,7 +219,7 @@ public class VentanaPrincipal extends JFrame {
 	}
 	
 	public void setNuevaConversacion() {
-		this.textAreaConv.setText("------- Nueva Conversacion --------\n");
+		this.textAreaConv.setText("");
 	}
 	
 	/**

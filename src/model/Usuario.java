@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -55,8 +56,10 @@ public class Usuario implements Observer{
 
 	@Override
 	public void update(Observable o, Object arg) {
-		Mensaje mensaje = (Mensaje) arg;
-		System.out.println(mensaje.getNickEmisor() + ": " + mensaje.getCuerpo());
+		
+			
+			
+		
 	}
 	
 	/**
@@ -76,5 +79,6 @@ public class Usuario implements Observer{
 		out.flush();
 		out.close();
 		socket.close();
+		contacto.getConversacion().agregarMensajeUsuario(mensaje);
 	}
 }

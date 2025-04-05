@@ -38,4 +38,9 @@ public class Mensaje implements Serializable{
 		return puerto;
 	}
 	
+	@Override
+	public String toString() {
+		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor;
+		return texto;
+	}
 }

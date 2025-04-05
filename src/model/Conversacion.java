@@ -16,15 +16,15 @@ public class Conversacion {
 		return mensajesUsuario;
 	}
 
-	public ArrayList<Mensaje> getMensajeContacto() {
+	public ArrayList<Mensaje> getMensajesContacto() {
 		return mensajesContacto;
 	}
 	
-	public void agregarMensajeEmisor(Mensaje mensaje) {
+	public void agregarMensajeContacto(Mensaje mensaje) {
 		this.mensajesContacto.add(mensaje);
 	}
 	
-	public void agregarMensajeReceptor(Mensaje mensaje) {
+	public void agregarMensajeUsuario(Mensaje mensaje) {
 		this.mensajesUsuario.add(mensaje);
 	}
 }
