@@ -5,9 +5,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.Iterator;
+
+import exceptions.ContactoRepetidoException;
 
 @SuppressWarnings("deprecation")
 public class Usuario{
@@ -49,7 +49,15 @@ public class Usuario{
 		return servidor;
 	}
 
-	public void agregarContacto(Contacto contacto) {
+	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException {
+		Iterator<Contacto> it = this.contactos.iterator();
+		Contacto aux;
+		
+		while (it.hasNext()) {
+			aux = it.next();
+			if (aux.getPuerto() == contacto.getPuerto() || aux.getIp() == contacto.getIp())
+				throw new ContactoRepetidoException();
+		}
 		this.contactos.add(contacto);
 	}
 

@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import javax.swing.JButton;
 
+import exceptions.ContactoRepetidoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
@@ -27,6 +28,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion) {
 		this.controladorConfiguracion = controladorConfiguracion;
+	}
+	
+	public VentanaPrincipal getVentanaPrincipal() {
+		return this.ventanaPrincipal;
 	}
 	
 	/**
@@ -72,11 +77,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
 				this.ventanaPrincipal.bloquearMsj(false);
 			}
-		
 		}
-		
-		
-		
 	}
 	
 	/**
@@ -95,7 +96,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			return true;
 	}
 
-	
+
 	/**
 	 * Crea un nuevo contacto en la lista de contactos
 	 * 
@@ -103,8 +104,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param puerto - numero del contacto
 	 * @param nickname - nombre del contacto
 	 */
-	public void crearContacto(String ip, int puerto, String nickname) {
-		this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
+	public void crearContacto(String ip, int puerto, String nickname) throws Exception {
+		try {
+			this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
+		}
+		catch (ContactoRepetidoException e) {
+			throw e;
+		}
 	}
 	
 	/**
@@ -174,11 +180,16 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
-			this.usuario.agregarContacto(contacto);
-			contacto.setConversacion(new Conversacion());
-			contacto.getConversacion().agregarMensaje(mensaje);
-			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-			this.ventanaPrincipal.notificacion(contacto);
+			try {
+				this.usuario.agregarContacto(contacto);
+				contacto.setConversacion(new Conversacion());
+				contacto.getConversacion().agregarMensaje(mensaje);
+				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+				this.ventanaPrincipal.notificacion(contacto);
+			}
+			catch (ContactoRepetidoException e) {
+				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
+			}
 			
 		}
 	}

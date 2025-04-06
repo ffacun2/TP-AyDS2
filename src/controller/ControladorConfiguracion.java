@@ -21,6 +21,10 @@ public class ControladorConfiguracion implements ActionListener{
 		this.controladorPrincipal = new ControladorPrincipal(this); //TODO Chequear si esta bien que el controlador config cree el otro controlador
 	}
 	
+	public VentanaConfiguracion getVentanaConfig() {
+		return this.ventanaConfiguracion;
+	}
+	
 	/**
 	 * Si el evento se obtiene del boton INGRESAR, se llama al metodo crearUsuario, es decir, cuando se inicia la aplicacion
 	 * y el cliente se quiere conectar al servidor.
@@ -74,15 +78,16 @@ public class ControladorConfiguracion implements ActionListener{
 		//Creo que por tema de responsabilidades es mejor que este controlador solo tome los datos necesarios de la ventana y se lo pase al controlador principal, porque para agregar el contacto tmb necesito
 		//el usuario, que lo tiene el controlador principal
 		try {
-			this.controladorPrincipal.crearContacto(
-					this.ventanaConfiguracion.getIp(),
-					Integer.parseInt(this.ventanaConfiguracion.getPuerto()),
-					this.ventanaConfiguracion.getNickname()
-					);
+				this.controladorPrincipal.crearContacto(
+						this.ventanaConfiguracion.getIp(),
+						Integer.parseInt(this.ventanaConfiguracion.getPuerto()),
+						this.ventanaConfiguracion.getNickname()
+				);
 			this.ventanaConfiguracion.dispose();
+			Utils.mostrarVentanaEmergente("Contacto agregado exitosamente", this.controladorPrincipal.getVentanaPrincipal());
 		}
 		catch(Exception e) {
-			Utils.mostrarError("No se ha podido crear el contacto. Verifique los datos ingresados.",this.ventanaConfiguracion);
+			Utils.mostrarError(e.getMessage(),this.ventanaConfiguracion);
 		}
 	}
 

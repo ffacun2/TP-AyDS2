@@ -19,4 +19,8 @@ public class Utils {
 	public static void mostrarError(String mensaje,JFrame ventana) {
 		JOptionPane.showMessageDialog(ventana, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
+	
+	public static void mostrarVentanaEmergente(String mensaje, JFrame ventana) {
+		JOptionPane.showMessageDialog(ventana, mensaje, "Informacion" , JOptionPane.INFORMATION_MESSAGE);
+	}
 }

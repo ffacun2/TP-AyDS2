@@ -100,6 +100,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		textAreaConv = new JTextArea();
 		scrollPaneConv.setViewportView(textAreaConv);
+		textAreaConv.setEditable(false);
 		
 		JPanel panelIzq = new JPanel();
 		splitPane.setLeftComponent(panelIzq);
