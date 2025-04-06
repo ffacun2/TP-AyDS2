@@ -90,15 +90,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param nickname - nombre del usuario
 	 */
 	public boolean crearUsuario(String ip, int puerto, String nickname) {
-//		try {
 			this.usuario = new Usuario(ip, puerto, nickname);	
 			this.usuario.getServidor().setObservador(this);
 			return true;
-//		}
-//		catch (IOException e) {
-//			e.printStackTrace();
-//			return false;
-//		}
 	}
 
 	
@@ -110,8 +104,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param nickname - nombre del contacto
 	 */
 	public void crearContacto(String ip, int puerto, String nickname) {
-		//Tengo que validar que el contacto exista? es decir, que el socket este abierto?
-		//Lo deberia validar el constructor del contacto, si no se puede construir que tire una excepcion y que se catchee aca, y se muestra el mensaje de  -G
 		this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
 	}
 	
@@ -121,7 +113,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
  	public void crearConversacion(Contacto contacto) {
  		if(contacto == null) {
-			//mostrar error
+			Utils.mostrarError("No se selecciono ningun contacto", ventanaPrincipal);
 		}else {
 			if(contacto.getConversacion() == null) {
 				contacto.setConversacion(new Conversacion());
@@ -193,7 +185,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	
  	
  	public void mostrarVentanaPrincipal() {
- 		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea");
+ 		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea: " + this.usuario.getNickname());
  		this.ventanaPrincipal.setControlador(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);

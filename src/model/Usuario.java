@@ -10,7 +10,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 @SuppressWarnings("deprecation")
-public class Usuario implements Observer{
+public class Usuario{
 	private String nickname;
 	private int puerto;
 	private String ip;
@@ -24,7 +24,6 @@ public class Usuario implements Observer{
 		this.contactos = new ArrayList<Contacto>();
 		
 		this.servidor = new Servidor(this.ip,this.puerto);
-		this.servidor.addObserver(this);
 		
 		Thread hiloServidor = new Thread(this.servidor);
 		hiloServidor.start();
@@ -54,13 +53,6 @@ public class Usuario implements Observer{
 		this.contactos.add(contacto);
 	}
 
-	@Override
-	public void update(Observable o, Object arg) {
-		
-			
-			
-		
-	}
 	
 	/**
 	 * Envia un mensaje al contacto. En caso de no poder establecer la conexión, lanza una exception. 
@@ -78,5 +70,5 @@ public class Usuario implements Observer{
 		out.flush();
 		out.close();
 		socket.close();
-		}
+	}
 }

@@ -62,7 +62,8 @@ public class VentanaConfiguracion extends JFrame {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				controlador.cerrar();
+				if(mode.equals(Utils.MODO_AGR_CONTACTO))
+					controlador.cerrar();
 				dispose();
 			}
 		});
