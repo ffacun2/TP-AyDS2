@@ -1,12 +1,14 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.util.Iterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,6 +20,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import controller.ControladorPrincipal;
@@ -214,6 +217,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		while((i<botones.length) && (!botonActual.getClientProperty("contacto").equals(contacto))) {
 			i++;
+			botonActual = (JButton) botones[i];
 		}
 		
 		if(botonActual.getClientProperty("contacto").equals(contacto)) {
@@ -221,7 +225,12 @@ public class VentanaPrincipal extends JFrame {
 			this.agregarNuevoBotonConversacion(contacto);
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
 			botonActual.setText("*"+ contacto);
+			this.setBorder(botonActual, BorderFactory.createLineBorder(Color.green,2));
 		}
+	}
+	
+	public void setBorder(JButton boton,Border border) {
+		boton.setBorder(border);
 	}
 	
 	public void limpiarTxtField() {

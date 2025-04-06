@@ -8,6 +8,7 @@ public class Main {
 		
 			new ControladorConfiguracion();
 			new ControladorConfiguracion();
+			new ControladorConfiguracion();
 
 	}
 	

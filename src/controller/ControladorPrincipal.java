@@ -33,7 +33,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * Si el evento se obtiene del boton CREAR_CONTACTO, se abre la una ventana para ingresar los datos del contacto y crearlo.
 	 * Si el evento se obtiene del boton CREAR_CONVERSACION, se muestra la lista de contactos y al seleccionar uno se abre el chat.
 	 * Si el evento se obtiene del boton ENVIAR_MENSAJE, se llama al metodo enviarMensaje y se envia el mensaje al contacto seleccionado.
-	 * Si el evento se obtiene del boton CONFIRMAR_CONTACTO, se llama al metodo
+	 * Si el evento se obtiene del boton CONFIRMAR_CONTACTO, se agrega el contacto a la lista de contactos y se abre el chat.
+	 * Si el evento se obtiene del boton MENSAJE, el obtiene la conversacion del contacto seleccionado y la muestra en el JTextArea.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -52,6 +53,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
 			if (!this.ventanaPrincipal.getMensaje().isEmpty()) {
 				this.enviarMensaje(this.ventanaPrincipal.getMensaje());
+				this.ventanaPrincipal.limpiarTxtField();
 			}
 			
 		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
@@ -60,14 +62,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.dialogContactos.dispose();
 			this.crearConversacion(contacto);
 			
-		}else if(comando.equals(Utils.MENSAJE)) {
-			/**
-			 * Cuando se apreta el boton de la conversacion se carga en el JTextArea
-			 * la conversacion de ese contacto.
-			 */
-			
+		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
+			boton.setText(contacto.toString());
+			this.ventanaPrincipal.setBorder(boton, null);
 			if (this.usuario.getContactos().contains(contacto)) {
 				this.contactoActivo = this.usuario.getContactos().get(this.usuario.getContactos().indexOf(contacto));
 				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
@@ -102,23 +101,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 //		}
 	}
 
-	
-	/**
-	 * Obtiene la conversacion que se ha seleccionado para abrir el chat
-	 * 
-	 * @return Conversacion - devuelve la conversacion del contacto seleccionado.
-	 */
-	public Conversacion mostrarConversacionSeleccionada() {	
-		//ventanaPrincipal.getContactoSeleccionado();
-		
-		//Al seleccionar un contacto, que me devuelve? objeto contacto?
-		//Se puede hacer que los contactos sean botones, cuando se apreta el controlador le devuelve el contacto a la ventana y se actualiza -G
-		
-		
-		//obtiene el contacto seleccionado y devuleve su conversacion. La ventana se encarga de mostrarla
-		//tambien modificar el panel de contacto por si estaba como mensaje no leido
-		return null;
-	}
 	
 	/**
 	 * Crea un nuevo contacto en la lista de contactos
@@ -180,7 +162,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		Contacto contacto = new Contacto( mensaje.getNickEmisor(), mensaje.getPuerto(),mensaje.getIp());
 		List<Contacto> agenda = this.usuario.getContactos();
-
 		int i;
 
 		if (agenda.contains(contacto)) {
@@ -192,8 +173,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				agenda.get(i).getConversacion().agregarMensaje(mensaje);
 			}
 			if (this.contactoActivo != null && this.contactoActivo.equals(agenda.get(i))) {
-				this.ventanaPrincipal.cargarConversacion(agenda.get(i).getConversacion());
-				}
+				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+			}
+			if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(agenda.get(i)))) {
+				this.ventanaPrincipal.notificacion(agenda.get(i));
+			}
 			
 		}
 		else {
@@ -202,7 +186,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			contacto.setConversacion(new Conversacion());
 			contacto.getConversacion().agregarMensaje(mensaje);
 			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-			
+			this.ventanaPrincipal.notificacion(contacto);
 			
 		}
 	}
