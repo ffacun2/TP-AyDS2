@@ -72,13 +72,11 @@ public class Usuario implements Observer{
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
-		System.out.println("ip:"+contacto.getIp() + " puerto:" + contacto.getPuerto());
 		Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		out.writeObject(mensaje);
 		out.flush();
 		out.close();
 		socket.close();
-		contacto.getConversacion().agregarMensajeUsuario(mensaje);
-	}
+		}
 }

@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.util.Iterator;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,6 +22,8 @@ import javax.swing.border.EmptyBorder;
 
 import controller.ControladorPrincipal;
 import model.Contacto;
+import model.Conversacion;
+import model.Mensaje;
 import utils.Utils;
 
 public class VentanaPrincipal extends JFrame {
@@ -176,7 +179,7 @@ public class VentanaPrincipal extends JFrame {
 		
 	}
 	
-	public void cargarConversacion(String nicknameUsuario, Contacto contacto) {
+	public void cargarConversacion(Conversacion conversacion) {
 		/**
 		 * Aca se deveria cargar la conversacion correspondiente al contacto
 		 * puse nicknameusuario como parametro para hacer un formato de chat tipo
@@ -184,32 +187,10 @@ public class VentanaPrincipal extends JFrame {
 		 * "Usuario:......"
 		 */
 		this.textAreaConv.setText("");
-		int recept = contacto.getConversacion().getMensajesContacto().size() - 1;
-		int emisor = contacto.getConversacion().getMensajesUsuario().size() - 1;
-		
-		while (recept >= 0 && emisor >= 0) {
-//			if (contacto.getConversacion().getMensajesContacto().get(recept).getHora()
-//					.isBefore(contacto.getConversacion().getMensajesUsuario().get(emisor).getHora())) 
-//			{
-				textAreaConv.append(contacto.getNickname()+":"+contacto.getConversacion().getMensajesContacto().get(recept).getCuerpo() + "\n");
-				recept--;
-//			}
-//			else {
-				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor).getCuerpo() + "\n");
-				emisor--;
-//			}
-		}
-		if (recept >= 0) {
-			while (recept >= 0) {
-				textAreaConv.append(contacto.getNickname()+":"+contacto.getConversacion().getMensajesContacto().get(recept).getCuerpo() + "\n");
-				recept--;
-			}
-		}
-		if (emisor >= 0) {
-			while (emisor >= 0) {
-				textAreaConv.append(nicknameUsuario+":"+contacto.getConversacion().getMensajesUsuario().get(emisor).getCuerpo() + "\n");
-				emisor--;
-			}
+		Iterator<Mensaje> it = conversacion.getMensajes().iterator();
+		while (it.hasNext()) {
+			Mensaje msj = it.next();
+			this.textAreaConv.append(msj.getNickEmisor()+"["+msj.getHora().getHour()+":"+msj.getHora().getMinute()+"]:"+msj.getCuerpo()+"\n");
 		}
 	}
 	
@@ -241,5 +222,14 @@ public class VentanaPrincipal extends JFrame {
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
 			botonActual.setText("*"+ contacto);
 		}
+	}
+	
+	public void limpiarTxtField() {
+		this.textFieldMensaje.setText("");
+	}
+	
+	public void bloquearMsj(boolean cond) {
+		this.textFieldMensaje.setEnabled(!cond);
+		this.btnEnviar.setEnabled(!cond);
 	}
 }

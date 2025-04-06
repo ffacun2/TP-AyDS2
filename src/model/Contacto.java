@@ -32,6 +32,10 @@ public class Contacto {
 	public void setConversacion(Conversacion conversacion) {
 		this.conversacion = conversacion;
 	}
+	
+	public void agregarMensaje(Mensaje msj) {
+		this.conversacion.agregarMensaje(msj);
+	}
 
 	@Override
 	public boolean equals(Object obj) {

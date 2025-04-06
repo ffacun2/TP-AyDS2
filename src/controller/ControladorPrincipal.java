@@ -70,7 +70,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
 			if (this.usuario.getContactos().contains(contacto)) {
 				this.contactoActivo = this.usuario.getContactos().get(this.usuario.getContactos().indexOf(contacto));
-				this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contactoActivo);
+				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+				this.ventanaPrincipal.bloquearMsj(false);
 			}
 		
 		}
@@ -137,7 +138,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param contacto - contacto seleccionado de la lista de contactos
 	 */
  	public void crearConversacion(Contacto contacto) {
- 		Contacto contact = null;
  		if(contacto == null) {
 			//mostrar error
 		}else {
@@ -147,7 +147,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.ventanaPrincipal.setNuevaConversacion();
 				this.contactoActivo = contacto; 
 			}else {
-				this.ventanaPrincipal.cargarConversacion(usuario.getNickname(), contacto);
+				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
 			}
 		}
  	}
@@ -159,10 +159,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
-
 		try {
 			this.usuario.enviarMensaje(msjObj, contactoActivo);
-			this.ventanaPrincipal.agregarMensaje(this.usuario.getNickname() + ": "+ mensaje);
+			this.contactoActivo.agregarMensaje(msjObj);
+			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
 		} catch (Exception exc) {
 			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
 			exc.printStackTrace();
@@ -189,10 +189,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			i = agenda.indexOf(contacto);
 			//this.ventanaPrincipal.modificarPanelContacto(contacto);
 			if(i != -1 && agenda.get(i) != null) {
-				agenda.get(i).getConversacion().agregarMensajeContacto(mensaje);
+				agenda.get(i).getConversacion().agregarMensaje(mensaje);
 			}
 			if (this.contactoActivo != null && this.contactoActivo.equals(agenda.get(i))) {
-				this.ventanaPrincipal.cargarConversacion(this.usuario.getNickname(), agenda.get(i));
+				this.ventanaPrincipal.cargarConversacion(agenda.get(i).getConversacion());
 				}
 			
 		}
@@ -200,7 +200,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
 			this.usuario.agregarContacto(contacto);
 			contacto.setConversacion(new Conversacion());
-			contacto.getConversacion().agregarMensajeContacto(mensaje);
+			contacto.getConversacion().agregarMensaje(mensaje);
 			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
 			
 			
@@ -213,6 +213,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		this.ventanaPrincipal.setControlador(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
+ 		this.ventanaPrincipal.bloquearMsj(true);
  	}
  	
  	public void cerrarConfig() {
