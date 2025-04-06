@@ -2,10 +2,9 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
+import model.Servidor;
 import utils.Utils;
 import view.VentanaConfiguracion;
 
@@ -46,26 +45,41 @@ public class ControladorConfiguracion implements ActionListener{
 	}
 
 	/**
-	 * Crea un nuevo usuario en la aplicacion, si este se crea correctamente se cierra
+	 * Crea un nuevo usuario y servidor en la aplicacion, si este se crea correctamente se cierra
 	 * la ventana de configuracion y se abre la ventana principal.
 	 * Caso contrario se muestra un mensaje de error.
 	 * Quien determine si el usuario se crea correctamente es el cliente usuario que lanza error de socket.
 	 */
 	private void crearUsuario() { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
-	
-		if (controladorPrincipal
-				.crearUsuario(
-						this.ventanaConfiguracion.getNickname(),
-						Integer.parseInt(this.ventanaConfiguracion.getPuerto()), 
-						this.ventanaConfiguracion.getIp()
-						)
-			) {
-			this.ventanaConfiguracion.dispose();
-			this.controladorPrincipal.mostrarVentanaPrincipal();
-		}
-		else {
-			Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
-		}
+		
+		String ip = this.ventanaConfiguracion.getIp();
+		int puerto = Integer.parseInt(this.ventanaConfiguracion.getPuerto());
+		
+		try {
+			Servidor server = new Servidor(ip, puerto);
+			server.addObserver(controladorPrincipal);
+			
+			Thread hiloServer = new Thread(server);
+			hiloServer.start();
+			
+			if (controladorPrincipal
+					.crearUsuario(
+							this.ventanaConfiguracion.getNickname(),
+							Integer.parseInt(this.ventanaConfiguracion.getPuerto()), 
+							this.ventanaConfiguracion.getIp()
+							)
+				) {
+				this.ventanaConfiguracion.dispose();
+				this.controladorPrincipal.mostrarVentanaPrincipal();
+			}
+			else {
+				Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 	
 	

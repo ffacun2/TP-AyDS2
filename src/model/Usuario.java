@@ -9,7 +9,6 @@ import java.util.Iterator;
 
 import exceptions.ContactoRepetidoException;
 
-@SuppressWarnings("deprecation")
 public class Usuario{
 	private String nickname;
 	private int puerto;
@@ -22,11 +21,6 @@ public class Usuario{
 		this.puerto = puerto;
 		this.ip = ip;
 		this.contactos = new ArrayList<Contacto>();
-		
-		this.servidor = new Servidor(this.ip,this.puerto);
-		
-		Thread hiloServidor = new Thread(this.servidor);
-		hiloServidor.start();
 	}
 
 	public String getNickname() {

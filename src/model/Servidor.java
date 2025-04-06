@@ -1,5 +1,6 @@
 package model;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,16 +11,17 @@ import java.util.Observer;
 public class Servidor extends Observable implements Runnable{
 	private String ip;
 	private int puerto;
+	private ServerSocket serverSocket;
 	
-	public Servidor(String ip, int puerto){
+	public Servidor(String ip, int puerto) throws IOException{
 		this.ip = ip;
 		this.puerto = puerto;
+		this.serverSocket = new ServerSocket(puerto);
 	}
 
 	@Override
 	public void run() {
 		try {
-			ServerSocket serverSocket = new ServerSocket(puerto);
 			while (true) {
 				System.out.println("Escuchando en puerto "+ this.puerto +"...");
 				Socket socket = serverSocket.accept();

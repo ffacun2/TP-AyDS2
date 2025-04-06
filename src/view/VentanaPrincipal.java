@@ -204,7 +204,7 @@ public class VentanaPrincipal extends JFrame {
 	}
 	
 	public void setNuevaConversacion() {
-		this.textAreaConv.setText("");
+		this.textAreaConv.setText("----- Nueva conversacion -----");
 	}
 	
 	/**

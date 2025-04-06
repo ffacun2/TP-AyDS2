@@ -92,7 +92,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public boolean crearUsuario(String ip, int puerto, String nickname) {
 			this.usuario = new Usuario(ip, puerto, nickname);	
-			this.usuario.getServidor().setObservador(this);
 			return true;
 	}
 
