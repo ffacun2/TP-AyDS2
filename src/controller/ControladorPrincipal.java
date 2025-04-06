@@ -8,6 +8,7 @@ import java.util.Observer;
 import javax.swing.JButton;
 
 import exceptions.ContactoRepetidoException;
+import exceptions.FueraDeRangoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
@@ -47,7 +48,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
 			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
-			this.ventanaPrincipal.bloqueoAgrContacto(false); //Si quiero agregar un contacto pero despues me arrepiento se queda bloqueado el boton
+			this.ventanaPrincipal.bloqueoAgrContacto(true);
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
 			
@@ -106,6 +107,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void crearContacto(String ip, int puerto, String nickname) throws Exception {
 		try {
 			this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
+			this.ventanaPrincipal.bloqueoAgrContacto(false);
+			this.ventanaPrincipal.bloqueoNueConv(false);
 		}
 		catch (ContactoRepetidoException e) {
 			throw e;
@@ -189,6 +192,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			catch (ContactoRepetidoException e) {
 				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
 			}
+			catch (FueraDeRangoException e) {
+				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
+			}
 			
 		}
 	}
@@ -200,6 +206,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
+ 		this.ventanaPrincipal.bloqueoNueConv(true);
  	}
  	
  	public void cerrarConfig() {

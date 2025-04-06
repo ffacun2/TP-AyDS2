@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import exceptions.FueraDeRangoException;
 import model.Servidor;
 import utils.Utils;
 import view.VentanaConfiguracion;
@@ -76,10 +77,13 @@ public class ControladorConfiguracion implements ActionListener{
 				Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
 			}
 			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		} 
+		catch (FueraDeRangoException e) {
+			Utils.mostrarError(e.getMessage(), ventanaConfiguracion);
+		}
+		catch (IOException e) {
+			Utils.mostrarError("El puerto ya esta siendo utilizado", this.ventanaConfiguracion);
+		}
 	}
 	
 	

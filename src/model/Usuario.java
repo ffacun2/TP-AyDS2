@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import exceptions.ContactoRepetidoException;
+import exceptions.FueraDeRangoException;
 
 public class Usuario{
 	private String nickname;
@@ -43,7 +44,7 @@ public class Usuario{
 		return servidor;
 	}
 
-	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException {
+	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException, FueraDeRangoException {
 		Iterator<Contacto> it = this.contactos.iterator();
 		Contacto aux;
 		
@@ -51,6 +52,9 @@ public class Usuario{
 			aux = it.next();
 			if (aux.getPuerto() == contacto.getPuerto() || aux.getIp() == contacto.getIp())
 				throw new ContactoRepetidoException();
+			if (aux.getPuerto() < 0 || aux.getPuerto() > 65535)
+				throw new FueraDeRangoException();
+			System.out.println(aux.getPuerto());
 		}
 		this.contactos.add(contacto);
 	}
@@ -66,11 +70,17 @@ public class Usuario{
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
-		Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-		out.writeObject(mensaje);
-		out.flush();
-		out.close();
-		socket.close();
+		try {
+			Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			out.writeObject(mensaje);
+			out.flush();
+			out.close();
+			socket.close();
+		}
+		catch (FueraDeRangoException e){
+			throw e;
+		}
+
 	}
 }
