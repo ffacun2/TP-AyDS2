@@ -126,8 +126,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			if(contacto.getConversacion() == null) {
 				contacto.setConversacion(new Conversacion());
 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-				this.ventanaPrincipal.setNuevaConversacion();
-				this.contactoActivo = contacto; 
+//				this.ventanaPrincipal.setNuevaConversacion();
+//				this.contactoActivo = contacto; 
 			}else {
 				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
 			}
@@ -147,7 +147,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
 		} catch (Exception exc) {
 			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
-			exc.printStackTrace();
 		}
  	}
  	
@@ -164,21 +163,24 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		List<Contacto> agenda = this.usuario.getContactos();
 		int i;
 
+		//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
+		//Para avisar que tiene un nuevo mensaje
 		if (agenda.contains(contacto)) {
-			//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
-			//Para avisar que tiene un nuevo mensaje
 			i = agenda.indexOf(contacto);
-			//this.ventanaPrincipal.modificarPanelContacto(contacto);
 			if(i != -1 && agenda.get(i) != null) {
-				agenda.get(i).getConversacion().agregarMensaje(mensaje);
-			}
-			if (this.contactoActivo != null && this.contactoActivo.equals(agenda.get(i))) {
-				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-			}
-			if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(agenda.get(i)))) {
-				this.ventanaPrincipal.notificacion(agenda.get(i));
-			}
+				Contacto nuevo = agenda.get(i);
+				if (nuevo.getConversacion() == null )
+					this.crearConversacion(nuevo);
+				nuevo.getConversacion().agregarMensaje(mensaje);
+				
+				if (this.contactoActivo != null && this.contactoActivo.equals(agenda.get(i))) {
+					this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+				}
+				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(agenda.get(i)))) {
+					this.ventanaPrincipal.notificacion(agenda.get(i));
+				}
 			
+			}
 		}
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
@@ -188,6 +190,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				contacto.getConversacion().agregarMensaje(mensaje);
 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
 				this.ventanaPrincipal.notificacion(contacto);
+				this.ventanaPrincipal.bloqueoNueConv(false);
 			}
 			catch (ContactoRepetidoException e) {
 				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
