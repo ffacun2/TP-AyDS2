@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import exceptions.FueraDeRangoException;
-import model.Servidor;
+import model.ServidorAPI;
 import utils.Utils;
 import view.VentanaConfiguracion;
 
@@ -57,7 +57,7 @@ public class ControladorConfiguracion implements ActionListener{
 		int puerto = Integer.parseInt(this.ventanaConfiguracion.getPuerto());
 		
 		try {
-			Servidor server = new Servidor(puerto);
+			ServidorAPI server = new ServidorAPI("localhost", 8888); //Aca en realidad tenemos que ver como definimos los datos del servidor
 			server.addObserver(controladorPrincipal);
 			
 			Thread hiloServer = new Thread(server);
@@ -67,8 +67,8 @@ public class ControladorConfiguracion implements ActionListener{
 					.crearUsuario(
 							this.ventanaConfiguracion.getNickname(),
 							Integer.parseInt(this.ventanaConfiguracion.getPuerto()), 
-							this.ventanaConfiguracion.getIp()
-							)
+							this.ventanaConfiguracion.getIp(),
+							server)
 				) {
 				this.ventanaConfiguracion.dispose();
 				this.controladorPrincipal.mostrarVentanaPrincipal();
@@ -82,7 +82,7 @@ public class ControladorConfiguracion implements ActionListener{
 			Utils.mostrarError(e.getMessage(), ventanaConfiguracion);
 		}
 		catch (IOException e) {
-			Utils.mostrarError("El puerto ya esta siendo utilizado", this.ventanaConfiguracion);
+			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
 		}
 	}
 	

@@ -79,9 +79,16 @@ public class VentanaConfiguracion extends JFrame {
 		contentPane.add(panelS, BorderLayout.SOUTH);
 		
 		JButton btnIngresar;
+		JButton btnRegistrarse;
 		if (this.mode == Utils.MODO_CONFIG) {
 			btnIngresar = new JButton("Ingresar");
 			btnIngresar.setActionCommand(Utils.INGRESAR);
+			
+			btnRegistrarse = new JButton("Registrarse");
+			btnIngresar.setActionCommand(Utils.REGISTRARSE);
+			btnIngresar.addActionListener(this.controlador);
+			panelS.add(btnRegistrarse);
+			
 		}else {
 			btnIngresar = new JButton("Agregar contacto");
 			btnIngresar.setActionCommand(Utils.CREAR_CONTACTO);

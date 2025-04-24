@@ -15,8 +15,9 @@ public class Usuario{
 	private int puerto;
 	private String ip;
 	private ArrayList<Contacto> contactos;
+	private ServidorAPI servidor;
 	
-	public Usuario(String nickname,int puerto,String ip) {
+	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
 		this.nickname = nickname;
 		this.puerto = puerto;
 		this.ip = ip;
