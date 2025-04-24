@@ -12,6 +12,7 @@ import exceptions.FueraDeRangoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
+import model.ServidorAPI;
 import model.Usuario;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
@@ -78,6 +79,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
 				this.ventanaPrincipal.bloquearMsj(false);
 			}
+		}else if(comando.equals(Utils.REGISTRARSE)) {
+			//Mandar request para registrarse
 		}
 	}
 	
@@ -91,8 +94,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public boolean crearUsuario(String ip, int puerto, String nickname) {
-			this.usuario = new Usuario(ip, puerto, nickname);	
+	public boolean crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
+			this.usuario = new Usuario(ip, puerto, nickname,servidor);	
 			return true;
 	}
 

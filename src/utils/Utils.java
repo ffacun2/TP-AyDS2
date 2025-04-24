@@ -14,6 +14,7 @@ public class Utils {
 	public static String TITULO_AGR_CONTACTO = "Agregar contacto";
 	public static String CONFIRMAR_CONTACTO = "Aceptar contacto nueva conversacion";
 	public static String MENSAJE = "mensaje conversacion";
+	public static String REGISTRARSE = "registrarse";
 	
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
