@@ -44,7 +44,9 @@ public class Contacto {
 		if (obj == null || getClass() != obj.getClass())
 			return false;
 		Contacto contacto = (Contacto) obj;
-		return puerto == contacto.puerto && ip.equals(contacto.ip);
+		return puerto == contacto.puerto 
+				&& ip.equals(contacto.ip) 
+				&& nickname.equals(contacto.getNickname());
 	}
 	
 	@Override

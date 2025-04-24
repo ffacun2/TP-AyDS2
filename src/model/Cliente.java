@@ -37,7 +37,11 @@ public class Cliente {
 	}
 	
 	public int getPuertoSocket() {
-		return this.socket.getPort();
+		return this.socket.getLocalPort();
+	}
+	
+	public String getIpSocket() {
+		return this.socket.getLocalAddress().getHostAddress();
 	}
 	
 	public void enviarMensaje (Mensaje mensaje) {
