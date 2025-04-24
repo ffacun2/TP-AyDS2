@@ -8,6 +8,12 @@ import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import interfaces.IEnviable;
+import requests.RequestDirectorio;
+import requests.RequestLogin;
+import requests.RequestLogout;
+import requests.RequestRegistro;
+
 
 public class Servidor implements Runnable{
 
@@ -30,6 +36,10 @@ public class Servidor implements Runnable{
 				
 				//al establecer conexion recibe un objeto usuario para su registro en el servidor
 				ObjectInputStream in = new ObjectInputStream(socket.getInputStream()); 
+				
+				IEnviable req = (IEnviable)in.readObject();
+				req.manejarRequest(this);
+				
 				
 				Usuario user = (Usuario) in.readObject();
 				
@@ -94,4 +104,38 @@ public class Servidor implements Runnable{
 		}
 	}
 	
+	
+	public void handleRegistro(RequestRegistro req) {
+		Socket socket = req.getSocket();
+		String nick = req.getNickname();
+		
+		if (this.directorio.containsKey(nick)) {
+			//TODO CREAR EXCEPCION PARA CUANDO EL NICK ESTA EN USO
+		}
+		else {
+			HandleCliente hCliente = new HandleCliente(socket,this);
+			this.directorio.put(nick, hCliente);
+			
+			
+			boolean confirmacion = true;
+			//mando la confirmacion al socket
+			
+		}
+	}
+	
+	public void handleMensaje(Mensaje mensaje) {
+		String nickEmisor = mensaje.getNickEmisor();
+	}
+	
+	public void handleIniciarSesion(RequestLogin req) {
+		
+	}
+	
+	public void handleCerrarSesion(RequestLogout req) {
+		
+	}
+	
+	public void handleDirectorio(RequestDirectorio req) {
+		
+	}
 }

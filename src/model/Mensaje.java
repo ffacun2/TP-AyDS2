@@ -3,7 +3,9 @@ package model;
 import java.io.Serializable;
 import java.time.LocalTime;
 
-public class Mensaje implements Serializable {
+import interfaces.IEnviable;
+
+public class Mensaje implements Serializable,IEnviable {
 	private String cuerpo;
 	private String nickEmisor;
 	private LocalTime  hora;
@@ -42,5 +44,10 @@ public class Mensaje implements Serializable {
 	public String toString() {
 		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor;
 		return texto;
+	}
+
+	@Override
+	public void manejarRequest(Servidor servidor) {
+		servidor.handleMensaje(this);
 	}
 }
