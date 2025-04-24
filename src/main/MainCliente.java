@@ -2,7 +2,7 @@ package main;
 
 import controller.ControladorConfiguracion;
 
-public class Main {
+public class MainCliente {
 	
 	public static void main(String[] args) {
 		

@@ -15,7 +15,6 @@ public class Usuario{
 	private int puerto;
 	private String ip;
 	private ArrayList<Contacto> contactos;
-	private Servidor servidor;
 	
 	public Usuario(String nickname,int puerto,String ip) {
 		this.nickname = nickname;
@@ -40,9 +39,6 @@ public class Usuario{
 		return contactos;
 	}
 
-	public Servidor getServidor() {
-		return servidor;
-	}
 
 	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException, FueraDeRangoException {
 		Iterator<Contacto> it = this.contactos.iterator();

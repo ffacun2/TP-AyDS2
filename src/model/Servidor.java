@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -11,22 +12,18 @@ import exceptions.FueraDeRangoException;
 
 @SuppressWarnings("deprecation")
 public class Servidor extends Observable implements Runnable{
-	private String ip;
+
 	private int puerto;
 	private ServerSocket serverSocket;
+	private HashMap<String,Cliente> directorio;
 	
-	public Servidor(String ip, int puerto) throws IOException,IOException{
-		this.ip = ip;
-		this.puerto = puerto;
-		try {
-			this.serverSocket = new ServerSocket(puerto);
-		}
-		catch (Exception e) {
-			if (this.puerto < 0 || this.puerto > 65535)
-				throw new FueraDeRangoException();
-			else
-				throw new IOException();
-		}
+	public Servidor(int puerto) throws IOException, FueraDeRangoException {
+		if (this.puerto < 0 || this.puerto > 65535)
+			throw new FueraDeRangoException();
+		else
+			this.puerto = puerto;
+		
+		this.serverSocket = new ServerSocket(puerto);
 	}
 
 	@Override

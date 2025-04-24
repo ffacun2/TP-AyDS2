@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 import java.time.LocalTime;
 
-public class Mensaje implements Serializable{
+public class Mensaje implements Serializable {
 	private String cuerpo;
 	private String nickEmisor;
 	private LocalTime  hora;

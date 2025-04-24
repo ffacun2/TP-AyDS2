@@ -57,7 +57,7 @@ public class ControladorConfiguracion implements ActionListener{
 		int puerto = Integer.parseInt(this.ventanaConfiguracion.getPuerto());
 		
 		try {
-			Servidor server = new Servidor(ip, puerto);
+			Servidor server = new Servidor(puerto);
 			server.addObserver(controladorPrincipal);
 			
 			Thread hiloServer = new Thread(server);
