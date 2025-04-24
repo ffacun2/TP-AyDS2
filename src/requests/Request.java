@@ -2,12 +2,12 @@ package requests;
 
 import interfaces.IEnviable;
 
-public abstract class Request implements IEnviable{
+public abstract class Request implements IEnviable {
 
 	private String nickname;
 	
-	public Request() {
-		super();
+	public Request(String nickname) {
+		this.nickname = nickname;
 	}
 	
 	public String getNickname() {

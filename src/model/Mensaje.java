@@ -1,6 +1,8 @@
 package model;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.Socket;
 import java.time.LocalTime;
 
 import interfaces.IEnviable;
@@ -47,7 +49,7 @@ public class Mensaje implements Serializable,IEnviable {
 	}
 
 	@Override
-	public void manejarRequest(Servidor servidor) {
+	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
 		servidor.handleMensaje(this);
 	}
 }

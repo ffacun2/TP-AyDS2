@@ -1,8 +1,12 @@
 package interfaces;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.Socket;
+
 import model.Servidor;
 
-public interface IEnviable {
+public interface IEnviable extends Serializable {
 	
-	public void manejarRequest(Servidor servidor);
+	public void manejarRequest(Servidor servidor, Socket socket) throws IOException;
 }
