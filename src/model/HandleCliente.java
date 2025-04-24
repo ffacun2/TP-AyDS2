@@ -3,21 +3,39 @@ package model;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class Cliente {
+@SuppressWarnings("deprecation")
+public class HandleCliente extends Observable implements Runnable{
 	
+	private Servidor servidor;
 	private Socket socket;
 	private List<Mensaje> mensajesPendientes;
 	private boolean estado;
 	
-	public Cliente (Socket socket) {
+	public HandleCliente (Socket socket, Servidor servidor) {
 		this.socket = socket;
+		this.servidor = servidor;
 		this.mensajesPendientes = new ArrayList<>();
 		this.estado = true;
 	}
 	
+	@Override
+	public void run() {
+		//fuera del while envio mensajes pendientes
+		while (true) {
+			// Aca verifico los objetos recibidos (mensaje,login, logout, directorio, contacto)
+		}
+		
+	}
+
 	public Socket getSocket() {
 		return this.socket;
+	}
+	
+	public void setSocket(Socket socket) {
+		this.socket = socket;
 	}
 	
 	public List<Mensaje> getMensajesPendientes() {
@@ -52,4 +70,9 @@ public class Cliente {
 			mensajesPendientes.add(mensaje);
 		}
 	}
+
+	public void setObservador(Observer o) {
+		this.addObserver(o);
+	}
+	
 }
