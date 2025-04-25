@@ -25,7 +25,7 @@ public class HandleCliente extends Observable implements Runnable{
 	public HandleCliente (Socket socket, Servidor servidor) {
 		this.socket = socket;
 		this.servidor = servidor;
-		this.mensajesPendientes = new ArrayList<>();
+		this.mensajesPendientes = new ArrayList<Mensaje>();
 		this.estado = true;
 	}
 	
@@ -33,11 +33,10 @@ public class HandleCliente extends Observable implements Runnable{
 	public void run() {
 		while (true) {
 			try {
-				this.input = new ObjectInputStream(socket.getInputStream());
 				
 				IEnviable req = (IEnviable)this.input.readObject();
 				req.manejarRequest(servidor,this.socket);
-				
+				System.out.println("Llegada la request");
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
@@ -86,6 +85,22 @@ public class HandleCliente extends Observable implements Runnable{
 
 	public void setObservador(Observer o) {
 		this.addObserver(o);
+	}
+
+	public void setInput(ObjectInputStream input) {
+		this.input = input;
+	}
+
+	public void setOutput(ObjectOutputStream output) {
+		this.output = output;
+	}
+
+	public ObjectInputStream getInput() {
+		return input;
+	}
+
+	public ObjectOutputStream getOutput() {
+		return output;
 	}
 	
 }
