@@ -43,6 +43,7 @@ public class Servidor implements Runnable{
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre server y usuario
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
+				System.out.println("Conexion con: "+socket.getLocalPort());
 		
 				//al establecer conexion recibe un objeto usuario para su registro en el servidor
 				this.in = new ObjectInputStream(socket.getInputStream()); 
@@ -50,12 +51,12 @@ public class Servidor implements Runnable{
 				IEnviable req = (IEnviable)in.readObject();
 				req.manejarRequest(this,socket);
 
-				//TODO Revisar estoooo 
-				Usuario user = (Usuario) in.readObject();
-				
-				//Cada conexion con el servidor va a un hilo 
-				Thread clienteThread = new Thread();// sin terminar
-				clienteThread.start();
+//				//TODO Revisar estoooo 
+//				Usuario user = (Usuario) in.readObject();
+//				
+//				//Cada conexion con el servidor va a un hilo 
+//				Thread clienteThread = new Thread();// sin terminar
+//				clienteThread.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

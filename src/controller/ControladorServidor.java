@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
@@ -8,33 +7,22 @@ import model.Servidor;
 import utils.Utils;
 import view.VentanaServidor;
 
-public class ControladorServidor implements ActionListener{
+public class ControladorServidor {
 
 	private VentanaServidor ventana;
 	private Servidor servidor;
 	
 	public ControladorServidor() {
 		this.ventana = new VentanaServidor();
-		this.ventana.setActionListener(this);
 		this.ventana.setVisible(true);
 		this.ventana.setLocationRelativeTo(null);
+		this.startServer();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String command = e.getActionCommand();
-		
-		if (command.equals("INICIAR_SERVIDOR")) {
-			this.startServer();
-		}
-	}
-	
 	public void startServer() {
 		try {
-			int port = this.ventana.getPort();
-			this.servidor = new Servidor(port);
+			this.servidor = new Servidor(Utils.PUERTO_SERVER);
 			new Thread(this.servidor).start();
-			this.ventana.startServer(port);	
 		}
 		catch (NumberFormatException e) {
 			Utils.mostrarError("El dato a ingresar debe ser un numero natural", this.ventana);
