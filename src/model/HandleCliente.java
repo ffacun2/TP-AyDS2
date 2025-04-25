@@ -80,13 +80,8 @@ public class HandleCliente extends Observable implements Runnable{
 		return this.socket.getLocalAddress().getHostAddress();
 	}
 	
-	public void enviarMensaje (Mensaje mensaje) {
-		if (estado) {
-			//envia el mensaje directamente al usuario online;
-		}
-		else {
-			mensajesPendientes.add(mensaje);
-		}
+	public void enviarMensajes () {
+		//manda los mensajes pendientes
 	}
 
 	public void setObservador(Observer o) {

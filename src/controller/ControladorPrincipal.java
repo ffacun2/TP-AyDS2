@@ -94,8 +94,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public boolean crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
+	public boolean crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {//Lanza excepcion en caso de nick repetido
 			this.usuario = new Usuario(ip, puerto, nickname,servidor);	
+			
+			servidor.registrarse();
 			return true;
 	}
 
@@ -143,7 +145,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param mensaje - mensaje a enviar
  	 */
  	protected void enviarMensaje(String mensaje) {
- 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
+ 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
 		try {
 			this.usuario.enviarMensaje(msjObj, contactoActivo);
 			this.contactoActivo.agregarMensaje(msjObj);

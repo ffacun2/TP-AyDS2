@@ -10,11 +10,12 @@ import interfaces.IEnviable;
 public class Mensaje implements Serializable,IEnviable {
 	private String cuerpo;
 	private String nickEmisor;
+	private String nickReceptor;
 	private LocalTime  hora;
 	private String ip;
 	private int puerto;
 	
-	public Mensaje(String nickEmisor,int puerto, String ip,String cuerpo) {
+	public Mensaje(String nickEmisor,String nickReceptor,int puerto, String ip,String cuerpo) {
 		this.cuerpo = cuerpo;
 		this.nickEmisor = nickEmisor;
 		this.ip = ip;
@@ -40,6 +41,10 @@ public class Mensaje implements Serializable,IEnviable {
 
 	public int getPuerto() {
 		return puerto;
+	}
+	
+	public String getNickReceptor() {
+		return this.nickReceptor;
 	}
 	
 	@Override

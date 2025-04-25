@@ -1,7 +1,12 @@
 package requests;
 
+import java.io.IOException;
+import java.net.Socket;
 
-public class OKResponse {
+import interfaces.IEnviable;
+import model.Servidor;
+
+public class OKResponse implements IEnviable{
 
 	private boolean success;
 	
@@ -11,5 +16,10 @@ public class OKResponse {
 	
 	public boolean isSuccess() {
 		return success;
+	}
+
+	@Override
+	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
+		
 	}
 }

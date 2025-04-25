@@ -18,7 +18,7 @@ public class ServidorAPI extends Observable implements Runnable{
 	}
 	
 	@Override
-	public void run() {
+	public void run() { //TODO poner los handles
 		try {
 			this.input = new ObjectInputStream(socket.getInputStream());
 			Mensaje mensaje;
@@ -46,4 +46,8 @@ public class ServidorAPI extends Observable implements Runnable{
 		
 	}
 	
+	
+	public void registrarse() {
+		
+	}
 }

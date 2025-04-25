@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import exceptions.NicknameNoDisponibleException;
 import interfaces.IEnviable;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
@@ -84,7 +85,7 @@ public class Servidor implements Runnable{
 		else {
 			HandleCliente hCliente = new HandleCliente(socket,this);
 			this.directorio.put(nick, hCliente);
-			//TODO Validar que el usuario a registrar no contenta puerto repetido
+			//TODO Validar que el usuario a registrar no contenga puerto repetido
 			this.out.writeObject(new OKResponse(true));
 		}
 	}
@@ -109,6 +110,7 @@ public class Servidor implements Runnable{
 			cliente.setSocket(socket);
 			cliente.setEstado(true);
 			this.out.writeObject(new OKResponse(true));
+			//mandar mensajes pendientes
 		}
 		else {
 			this.out.writeObject(new OKResponse(false));
@@ -160,17 +162,14 @@ public class Servidor implements Runnable{
 		String nickReceptor = null;
 		HandleCliente cliente;
 	
-		if (this.directorio.containsKey(nickReceptor)) {
-			cliente = this.directorio.get(nickReceptor);
-			if (cliente.getEstado()) {
-				this.out = new ObjectOutputStream(cliente.getSocket().getOutputStream());
-				this.out.writeObject(new RequestMensaje(mensaje));
-			}
-			else {
-				cliente.addMensajePendiente(mensaje);
-			}
+		cliente = this.directorio.get(nickReceptor);
+		if (cliente.getEstado()) {
+			this.out = new ObjectOutputStream(cliente.getSocket().getOutputStream());
+			this.out.writeObject(new RequestMensaje(mensaje));
 		}
-		
+		else {
+			cliente.addMensajePendiente(mensaje);
+		}	
 	}
 	
 }
