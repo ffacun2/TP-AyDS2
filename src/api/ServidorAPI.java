@@ -60,7 +60,7 @@ public class ServidorAPI extends Observable implements Runnable{
 	
 		this.output.writeObject(request);
 		this.output.flush();
-			
+
 		OKResponse confirmacion;
 		while(true) {	
 			if((confirmacion = (OKResponse)input.readObject()) != null) {
@@ -71,6 +71,7 @@ public class ServidorAPI extends Observable implements Runnable{
 	}
 
 	public DirectoriosResponse enviarRequest(RequestDirectorio request) throws IOException, ClassNotFoundException {
+		this.output.reset();
 		this.output.writeObject(request);
 		this.output.flush();
 		

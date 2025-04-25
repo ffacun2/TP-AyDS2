@@ -46,8 +46,10 @@ public class Servidor implements Runnable{
 				System.out.println("Conexion con: "+socket.getPort());
 		
 				//al establecer conexion recibe un objeto usuario para su registro en el servidor
+				this.out = new ObjectOutputStream(socket.getOutputStream());
+				this.out.flush();
 				this.in = new ObjectInputStream(socket.getInputStream());
-				//this.out = new ObjectOutputStream(socket.getOutputStream());
+				
 				System.out.println("Creados los stream");
 				IEnviable req = (IEnviable)in.readObject();
 				req.manejarRequest(this,socket);
@@ -57,20 +59,15 @@ public class Servidor implements Runnable{
 //				
 				//Cada conexion con el servidor va a un hilo 
 //				HandleCliente cliente = new HandleCliente(socket,this);
-				
-				
-				
-				
-				
-				Thread clienteThread = new Thread(new HandleCliente(socket,this));// sin terminar
-				clienteThread.start();
+//				Thread clienteThread = new Thread(new HandleCliente(socket,this));// sin terminar
+//				clienteThread.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public ArrayList<Contacto> getDirectorio() {
+	public ArrayList<Contacto> getAgenda(String nickname) {
 		ArrayList<Contacto> contacto = new ArrayList<Contacto>();
 		Set<String> nicknames = this.directorio.keySet();
 		Iterator<String> it = nicknames.iterator();
@@ -78,9 +75,12 @@ public class Servidor implements Runnable{
 		String aux;
 		while(it.hasNext()) {
 			aux = (String) it.next();
-			contacto.add(new Contacto(aux));
+			if (aux != nickname) {
+				contacto.add(new Contacto(aux));
+			}
+			else
+				it.next();
 		}
-		
 		return contacto;
 	}
 	
@@ -93,7 +93,7 @@ public class Servidor implements Runnable{
 	 * @param socket Socket de conexion entre servidor y usuario a registrar
 	 * @throws IOException Se lanza si la conexion se pierde
 	 */
-	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException {
+	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException { //OK
 		String nick = req.getNickname();
 		
 		System.out.println("Recibido request de registro...");
@@ -104,6 +104,7 @@ public class Servidor implements Runnable{
 			HandleCliente hCliente = new HandleCliente(socket,this);
 			hCliente.setInput(this.in);
 			hCliente.setOutput(this.out);
+			new Thread(hCliente).start();
 			this.directorio.put(nick, hCliente);
 			this.out.writeObject(new OKResponse(true));
 		}
@@ -119,7 +120,7 @@ public class Servidor implements Runnable{
 	 * @param socket Socket de conexion entre servidor y usuario a loguear
 	 * @throws IOException Si se pierde la conexion
 	 */
-	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException {
+	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
 		
@@ -129,9 +130,10 @@ public class Servidor implements Runnable{
 			cliente.setSocket(socket);
 			cliente.setInput(this.in);
 			cliente.setOutput(this.out);
+			new Thread(cliente).start();
 			cliente.setEstado(true);
 			cliente.getOutput().writeObject(new OKResponse(true));
-			//TODO mandar mensajes pendientes
+			cliente.mandarMsjPendientes();
 		}
 		else {
 			this.out.writeObject(new OKResponse(false));
@@ -169,7 +171,8 @@ public class Servidor implements Runnable{
 	 * @throws IOException
 	 */
 	public void handleDirectorio(RequestDirectorio req, Socket socket) throws IOException {
-		out.writeObject(new DirectoriosResponse(this.getDirectorio()));
+		String nick = req.getNickname();
+		this.directorio.get(nick).enviarDirectorio(this.getAgenda(nick));
 	}
 	
 	public void handleMensaje(Mensaje mensaje) throws IOException {

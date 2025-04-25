@@ -5,11 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 import interfaces.IEnviable;
+import requests.DirectoriosResponse;
 
 @SuppressWarnings("deprecation")
 public class HandleCliente extends Observable implements Runnable{
@@ -47,6 +49,20 @@ public class HandleCliente extends Observable implements Runnable{
 		}
 	}
 
+	public void mandarMsjPendientes() throws IOException {
+		Iterator<Mensaje> it = this.mensajesPendientes.iterator();
+		
+		while (it.hasNext()) {
+			this.output.writeObject(it.next());
+			this.output.flush();
+		}
+	}
+	
+	public void enviarDirectorio(ArrayList<Contacto> directorio) throws IOException {
+		this.output.writeObject(new DirectoriosResponse(directorio));
+		this.output.flush();
+	}
+	
 	public Socket getSocket() {
 		return this.socket;
 	}
@@ -79,9 +95,6 @@ public class HandleCliente extends Observable implements Runnable{
 		return this.socket.getLocalAddress().getHostAddress();
 	}
 	
-	public void enviarMensajes () {
-		//manda los mensajes pendientes
-	}
 
 	public void setObservador(Observer o) {
 		this.addObserver(o);
@@ -102,5 +115,7 @@ public class HandleCliente extends Observable implements Runnable{
 	public ObjectOutputStream getOutput() {
 		return output;
 	}
+	
+	
 	
 }

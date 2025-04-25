@@ -104,7 +104,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param nickname - nombre del usuario
 	 */
 	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
-			this.usuario = new Usuario(ip, puerto, nickname,servidor);	
+			this.usuario = new Usuario(nickname, puerto, ip,servidor);	
 	}
 
 
@@ -118,6 +118,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void crearContacto(){
 
 		try {
+			System.out.println("Llegado a metodo crearContacto");
 			DirectoriosResponse agenda = servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
@@ -155,7 +156,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param mensaje - mensaje a enviar
  	 */
  	protected void enviarMensaje(String mensaje) {
- 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
+ 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
 		try {
 			this.usuario.enviarMensaje(msjObj, contactoActivo);
 			this.contactoActivo.agregarMensaje(msjObj);
