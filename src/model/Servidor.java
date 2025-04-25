@@ -14,6 +14,7 @@ import requests.OKResponse;
 import requests.RequestDirectorio;
 import requests.RequestLogin;
 import requests.RequestLogout;
+import requests.RequestMensaje;
 import requests.RequestRegistro;
 
 
@@ -154,8 +155,22 @@ public class Servidor implements Runnable{
 		this.out.writeObject(new DirectoriosResponse(this.getDirectorio()));
 	}
 	
-	public void handleMensaje(Mensaje mensaje) {
+	public void handleMensaje(Mensaje mensaje) throws IOException {
 		String nickEmisor = mensaje.getNickEmisor();
+		String nickReceptor = null;
+		HandleCliente cliente;
+	
+		if (this.directorio.containsKey(nickReceptor)) {
+			cliente = this.directorio.get(nickReceptor);
+			if (cliente.getEstado()) {
+				this.out = new ObjectOutputStream(cliente.getSocket().getOutputStream());
+				this.out.writeObject(new RequestMensaje(mensaje));
+			}
+			else {
+				cliente.addMensajePendiente(mensaje);
+			}
+		}
+		
 	}
 	
 }
