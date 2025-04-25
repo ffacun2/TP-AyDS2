@@ -3,13 +3,11 @@ package model;
 public class Contacto {
 	private String nickname;
 	private Conversacion conversacion;
-	private int puerto;
-	private String ip;
+
 	
-	public Contacto(String nickname, int puerto, String ip) {
+	public Contacto(String nickname) {
 		this.nickname = nickname;
-		this.puerto = puerto;
-		this.ip = ip;
+
 		this.conversacion = null;
 	}
 
@@ -19,14 +17,6 @@ public class Contacto {
 
 	public Conversacion getConversacion() {
 		return conversacion;
-	}
-
-	public int getPuerto() {
-		return puerto;
-	}
-
-	public String getIp() {
-		return ip;
 	}
 	
 	public void setConversacion(Conversacion conversacion) {
@@ -44,14 +34,12 @@ public class Contacto {
 		if (obj == null || getClass() != obj.getClass())
 			return false;
 		Contacto contacto = (Contacto) obj;
-		return puerto == contacto.puerto 
-				&& ip.equals(contacto.ip) 
-				&& nickname.equals(contacto.getNickname());
+		return nickname.equals(contacto.getNickname());
 	}
 	
 	@Override
 	public String toString() {
-		String texto = this.nickname + " - " + this.ip + " - " + this.puerto;
+		String texto = this.nickname;
 		return texto;
 	}
 }

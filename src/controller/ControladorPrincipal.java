@@ -1,19 +1,22 @@
 package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
 
+import api.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 import exceptions.FueraDeRangoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
-import model.ServidorAPI;
 import model.Usuario;
+import requests.DirectoriosResponse;
+import requests.RequestDirectorio;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
@@ -26,10 +29,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private DialogSeleccionarContacto dialogContactos;
 	private Usuario usuario;
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
+	private ServidorAPI servidor;
 	
-	
-	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion) {
+	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
+		this.servidor = servidor;
 	}
 	
 	public VentanaPrincipal getVentanaPrincipal() {
@@ -48,13 +52,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		String comando = e.getActionCommand();
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
-			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
+			this.crearContacto();
 			this.ventanaPrincipal.bloqueoAgrContacto(true);
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
-			
 			//Llama a la ventada de dialog con los contactos
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos());
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.CREAR_CONVERSACION);
 			this.dialogContactos.setVisible(true);	
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
@@ -79,8 +82,14 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
 				this.ventanaPrincipal.bloquearMsj(false);
 			}
-		}else if(comando.equals(Utils.REGISTRARSE)) {
-			//Mandar request para registrarse
+		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
+			Contacto contacto = this.dialogContactos.getContactoElegido();
+			this.dialogContactos.dispose();
+			try {
+				this.usuario.agregarContacto(contacto);
+			} catch (ContactoRepetidoException e1) {
+				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
+			}
 		}
 	}
 	
@@ -94,11 +103,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public boolean crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {//Lanza excepcion en caso de nick repetido
+	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
 			this.usuario = new Usuario(ip, puerto, nickname,servidor);	
-			
-			servidor.registrarse();
-			return true;
 	}
 
 
@@ -109,15 +115,19 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param puerto - numero del contacto
 	 * @param nickname - nombre del contacto
 	 */
-	public void crearContacto(String ip, int puerto, String nickname) throws Exception {
+	public void crearContacto(){
+
 		try {
-			this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
-			this.ventanaPrincipal.bloqueoAgrContacto(false);
-			this.ventanaPrincipal.bloqueoNueConv(false);
+			DirectoriosResponse agenda = servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
+			this.dialogContactos.setVisible(true);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			Utils.mostrarError("Se perdio la conexión con el servidor", ventanaPrincipal);
 		}
-		catch (ContactoRepetidoException e) {
-			throw e;
-		}
+
 	}
 	
 	/**
@@ -164,8 +174,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void update(Observable o, Object arg) {
 		Mensaje mensaje = (Mensaje) arg;
 		
-		Contacto contacto = new Contacto( mensaje.getNickEmisor(), mensaje.getPuerto(),mensaje.getIp());
-		List<Contacto> agenda = this.usuario.getContactos();
+		Contacto contacto = new Contacto( mensaje.getNickEmisor());
+		ArrayList<Contacto> agenda = this.usuario.getContactos();
 		int i;
 
 		//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
@@ -198,9 +208,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.ventanaPrincipal.bloqueoNueConv(false);
 			}
 			catch (ContactoRepetidoException e) {
-				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
-			}
-			catch (FueraDeRangoException e) {
 				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
 			}
 			

@@ -1,13 +1,12 @@
 package model;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.Socket;
 import java.time.LocalTime;
 
 import interfaces.IEnviable;
 
-public class Mensaje implements Serializable,IEnviable {
+public class MensajeServidor implements IEnviable{
 	private String cuerpo;
 	private String nickEmisor;
 	private String nickReceptor;
@@ -15,7 +14,7 @@ public class Mensaje implements Serializable,IEnviable {
 	private String ip;
 	private int puerto;
 	
-	public Mensaje(String nickEmisor,String nickReceptor,int puerto, String ip,String cuerpo) {
+	public MensajeServidor(String nickEmisor,String nickReceptor,int puerto, String ip,String cuerpo) {
 		this.cuerpo = cuerpo;
 		this.nickEmisor = nickEmisor;
 		this.ip = ip;
@@ -53,10 +52,10 @@ public class Mensaje implements Serializable,IEnviable {
 		return texto;
 	}
 
+
 	@Override
 	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

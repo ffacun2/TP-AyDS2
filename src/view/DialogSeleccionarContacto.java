@@ -21,7 +21,7 @@ public class DialogSeleccionarContacto extends JDialog{
 	private JComboBox<Contacto> comboBox;
 	private JButton botonAceptar;
 	
-	public DialogSeleccionarContacto(JFrame ventana, ControladorPrincipal controlador, ArrayList<Contacto> listaContactos) {
+	public DialogSeleccionarContacto(JFrame ventana, ControladorPrincipal controlador, ArrayList<Contacto> listaContactos, String mode) {
 		setTitle("Seleccione Contacto");
 		setSize(300,100);
 		setLocationRelativeTo(ventana);
@@ -42,7 +42,10 @@ public class DialogSeleccionarContacto extends JDialog{
 		
 		botonAceptar = new JButton("Aceptar");
 		botonAceptar.addActionListener(controlador);
-		botonAceptar.setActionCommand(Utils.CONFIRMAR_CONTACTO);
+		if(mode.equals(Utils.CREAR_CONVERSACION))
+			botonAceptar.setActionCommand(Utils.CONFIRMAR_CONTACTO);
+		if(mode.equals(Utils.MODO_AGR_CONTACTO))
+			botonAceptar.setActionCommand(Utils.AGREGAR_CONTACTO);
 		panelPrincipal.add(botonAceptar);
 		
 		setContentPane(panelPrincipal);

@@ -5,10 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import exceptions.NicknameNoDisponibleException;
 import interfaces.IEnviable;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
@@ -62,8 +63,18 @@ public class Servidor implements Runnable{
 	}
 
 	
-	public Set<String> getDirectorio() {
-		return this.directorio.keySet();
+	public ArrayList<Contacto> getDirectorio() {
+		ArrayList<Contacto> contacto = new ArrayList<Contacto>();
+		Set<String> nicknames = this.directorio.keySet();
+		Iterator it = nicknames.iterator();
+		
+		String aux;
+		while(it.hasNext()) {
+			aux = (String) it.next();
+			contacto.add(new Contacto(aux));
+		}
+		
+		return contacto;
 	}
 	
 	

@@ -85,8 +85,8 @@ public class VentanaConfiguracion extends JFrame {
 			btnIngresar.setActionCommand(Utils.INGRESAR);
 			
 			btnRegistrarse = new JButton("Registrarse");
-			btnIngresar.setActionCommand(Utils.REGISTRARSE);
-			btnIngresar.addActionListener(this.controlador);
+			btnRegistrarse.setActionCommand(Utils.REGISTRARSE);
+			btnRegistrarse.addActionListener(this.controlador);
 			panelS.add(btnRegistrarse);
 			
 		}else {

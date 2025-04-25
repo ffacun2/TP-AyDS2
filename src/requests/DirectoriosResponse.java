@@ -1,16 +1,18 @@
 package requests;
 
-import java.util.Set;
+import java.util.ArrayList;
+
+import model.Contacto;
 
 public class DirectoriosResponse {
 	
-	private Set<String> nicks;
+	private ArrayList<Contacto> nicks;
 
-	public DirectoriosResponse (Set<String> nicks) {
+	public DirectoriosResponse (ArrayList<Contacto> nicks) {
 		this.nicks = nicks;
 	}
 	
-	public Set<String> getNicks () {
+	public ArrayList<Contacto> getNicks () {
 		return this.nicks;
 	}
 }

@@ -6,7 +6,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
 
+import api.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 import exceptions.FueraDeRangoException;
 
@@ -20,8 +22,7 @@ public class Usuario{
 	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
 		this.nickname = nickname;
 		this.puerto = puerto;
-		this.ip = ip;
-		this.contactos = new ArrayList<Contacto>();
+		this.ip = ip; 
 	}
 
 	public String getNickname() {
@@ -41,17 +42,14 @@ public class Usuario{
 	}
 
 
-	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException, FueraDeRangoException {
+	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException{
 		Iterator<Contacto> it = this.contactos.iterator();
 		Contacto aux;
 		
 		while (it.hasNext()) {
 			aux = it.next();
-			if (aux.getPuerto() == contacto.getPuerto() || aux.getIp() == contacto.getIp())
+			if (aux.equals(contacto))
 				throw new ContactoRepetidoException();
-			if (aux.getPuerto() < 0 || aux.getPuerto() > 65535)
-				throw new FueraDeRangoException();
-			System.out.println(aux.getPuerto());
 		}
 		this.contactos.add(contacto);
 	}
@@ -68,7 +66,7 @@ public class Usuario{
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
 		try {
-			Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
+			Socket socket = new Socket();
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			out.writeObject(mensaje);
 			out.flush();
