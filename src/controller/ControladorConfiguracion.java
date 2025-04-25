@@ -64,14 +64,13 @@ public class ControladorConfiguracion implements ActionListener{
 				}
 				
 				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
-				servidor.addObserver(controladorPrincipal);
-				
 				OKResponse response = servidor.enviarRequest(request);
 				
 				if((response != null) && (response.isSuccess() == true)) {
+					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
+					servidor.addObserver(controladorPrincipal);
 					controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
 					this.ventanaConfiguracion.dispose();
-					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
 					this.controladorPrincipal.mostrarVentanaPrincipal();
 					Thread hiloServer = new Thread(servidor);
 					hiloServer.start();
