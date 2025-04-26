@@ -48,12 +48,9 @@ public class HandleCliente extends Observable implements Runnable{
 	}
 
 	public void mandarMsjPendientes() throws IOException {
-		Iterator<Mensaje> it = this.mensajesPendientes.iterator();
-		
-		while (it.hasNext()) {
-			this.output.writeObject(it.next());
-			this.output.flush();
-		}
+		for(Mensaje mensaje: this.mensajesPendientes)
+			enviarMensaje(mensaje);
+
 	}
 	
 	public void enviarDirectorio(ArrayList<Contacto> directorio) throws IOException {
