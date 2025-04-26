@@ -89,15 +89,4 @@ public class ServidorAPI extends Observable implements Runnable{
 		this.setChanged();
 		this.notifyObservers(mensajeRecibido);
 	}
-	
-	public void directorioRecibido(DirectoriosResponse directorio) {
-		this.setChanged();
-		this.notifyObservers(directorio);
-	}
-	
-	public void okResponseRecibido(OKResponse okResponse) {
-		this.setChanged();
-		this.notifyObservers(okResponse);
-	}
-
 }

@@ -54,9 +54,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
 			try {
-				servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
-			} catch (IOException e1) {
-				Utils.mostrarError("Se perdio la conexión con el servidor", ventanaPrincipal);
+				this.crearContacto();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
@@ -80,6 +81,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
 			this.contactoActivo = contacto;
+			boton.setText(contacto.getNickname());
 			this.ventanaPrincipal.setBorder(boton, null);
 			this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
 			this.ventanaPrincipal.bloquearMsj(false);
@@ -119,9 +121,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param nickname - nombre del contacto
 	 * @throws ClassNotFoundException 
 	 */
-	public void crearContacto(DirectoriosResponse agenda) throws ClassNotFoundException{	
-		this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
-		this.dialogContactos.setVisible(true);
+	public void crearContacto() throws ClassNotFoundException{	
+		try {
+			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
+			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
+			this.dialogContactos.setVisible(true);
+		} catch (IOException e) {
+			Utils.mostrarError("No se pudo conectar al servidor", ventanaPrincipal);
+		}
 
 	}
 	
@@ -171,13 +179,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void update(Observable o, Object arg) {
 		if(arg instanceof Mensaje) {
 			this.cargarMensaje((Mensaje)arg);
-		}else if(arg instanceof DirectoriosResponse) {
-			try {
-				this.crearContacto((DirectoriosResponse) arg);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
  	

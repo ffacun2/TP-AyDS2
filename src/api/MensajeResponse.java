@@ -44,8 +44,7 @@ public class MensajeResponse implements IRecibible{
 
 	@Override
 	public void manejarResponse(ServidorAPI servidor) throws IOException {
-		// TODO Auto-generated method stub
-		
+		servidor.mensajeRecibido(this);
 	}
 	
 }
