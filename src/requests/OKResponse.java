@@ -7,7 +7,7 @@ import api.ServidorAPI;
 import interfaces.IRecibible;
 import interfaces.IServidor;
 
-public class OKResponse implements IRecibible{
+public class OKResponse implements IRecibible {
 
 	private boolean success;
 	private String mensajeError;

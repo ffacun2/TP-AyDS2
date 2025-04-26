@@ -9,15 +9,6 @@ import java.util.Observable;
 
 import interfaces.IEnviable;
 import interfaces.IRecibible;
-import interfaces.IServidor;
-import model.Mensaje;
-import requests.DirectoriosResponse;
-import requests.OKResponse;
-import requests.Request;
-import requests.RequestDirectorio;
-import requests.RequestLogin;
-import requests.RequestLogout;
-import requests.RequestRegistro;
 
 @SuppressWarnings("deprecation")
 public class ServidorAPI extends Observable implements Runnable{
@@ -38,16 +29,15 @@ public class ServidorAPI extends Observable implements Runnable{
 	@Override
 	public void run() {
 		try {
-//			Mensaje mensaje;
 			while(true) {
-				//if((mensaje = (Mensaje)input.readObject()) != null) {
-				//	this.setChanged();
-				//	this.notifyObservers(mensaje);
-				//}
-				IRecibible res = (IRecibible)this.input.readObject();
-				res.manejarResponse(this);
+				
+				IRecibible res = (IRecibible) this.input.readObject();
+				// Esto esta bien hacerlo asi??????? -f
+				synchronized(lock) {
+					this.lastResponse = res;
+					lock.notify();
+				}
 			}
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -56,11 +46,24 @@ public class ServidorAPI extends Observable implements Runnable{
 		}
 	}
 	
-	public void enviarRequest(IEnviable env) throws IOException{
-		System.out.println("Enviando request");
-		System.out.println(env.toString());
+	public IRecibible enviarRequest(IEnviable env) throws IOException{
 		this.output.writeObject(env);
 		this.output.flush();
+		
+		//Y estooo ? andar anda
+		synchronized (lock) {
+			while (this.lastResponse == null) {
+				try {
+					lock.wait();
+				}
+				catch(InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+		IRecibible res = this.lastResponse;
+		this.lastResponse = null;
+		return res;
 	}
 	
 //	public void enviarRequest(Mensaje mensaje) throws IOException {
@@ -93,17 +96,19 @@ public class ServidorAPI extends Observable implements Runnable{
 	}
 	
 	public IRecibible getResponse() {
-		synchronized (lock) {
+		synchronized (this) {
 			while (this.lastResponse == null) {
 				try {
-					lock.wait();
+					this.wait();
 				}
 				catch(InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
 			}
 		}
-		return this.lastResponse;
+		IRecibible res = this.lastResponse;
+		this.lastResponse = null;
+		return res;
 	}
 	
 //	public DirectoriosResponse enviarRequest(RequestDirectorio request) throws IOException, ClassNotFoundException {
