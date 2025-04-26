@@ -23,7 +23,7 @@ public class DirectoriosResponse implements Serializable, IRecibible{
 
 	@Override
 	public void manejarResponse(ServidorAPI servidor) throws IOException {
-		servidor.setResponse(this);
+		servidor.directorioRecibido(this);
 	}
 	
 }

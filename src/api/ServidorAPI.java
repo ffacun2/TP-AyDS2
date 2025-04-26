@@ -9,12 +9,16 @@ import java.util.Observable;
 
 import interfaces.IEnviable;
 import interfaces.IRecibible;
+import model.Mensaje;
+import requests.DirectoriosResponse;
+import requests.OKResponse;
 
 @SuppressWarnings("deprecation")
 public class ServidorAPI extends Observable implements Runnable{
 	private Socket socket;
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
+	private boolean estado;
 	
 	private final Object lock = new Object();
 	
@@ -25,13 +29,14 @@ public class ServidorAPI extends Observable implements Runnable{
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		this.output.flush();
 		this.lastResponse = null;
+		this.estado = true;
 	}
 	
 	@Override
 	public void run() {
 		try {
 			this.input = new ObjectInputStream(socket.getInputStream());
-			while(true) {
+			while(estado) {
 				System.out.println("Esperando respuesta del servidor...");
 				IRecibible res = (IRecibible)this.input.readObject();
 				
@@ -73,6 +78,26 @@ public class ServidorAPI extends Observable implements Runnable{
 		this.lastResponse = null;
 		return res;
 		}
+	}
+	
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
+	
+	public void mensajeRecibido(MensajeResponse mensaje) {
+		Mensaje mensajeRecibido = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), mensaje.getCuerpo());
+		this.setChanged();
+		this.notifyObservers(mensajeRecibido);
+	}
+	
+	public void directorioRecibido(DirectoriosResponse directorio) {
+		this.setChanged();
+		this.notifyObservers(directorio);
+	}
+	
+	public void okResponseRecibido(OKResponse okResponse) {
+		this.setChanged();
+		this.notifyObservers(okResponse);
 	}
 
 }

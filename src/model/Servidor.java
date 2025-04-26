@@ -167,16 +167,15 @@ public class Servidor implements Runnable, IServidor{
 	}
 	
 	public void handleMensaje(Mensaje mensaje) throws IOException {
-		String nickReceptor = null;
-		HandleCliente cliente;
-	
-		cliente = this.directorio.get(nickReceptor);
-		if (cliente.getEstado()) {
-			//
-		}
-		else {
+		String nickReceptor = mensaje.getNickReceptor();
+		HandleCliente cliente = this.directorio.get(nickReceptor);
+		
+		System.out.println("llego un mensaje para " + nickReceptor);
+		if(cliente.getEstado()) {
+			cliente.enviarMensaje(mensaje);
+		}else {
 			cliente.addMensajePendiente(mensaje);
-		}	
+		}
 	}
-	
+
 }

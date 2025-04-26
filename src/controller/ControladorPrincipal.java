@@ -2,6 +2,7 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -53,9 +54,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
 			try {
-				this.crearContacto();
-			} catch (ClassNotFoundException e1) {
-				e1.printStackTrace();
+				servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			} catch (IOException e1) {
+				Utils.mostrarError("Se perdio la conexión con el servidor", ventanaPrincipal);
 			}
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
@@ -78,13 +79,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
-			boton.setText(contacto.toString());
+			this.contactoActivo = contacto;
 			this.ventanaPrincipal.setBorder(boton, null);
-			if (this.usuario.getContactos().contains(contacto)) {
-				this.contactoActivo = this.usuario.getContactos().get(this.usuario.getContactos().indexOf(contacto));
-				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-				this.ventanaPrincipal.bloquearMsj(false);
-			}
+			this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+			this.ventanaPrincipal.bloquearMsj(false);
+
 		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
 			Contacto contacto = this.dialogContactos.getContactoElegido();
 			this.dialogContactos.dispose();
@@ -120,17 +119,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param nickname - nombre del contacto
 	 * @throws ClassNotFoundException 
 	 */
-	public void crearContacto() throws ClassNotFoundException{
-
-		try {
-			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
-			DirectoriosResponse agenda = (DirectoriosResponse)servidor.getResponse();
-			
-			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
-			this.dialogContactos.setVisible(true);
-		}  catch (IOException e) {
-			Utils.mostrarError("Se perdio la conexión con el servidor", ventanaPrincipal);
-		}
+	public void crearContacto(DirectoriosResponse agenda) throws ClassNotFoundException{	
+		this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
+		this.dialogContactos.setVisible(true);
 
 	}
 	
@@ -158,13 +149,17 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
-		try {
-			this.usuario.enviarMensaje(msjObj, contactoActivo);
-			this.contactoActivo.agregarMensaje(msjObj);
-			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-		} catch (Exception exc) {
-			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
-		}
+ 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
+			try {
+				this.usuario.enviarMensaje(msjObj, contactoActivo);
+				this.contactoActivo.agregarMensaje(msjObj);
+				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				Utils.mostrarError("Se perdio la conexion", ventanaPrincipal);
+			}
  	}
  	
  	/**
@@ -174,8 +169,19 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	@Override
 	public void update(Observable o, Object arg) {
-		Mensaje mensaje = (Mensaje) arg;
-		
+		if(arg instanceof Mensaje) {
+			this.cargarMensaje((Mensaje)arg);
+		}else if(arg instanceof DirectoriosResponse) {
+			try {
+				this.crearContacto((DirectoriosResponse) arg);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+ 	
+ 	public void cargarMensaje(Mensaje mensaje) {
 		Contacto contacto = new Contacto( mensaje.getNickEmisor());
 		ArrayList<Contacto> agenda = this.usuario.getContactos();
 		int i;
@@ -214,7 +220,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			}
 			
 		}
-	}
+ 	}
  	
  	
  	public void mostrarVentanaPrincipal() {
@@ -233,6 +239,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void cerrarSesion() {
  		try {
  			System.out.println("se cierra sesion");
+ 			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {
 			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);

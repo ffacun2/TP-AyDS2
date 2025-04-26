@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import api.MensajeResponse;
 import interfaces.IEnviable;
 import requests.DirectoriosResponse;
+import requests.RequestMensaje;
 
 @SuppressWarnings("deprecation")
 public class HandleCliente extends Observable implements Runnable{
@@ -56,6 +58,11 @@ public class HandleCliente extends Observable implements Runnable{
 	
 	public void enviarDirectorio(ArrayList<Contacto> directorio) throws IOException {
 		this.output.writeObject(new DirectoriosResponse(directorio));
+		this.output.flush();
+	}
+	
+	public void enviarMensaje(Mensaje mensaje) throws IOException {
+		this.output.writeObject(new MensajeResponse(mensaje));
 		this.output.flush();
 	}
 	

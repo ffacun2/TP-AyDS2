@@ -16,6 +16,7 @@ public class Mensaje implements IEnviable {
 	public Mensaje(String nickEmisor,String nickReceptor,String cuerpo) {
 		this.cuerpo = cuerpo;
 		this.nickEmisor = nickEmisor;
+		this.nickReceptor = nickReceptor;
 		this.hora = LocalTime.now();
 	}
 

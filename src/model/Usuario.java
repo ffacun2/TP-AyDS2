@@ -23,6 +23,7 @@ public class Usuario{
 		this.nickname = nickname;
 		this.puerto = puerto;
 		this.ip = ip; 
+		this.servidor = servidor;
 	}
 
 	public String getNickname() {
@@ -62,17 +63,6 @@ public class Usuario{
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
-		try {
-			Socket socket = new Socket();
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			out.writeObject(mensaje);
-			out.flush();
-			out.close();
-			socket.close();
-		}
-		catch (FueraDeRangoException e){
-			throw e;
-		}
-
+		this.servidor.enviarRequest(mensaje);
 	}
 }

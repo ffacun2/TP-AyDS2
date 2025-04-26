@@ -1,25 +1,21 @@
-package model;
+package api;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.time.LocalTime;
 
-import interfaces.IEnviable;
-import interfaces.IServidor;
+import interfaces.IRecibible;
+import model.Mensaje;
 
-public class MensajeServidor implements IEnviable{
+public class MensajeResponse implements IRecibible{
 	private String cuerpo;
 	private String nickEmisor;
 	private String nickReceptor;
 	private LocalTime  hora;
-	private String ip;
-	private int puerto;
-	
-	public MensajeServidor(String nickEmisor,String nickReceptor,int puerto, String ip,String cuerpo) {
-		this.cuerpo = cuerpo;
-		this.nickEmisor = nickEmisor;
-		this.ip = ip;
-		this.puerto = puerto;
+
+	public MensajeResponse(Mensaje mensaje) {
+		this.cuerpo = mensaje.getCuerpo();
+		this.nickEmisor = mensaje.getNickEmisor();
+		this.nickReceptor = mensaje.getNickReceptor();
 		this.hora = LocalTime.now();
 	}
 
@@ -35,13 +31,6 @@ public class MensajeServidor implements IEnviable{
 		return hora;
 	}
 
-	public String getIp() {
-		return ip;
-	}
-
-	public int getPuerto() {
-		return puerto;
-	}
 	
 	public String getNickReceptor() {
 		return this.nickReceptor;
@@ -53,10 +42,10 @@ public class MensajeServidor implements IEnviable{
 		return texto;
 	}
 
-
 	@Override
-	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
+	public void manejarResponse(ServidorAPI servidor) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
+	
 }
