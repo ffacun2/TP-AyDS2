@@ -22,7 +22,10 @@ public class DialogSeleccionarContacto extends JDialog{
 	private JButton botonAceptar;
 	
 	public DialogSeleccionarContacto(JFrame ventana, ControladorPrincipal controlador, ArrayList<Contacto> listaContactos, String mode) {
-		setTitle("Seleccione Contacto");
+		if (!mode.equals(Utils.MOSTRAR_AGENDA))
+			setTitle("Seleccione Contacto");
+		else
+			setTitle("Agenda");
 		setSize(300,100);
 		setLocationRelativeTo(ventana);
 		setLayout(new BorderLayout());	
@@ -40,14 +43,15 @@ public class DialogSeleccionarContacto extends JDialog{
 		
 		panelPrincipal.add(comboBox);
 		
-		botonAceptar = new JButton("Aceptar");
-		botonAceptar.addActionListener(controlador);
-		if(mode.equals(Utils.CREAR_CONVERSACION))
-			botonAceptar.setActionCommand(Utils.CONFIRMAR_CONTACTO);
-		if(mode.equals(Utils.MODO_AGR_CONTACTO))
-			botonAceptar.setActionCommand(Utils.AGREGAR_CONTACTO);
-		panelPrincipal.add(botonAceptar);
-		
+		if (!mode.equals(Utils.MOSTRAR_AGENDA)) {
+			botonAceptar = new JButton("Aceptar");
+			botonAceptar.addActionListener(controlador);
+			if(mode.equals(Utils.CREAR_CONVERSACION))
+				botonAceptar.setActionCommand(Utils.CONFIRMAR_CONTACTO);
+			if(mode.equals(Utils.MODO_AGR_CONTACTO))
+				botonAceptar.setActionCommand(Utils.AGREGAR_CONTACTO);
+			panelPrincipal.add(botonAceptar);
+		}
 		setContentPane(panelPrincipal);
 	}
 	

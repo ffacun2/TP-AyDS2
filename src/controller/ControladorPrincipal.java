@@ -54,12 +54,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals(Utils.CREAR_CONTACTO)) {
+		if (comando.equals(Utils.MOSTRAR_DIRECTORIO)) {
 			try {
-				this.crearContacto();
+				this.mostrarDirectorio();
 			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				Utils.mostrarError(e1.getMessage(), ventanaPrincipal);
 			}
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
@@ -107,6 +106,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
 			}
 			this.ventanaPrincipal.bloqueoAgrContacto(false);
+		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
+			System.out.println(Utils.MOSTRAR_AGENDA);
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.MOSTRAR_AGENDA);
+			this.dialogContactos.setVisible(true);
 		}
 	}
 	
@@ -133,7 +136,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param nickname - nombre del contacto
 	 * @throws ClassNotFoundException 
 	 */
-	public void crearContacto() throws ClassNotFoundException{	
+	public void mostrarDirectorio() throws ClassNotFoundException{	
 		try {
 			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
 			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
