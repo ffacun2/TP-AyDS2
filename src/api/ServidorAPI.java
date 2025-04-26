@@ -5,13 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Observable;
 
 import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
-import requests.DirectoriosResponse;
-import requests.OKResponse;
 
 @SuppressWarnings("deprecation")
 public class ServidorAPI extends Observable implements Runnable{
@@ -21,6 +21,8 @@ public class ServidorAPI extends Observable implements Runnable{
 	private boolean estado;
 	
 	private final Object lock = new Object();
+	private boolean controladorListo;
+	private ArrayList<Mensaje> bufferMensajes;
 	
 	private IRecibible lastResponse;
 	
@@ -30,6 +32,8 @@ public class ServidorAPI extends Observable implements Runnable{
 		this.output.flush();
 		this.lastResponse = null;
 		this.estado = true;
+		this.controladorListo = false;
+		this.bufferMensajes = new ArrayList<Mensaje>();
 	}
 	
 	@Override
@@ -82,11 +86,32 @@ public class ServidorAPI extends Observable implements Runnable{
 	
 	public void setEstado(boolean estado) {
 		this.estado = estado;
+		this.controladorListo = false;
+		//Habria que mandar el estado al servidor?
 	}
 	
 	public void mensajeRecibido(MensajeResponse mensaje) {
-		Mensaje mensajeRecibido = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), mensaje.getCuerpo());
-		this.setChanged();
-		this.notifyObservers(mensajeRecibido);
+		
+		synchronized (this) {
+			Mensaje mensajeRecibido = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), mensaje.getCuerpo());
+			if (this.controladorListo) {
+				this.setChanged();
+				this.notifyObservers(mensajeRecibido);
+			}else
+				this.bufferMensajes.add(mensajeRecibido);
+		}
+	}
+	
+	public void setControladorListo() {
+		synchronized (this) {
+			this.controladorListo = true;
+			
+			Iterator<Mensaje> it = this.bufferMensajes.iterator();
+			while (it.hasNext()) {
+				setChanged();
+				notifyObservers(it.next());
+			}
+			this.bufferMensajes.clear();
+		}
 	}
 }

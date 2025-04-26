@@ -7,6 +7,8 @@ import interfaces.IRecibible;
 import model.Mensaje;
 
 public class MensajeResponse implements IRecibible{
+
+	private static final long serialVersionUID = 1L;
 	private String cuerpo;
 	private String nickEmisor;
 	private String nickReceptor;

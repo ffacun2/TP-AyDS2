@@ -76,10 +76,10 @@ public class ControladorConfiguracion implements ActionListener{
 				
 				if((response != null) && (response.isSuccess() == true)) {
 					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
-					servidor.addObserver(controladorPrincipal);
 					this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
+					servidor.setControladorListo();
 					this.ventanaConfiguracion.dispose();
-					this.controladorPrincipal.mostrarVentanaPrincipal();
+					this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
 				}else {
 					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
 					hiloServer.interrupt();

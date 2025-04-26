@@ -54,11 +54,13 @@ public class HandleCliente extends Observable implements Runnable{
 	}
 	
 	public void enviarDirectorio(ArrayList<Contacto> directorio) throws IOException {
+		this.output.reset();
 		this.output.writeObject(new DirectoriosResponse(directorio));
 		this.output.flush();
 	}
 	
 	public void enviarMensaje(Mensaje mensaje) throws IOException {
+		this.output.reset();
 		this.output.writeObject(new MensajeResponse(mensaje));
 		this.output.flush();
 	}

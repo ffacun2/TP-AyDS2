@@ -35,6 +35,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
 		this.servidor = servidor;
+		this.servidor.addObserver(this);
+		this.mostrarVentanaPrincipal();
 	}
 	
 	public VentanaPrincipal getVentanaPrincipal() {
@@ -109,7 +111,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param nickname - nombre del usuario
 	 */
 	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
-			this.usuario = new Usuario(nickname, puerto, ip,servidor);	
+			this.usuario = new Usuario(nickname, puerto, ip,servidor);
 	}
 
 
@@ -223,9 +225,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
  	}
  	
+ 	public void setTitulo(String title) {
+ 		this.ventanaPrincipal.setTitle(title);
+ 	}
  	
  	public void mostrarVentanaPrincipal() {
- 		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea: " + this.usuario.getNickname());
+ 		this.ventanaPrincipal = new VentanaPrincipal();
  		this.ventanaPrincipal.setControlador(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
@@ -246,5 +251,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
 		}
  	}
+ 	
+ 	
  	
 }
