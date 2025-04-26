@@ -55,21 +55,6 @@ public class ServidorAPI extends Observable implements Runnable{
 
 		this.output.writeObject(env);
 		this.output.flush();
-		
-		//Y estooo ? andar anda
-		synchronized (lock) {
-			while (this.lastResponse == null) {
-				try {
-					lock.wait();
-				}
-				catch(InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-		}
-		IRecibible res = this.lastResponse;
-		this.lastResponse = null;
-		return res;
 	}
 	
 //	public IRecibible enviarRequest(IEnviable env) throws IOException, ClassNotFoundException{
@@ -120,7 +105,7 @@ public class ServidorAPI extends Observable implements Runnable{
 	}
 	
 	public IRecibible getResponse() {
-		synchronized (this) {
+		synchronized (lock) {
 			while (this.lastResponse == null) {
 				try {
 					lock.wait();
