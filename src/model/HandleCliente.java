@@ -34,17 +34,13 @@ public class HandleCliente extends Observable implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			try {
-				
-				IEnviable req = (IEnviable)this.input.readObject();
-				req.manejarRequest(servidor,this.socket);
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			} 
-			catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+				IEnviable req;
+				try {
+					req = (IEnviable)this.input.readObject();
+					req.manejarRequest(servidor,this.socket);
+				} catch (ClassNotFoundException | IOException e) {
+					e.printStackTrace();
+				}
 		}
 	}
 

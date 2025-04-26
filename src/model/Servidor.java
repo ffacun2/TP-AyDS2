@@ -45,15 +45,18 @@ public class Servidor implements Runnable, IServidor{
 				
 				System.out.println("Conexion con: "+socket.getPort());
 		
-				//al establecer conexion recibe un objeto usuario para su registro en el servidor
+				System.out.println(">>  (Servidor) Creando OutputStream");
 				this.out = new ObjectOutputStream(socket.getOutputStream());
 				this.out.flush();
+				System.out.println(">>  (Servidor) Creado y flusheado");
+				System.out.println(">>  (Servidor) Creando InputStream");
 				this.in = new ObjectInputStream(socket.getInputStream());
 				
+				System.out.println(">>  (Servidor) Leyendo");
 				IEnviable req = (IEnviable)in.readObject();
-				System.out.println("Recibido un enviable");
-				System.out.println(req.toString());
+				System.out.println(">> Recibido una request "+ req);
 				req.manejarRequest(this,socket);
+				System.out.println(">> Manejada la request "+ req);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

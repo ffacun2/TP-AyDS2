@@ -6,18 +6,12 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Observable;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import interfaces.IEnviable;
 import interfaces.IRecibible;
-import interfaces.IServidor;
-import model.Mensaje;
-import requests.DirectoriosResponse;
-import requests.OKResponse;
-import requests.Request;
-import requests.RequestDirectorio;
-import requests.RequestLogin;
-import requests.RequestLogout;
-import requests.RequestRegistro;
 
 @SuppressWarnings("deprecation")
 public class ServidorAPI extends Observable implements Runnable{
@@ -33,35 +27,48 @@ public class ServidorAPI extends Observable implements Runnable{
 		this.socket = new Socket(ip,puerto);
 		this.input = new ObjectInputStream(socket.getInputStream());
 		this.output = new ObjectOutputStream(socket.getOutputStream());
+		this.output.flush();
+		this.lastResponse = null;
 	}
 	
 	@Override
 	public void run() {
 		try {
-//			Mensaje mensaje;
 			while(true) {
-				//if((mensaje = (Mensaje)input.readObject()) != null) {
-				//	this.setChanged();
-				//	this.notifyObservers(mensaje);
-				//}
+
+				System.out.println("Esperando respuesta del servidor...");
 				IRecibible res = (IRecibible)this.input.readObject();
+				
+				System.out.println(">>  Recibido "+res);
 				res.manejarResponse(this);
 			}
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (IOException | ClassNotFoundException e) {
+			//TODO Sesion cerrada
 		}
 	}
 	
-	public void enviarRequest(IEnviable env) throws IOException{
-		System.out.println("Enviando request");
-		System.out.println(env.toString());
+	public void enviarRequest(IEnviable env) throws IOException {
+		System.out.println("(ServidorAPI) Enviando request");
+		this.output.reset();
 		this.output.writeObject(env);
 		this.output.flush();
 	}
+	
+//	public IRecibible enviarRequest(IEnviable env) throws IOException, ClassNotFoundException{
+//		System.out.println("Enviando enviable al servidor: "+env);
+//		this.output.reset();
+//		this.output.writeObject(env);
+//		this.output.flush();
+//		IRecibible res;
+//		
+//		while (true) {
+//			if((res = (IRecibible)this.input.readObject()) != null) {
+//				System.out.println(">>  Recibido(enviarReq): "+ res);
+//				return res;
+//			}
+//		}
+//	}
 	
 //	public void enviarRequest(Mensaje mensaje) throws IOException {
 //		this.output.writeObject(mensaje);
@@ -89,7 +96,10 @@ public class ServidorAPI extends Observable implements Runnable{
 //	}
 
 	public void setResponse(IRecibible res) {
-		this.lastResponse = res;
+		synchronized (lock) {
+			this.lastResponse = res;
+			lock.notifyAll();
+		}
 	}
 	
 	public IRecibible getResponse() {
@@ -97,13 +107,15 @@ public class ServidorAPI extends Observable implements Runnable{
 			while (this.lastResponse == null) {
 				try {
 					lock.wait();
-				}
-				catch(InterruptedException e) {
+				}catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
+					return null;
 				}
 			}
+		IRecibible res = this.lastResponse;
+		this.lastResponse = null;
+		return res;
 		}
-		return this.lastResponse;
 	}
 	
 //	public DirectoriosResponse enviarRequest(RequestDirectorio request) throws IOException, ClassNotFoundException {

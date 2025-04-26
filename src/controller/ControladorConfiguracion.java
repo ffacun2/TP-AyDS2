@@ -64,8 +64,15 @@ public class ControladorConfiguracion implements ActionListener{
 				}
 				
 				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
+				Thread hiloServer = new Thread(servidor);
+				hiloServer.start();
+				
+//				OKResponse response = (OKResponse)servidor.enviarRequest(request);
+				System.out.println("Enviando request "+request);
 				servidor.enviarRequest(request);
+				System.out.println(">>  Request enviada");
 				OKResponse response = (OKResponse)servidor.getResponse();
+				System.out.println(">>  Respuesta recibida "+response);
 				
 				if((response != null) && (response.isSuccess() == true)) {
 					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
@@ -73,11 +80,9 @@ public class ControladorConfiguracion implements ActionListener{
 					controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
 					this.ventanaConfiguracion.dispose();
 					this.controladorPrincipal.mostrarVentanaPrincipal();
-					Thread hiloServer = new Thread(servidor);
-					hiloServer.start();
-					
 				}else {
 					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
+					hiloServer.interrupt();
 					//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
 				}
 			}else {
@@ -90,7 +95,10 @@ public class ControladorConfiguracion implements ActionListener{
 		}
 		catch (IOException e) {
 			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
-		}
+		} //catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

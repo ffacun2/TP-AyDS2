@@ -10,7 +10,6 @@ import javax.swing.JButton;
 
 import api.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import exceptions.FueraDeRangoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
@@ -52,7 +51,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		String comando = e.getActionCommand();
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
-			this.crearContacto();
+			try {
+				this.crearContacto();
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
 			this.ventanaPrincipal.bloqueoAgrContacto(true);
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
@@ -114,16 +117,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param ip - ip del contacto
 	 * @param puerto - numero del contacto
 	 * @param nickname - nombre del contacto
+	 * @throws ClassNotFoundException 
 	 */
-	public void crearContacto(){
+	public void crearContacto() throws ClassNotFoundException{
 
 		try {
 			System.out.println("Llegado a metodo crearContacto");
-			//DirectoriosResponse agenda = servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
-			//meter un getResponse?
-			//DirectoriosResponse agenda = (DirectoriosResponse)servidor.getResponse();
 			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
-			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
+			DirectoriosResponse agenda = (DirectoriosResponse)servidor.getResponse();
+//			DirectoriosResponse agenda = (DirectoriosResponse)servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
 			
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);

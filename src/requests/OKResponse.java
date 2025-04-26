@@ -1,14 +1,14 @@
 package requests;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.io.Serializable;
 
 import api.ServidorAPI;
 import interfaces.IRecibible;
-import interfaces.IServidor;
 
-public class OKResponse implements IRecibible{
+public class OKResponse implements IRecibible, Serializable{
 
+	private static final long serialVersionUID = 1L;
 	private boolean success;
 	private String mensajeError;
 	
