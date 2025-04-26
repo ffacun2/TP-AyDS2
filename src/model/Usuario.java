@@ -16,7 +16,7 @@ public class Usuario{
 	private String nickname;
 	private int puerto;
 	private String ip;
-	private ArrayList<Contacto> contactos;
+	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
 	private ServidorAPI servidor;
 	
 	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
@@ -43,13 +43,10 @@ public class Usuario{
 
 
 	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException{
-		Iterator<Contacto> it = this.contactos.iterator();
-		Contacto aux;
-		
-		while (it.hasNext()) {
-			aux = it.next();
-			if (aux.equals(contacto))
+		for(Contacto aux: this.contactos) {
+			if(aux.equals(contacto)) {
 				throw new ContactoRepetidoException();
+			}
 		}
 		this.contactos.add(contacto);
 	}

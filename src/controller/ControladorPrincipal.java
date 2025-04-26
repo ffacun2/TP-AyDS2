@@ -16,6 +16,7 @@ import model.Mensaje;
 import model.Usuario;
 import requests.DirectoriosResponse;
 import requests.RequestDirectorio;
+import requests.RequestLogout;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
@@ -56,7 +57,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			} catch (ClassNotFoundException e1) {
 				e1.printStackTrace();
 			}
-			this.ventanaPrincipal.bloqueoAgrContacto(true);
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
 			//Llama a la ventada de dialog con los contactos
@@ -93,6 +93,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			} catch (ContactoRepetidoException e1) {
 				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
 			}
+			this.ventanaPrincipal.bloqueoAgrContacto(false);
 		}
 	}
 	
@@ -122,10 +123,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void crearContacto() throws ClassNotFoundException{
 
 		try {
-			System.out.println("Llegado a metodo crearContacto");
 			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
 			DirectoriosResponse agenda = (DirectoriosResponse)servidor.getResponse();
-//			DirectoriosResponse agenda = (DirectoriosResponse)servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
 			
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
@@ -146,8 +145,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			if(contacto.getConversacion() == null) {
 				contacto.setConversacion(new Conversacion());
 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-//				this.ventanaPrincipal.setNuevaConversacion();
-//				this.contactoActivo = contacto; 
 			}else {
 				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
 			}
@@ -226,11 +223,20 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
- 		this.ventanaPrincipal.bloqueoNueConv(true);
+ 		this.ventanaPrincipal.bloqueoNueConv(false);
  	}
  	
  	public void cerrarConfig() {
  		this.ventanaPrincipal.bloqueoAgrContacto(false);
+ 	}
+ 	
+ 	public void cerrarSesion() {
+ 		try {
+ 			System.out.println("se cierra sesion");
+			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
+		} catch (IOException e) {
+			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+		}
  	}
  	
 }

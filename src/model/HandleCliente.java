@@ -20,11 +20,12 @@ public class HandleCliente extends Observable implements Runnable{
 	private Socket socket;
 	private List<Mensaje> mensajesPendientes;
 	private boolean estado;
+	private Thread hilo;
 	
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
 	
-	public HandleCliente (Socket socket, Servidor servidor) {
+	public HandleCliente (Socket socket, Servidor servidor) throws IOException {
 		this.socket = socket;
 		this.servidor = servidor;
 		this.mensajesPendientes = new ArrayList<Mensaje>();
@@ -33,7 +34,7 @@ public class HandleCliente extends Observable implements Runnable{
 	
 	@Override
 	public void run() {
-		while (true) {
+		while (estado) {
 				IEnviable req;
 				try {
 					req = (IEnviable)this.input.readObject();
@@ -111,6 +112,12 @@ public class HandleCliente extends Observable implements Runnable{
 		return output;
 	}
 	
+	public void setHilo(Thread hilo) {
+		this.hilo = hilo;
+	}
 	
+	public Thread getHilo() {
+		return this.hilo;
+	}
 	
 }

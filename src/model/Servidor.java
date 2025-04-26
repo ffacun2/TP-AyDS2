@@ -25,9 +25,7 @@ public class Servidor implements Runnable, IServidor{
 	private int puerto;
 	private ServerSocket serverSocket; //recibe
 	private ConcurrentHashMap<String,HandleCliente> directorio;
-	
 	private ObjectInputStream in;
-	private ObjectOutputStream out;
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
 		this.puerto = puerto;		
@@ -44,13 +42,8 @@ public class Servidor implements Runnable, IServidor{
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
 				System.out.println("Conexion con: "+socket.getPort());
-		
-				System.out.println(">>  (Servidor) Creando OutputStream");
-				this.out = new ObjectOutputStream(socket.getOutputStream());
-				this.out.flush();
-				System.out.println(">>  (Servidor) Creado y flusheado");
-				System.out.println(">>  (Servidor) Creando InputStream");
-				this.in = new ObjectInputStream(socket.getInputStream());
+
+				in = new ObjectInputStream(socket.getInputStream());
 				
 				System.out.println(">>  (Servidor) Leyendo");
 				IEnviable req = (IEnviable)in.readObject();
@@ -66,17 +59,13 @@ public class Servidor implements Runnable, IServidor{
 	public ArrayList<Contacto> getAgenda(String nickname) {
 		ArrayList<Contacto> contacto = new ArrayList<Contacto>();
 		Set<String> nicknames = this.directorio.keySet();
-		Iterator<String> it = nicknames.iterator();
 		
-		String aux;
-		while(it.hasNext()) {
-			aux = (String) it.next();
-			if (aux != nickname) {
-				contacto.add(new Contacto(aux));
-			}
-			else
-				it.next();
+		for (String aux : nicknames) {
+		    if (!aux.equals(nickname)) {
+		        contacto.add(new Contacto(aux));
+		    }
 		}
+		
 		return contacto;
 	}
 	
@@ -91,18 +80,23 @@ public class Servidor implements Runnable, IServidor{
 	 */
 	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException { //OK
 		String nick = req.getNickname();
-		
+		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		System.out.println("Recibido request de registro...");
 		if (this.directorio.containsKey(nick)) {
-			this.out.writeObject(new OKResponse(false));
+			out.writeObject(new OKResponse(false));
+			socket.close();
 		}
 		else {
+			out.writeObject(new OKResponse(true));
 			HandleCliente hCliente = new HandleCliente(socket,this);
-			hCliente.setInput(this.in);
-			hCliente.setOutput(this.out);
-			new Thread(hCliente).start();
+			hCliente.setInput(in);
+			hCliente.setOutput(out);
+			
+			Thread hilo = new Thread(hCliente);
+			hCliente.setHilo(hilo);
+			
 			this.directorio.put(nick, hCliente);
-			this.out.writeObject(new OKResponse(true));
+			hilo.start();
 		}
 	}
 	
@@ -119,20 +113,21 @@ public class Servidor implements Runnable, IServidor{
 	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		
+		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			//Actualiza socket, input y output
 			cliente.setSocket(socket);
-			cliente.setInput(this.in);
-			cliente.setOutput(this.out);
+			cliente.setInput(in);
+			cliente.setOutput(out);
 			new Thread(cliente).start();
 			cliente.setEstado(true);
 			cliente.getOutput().writeObject(new OKResponse(true));
 			cliente.mandarMsjPendientes();
 		}
 		else {
-			this.out.writeObject(new OKResponse(false));
+			out.writeObject(new OKResponse(false));
+			socket.close();
 		}
 	}
 	
@@ -148,11 +143,11 @@ public class Servidor implements Runnable, IServidor{
 	public void handleCerrarSesion(RequestLogout req, Socket socket) throws IOException {
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		
+		System.out.println("Hasta aca llega");
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
-			cliente.setEstado(false);
 			cliente.getOutput().writeObject(new OKResponse(true));
+			cliente.setEstado(false);
 			cliente.getSocket().close();
 		}
 	}
@@ -177,8 +172,7 @@ public class Servidor implements Runnable, IServidor{
 	
 		cliente = this.directorio.get(nickReceptor);
 		if (cliente.getEstado()) {
-			out = new ObjectOutputStream(cliente.getSocket().getOutputStream());
-			out.writeObject(new RequestMensaje(mensaje));
+			//
 		}
 		else {
 			cliente.addMensajePendiente(mensaje);

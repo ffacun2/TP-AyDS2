@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -13,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -57,7 +60,7 @@ public class VentanaPrincipal extends JFrame {
 	 * Create the frame.
 	 */
 	public VentanaPrincipal(String title) {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 503, 312);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -145,6 +148,12 @@ public class VentanaPrincipal extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(panelBotonesConversaciones);
 		panelBotonesConversaciones.setLayout(new BoxLayout(panelBotonesConversaciones, BoxLayout.Y_AXIS));
 		panelConversacione.add(scrollPane, BorderLayout.CENTER);
+		
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				cerrarSesion();
+			}
+		});
 		
 	}
 	
@@ -241,5 +250,14 @@ public class VentanaPrincipal extends JFrame {
 	public void bloquearMsj(boolean cond) {
 		this.textFieldMensaje.setEnabled(!cond);
 		this.btnEnviar.setEnabled(!cond);
+	}
+	
+	public void cerrarSesion() {
+		int confirm = JOptionPane.showConfirmDialog(null, "¿Seguro que querés salir?", "Confirmar salida", JOptionPane.YES_NO_OPTION);
+
+		if (confirm == JOptionPane.YES_OPTION) {
+			this.controlador.cerrarSesion();
+		    this.dispose();
+		}
 	}
 }
