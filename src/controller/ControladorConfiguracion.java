@@ -77,7 +77,7 @@ public class ControladorConfiguracion implements ActionListener{
 				if((response != null) && (response.isSuccess() == true)) {
 					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
 					servidor.addObserver(controladorPrincipal);
-					controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
+					this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
 					this.ventanaConfiguracion.dispose();
 					this.controladorPrincipal.mostrarVentanaPrincipal();
 				}else {

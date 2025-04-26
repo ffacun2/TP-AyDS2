@@ -33,6 +33,7 @@ public class ControladorServidor {
 		catch (IOException e) {
 			Utils.mostrarError("El puerto ingresado no puede ser utilizado", this.ventana);
 		}
+		
 	}
 	
 }

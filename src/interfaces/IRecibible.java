@@ -1,10 +1,10 @@
 package interfaces;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.io.Serializable;
 
 import api.ServidorAPI;
 
-public interface IRecibible {
+public interface IRecibible extends Serializable {
 	public void manejarResponse(ServidorAPI servidor) throws IOException;
 }
