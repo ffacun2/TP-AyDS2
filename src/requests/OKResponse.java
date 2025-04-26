@@ -3,10 +3,11 @@ package requests;
 import java.io.IOException;
 import java.net.Socket;
 
-import interfaces.IEnviable;
-import model.Servidor;
+import api.ServidorAPI;
+import interfaces.IRecibible;
+import interfaces.IServidor;
 
-public class OKResponse implements IEnviable{
+public class OKResponse implements IRecibible{
 
 	private boolean success;
 	private String mensajeError;
@@ -37,9 +38,9 @@ public class OKResponse implements IEnviable{
 	public String getMensajeError() {
 		return this.mensajeError;
 	}
-	
+
 	@Override
-	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
-		
+	public void manejarResponse(ServidorAPI servidor) throws IOException {
+		servidor.setResponse(this);
 	}
 }

@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.time.LocalTime;
 
 import interfaces.IEnviable;
+import interfaces.IServidor;
 
 public class Mensaje implements IEnviable {
 	private String cuerpo;
@@ -41,9 +42,8 @@ public class Mensaje implements IEnviable {
 	}
 
 	@Override
-	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
+		servidor.handleMensaje(this);//chequear esto
 	}
 
 }

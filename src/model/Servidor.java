@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import interfaces.IEnviable;
-import requests.DirectoriosResponse;
+import interfaces.IServidor;
 import requests.OKResponse;
 import requests.RequestDirectorio;
 import requests.RequestLogin;
@@ -20,7 +20,7 @@ import requests.RequestMensaje;
 import requests.RequestRegistro;
 
 
-public class Servidor implements Runnable{
+public class Servidor implements Runnable, IServidor{
 
 	private int puerto;
 	private ServerSocket serverSocket; //recibe
@@ -50,17 +50,10 @@ public class Servidor implements Runnable{
 				this.out.flush();
 				this.in = new ObjectInputStream(socket.getInputStream());
 				
-				System.out.println("Creados los stream");
 				IEnviable req = (IEnviable)in.readObject();
+				System.out.println("Recibido un enviable");
+				System.out.println(req.toString());
 				req.manejarRequest(this,socket);
-
-//				//TODO Revisar estoooo 
-//				Usuario user = (Usuario) in.readObject();
-//				
-				//Cada conexion con el servidor va a un hilo 
-//				HandleCliente cliente = new HandleCliente(socket,this);
-//				Thread clienteThread = new Thread(new HandleCliente(socket,this));// sin terminar
-//				clienteThread.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -176,7 +169,6 @@ public class Servidor implements Runnable{
 	}
 	
 	public void handleMensaje(Mensaje mensaje) throws IOException {
-		String nickEmisor = mensaje.getNickEmisor();
 		String nickReceptor = null;
 		HandleCliente cliente;
 	

@@ -8,5 +8,5 @@ import model.Servidor;
 
 public interface IEnviable extends Serializable {
 	
-	public void manejarRequest(Servidor servidor, Socket socket) throws IOException;
+	public void manejarRequest(IServidor servidor, Socket socket) throws IOException;
 }

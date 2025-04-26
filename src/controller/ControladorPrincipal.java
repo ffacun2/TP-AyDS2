@@ -119,13 +119,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
 
 		try {
 			System.out.println("Llegado a metodo crearContacto");
-			DirectoriosResponse agenda = servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			//DirectoriosResponse agenda = servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			//meter un getResponse?
+			//DirectoriosResponse agenda = (DirectoriosResponse)servidor.getResponse();
+			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
+			
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+		}  catch (IOException e) {
 			Utils.mostrarError("Se perdio la conexión con el servidor", ventanaPrincipal);
 		}
 

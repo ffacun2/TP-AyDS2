@@ -3,7 +3,7 @@ package requests;
 import java.io.IOException;
 import java.net.Socket;
 
-import model.Servidor;
+import interfaces.IServidor;
 
 public class RequestRegistro extends Request {
 	
@@ -14,7 +14,7 @@ public class RequestRegistro extends Request {
 	}
 	
 	@Override
-	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
+	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
 		servidor.handleRegistro(this, socket);
 	}
 

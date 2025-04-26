@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import interfaces.IEnviable;
+import interfaces.IServidor;
 import model.Mensaje;
-import model.Servidor;
 
 public class RequestMensaje implements IEnviable {
 
@@ -16,7 +16,7 @@ public class RequestMensaje implements IEnviable {
 	}
 
 	@Override
-	public void manejarRequest(Servidor servidor, Socket socket) throws IOException {
+	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
 		servidor.handleMensaje(mensaje);
 	}
 	

@@ -38,7 +38,6 @@ public class HandleCliente extends Observable implements Runnable{
 				
 				IEnviable req = (IEnviable)this.input.readObject();
 				req.manejarRequest(servidor,this.socket);
-				System.out.println("Llegada la request");
 			} 
 			catch (IOException e) {
 				e.printStackTrace();

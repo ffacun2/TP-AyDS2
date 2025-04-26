@@ -64,7 +64,8 @@ public class ControladorConfiguracion implements ActionListener{
 				}
 				
 				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
-				OKResponse response = servidor.enviarRequest(request);
+				servidor.enviarRequest(request);
+				OKResponse response = (OKResponse)servidor.getResponse();
 				
 				if((response != null) && (response.isSuccess() == true)) {
 					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
@@ -77,6 +78,7 @@ public class ControladorConfiguracion implements ActionListener{
 					
 				}else {
 					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
+					//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
 				}
 			}else {
 				Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
@@ -88,8 +90,6 @@ public class ControladorConfiguracion implements ActionListener{
 		}
 		catch (IOException e) {
 			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
 	}
 
