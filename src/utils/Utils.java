@@ -16,6 +16,8 @@ public class Utils {
 	public static String MENSAJE = "mensaje conversacion";
 	public static String REGISTRARSE = "REGISTRARSE";
 	public static String AGREGAR_CONTACTO = "AGREGAR_CONTACTO";
+	public static String MOSTRAR_DRECTORIO = "MOSTRAR_DIRECTORIO";
+	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
 	public static int PUERTO_SERVER = 8888;
 	
 	

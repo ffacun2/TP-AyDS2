@@ -50,6 +50,7 @@ public class HandleCliente extends Observable implements Runnable{
 	public void mandarMsjPendientes() throws IOException {
 		for(Mensaje mensaje: this.mensajesPendientes)
 			enviarMensaje(mensaje);
+		this.mensajesPendientes.clear();
 
 	}
 	

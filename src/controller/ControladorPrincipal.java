@@ -76,8 +76,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
 			//Esto se llama desde el boton del dialog
 			Contacto contacto = this.dialogContactos.getContactoElegido();
-			this.dialogContactos.dispose();
-			this.crearConversacion(contacto);
+			if (contacto == null) {
+				Utils.mostrarError("Seleccione un contacto", this.ventanaPrincipal);
+			}
+			else {
+				this.dialogContactos.dispose();
+				this.crearConversacion(contacto);
+			}			
 			
 		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
@@ -90,9 +95,14 @@ public class ControladorPrincipal implements ActionListener, Observer {
 
 		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
 			Contacto contacto = this.dialogContactos.getContactoElegido();
-			this.dialogContactos.dispose();
 			try {
-				this.usuario.agregarContacto(contacto);
+				if (contacto == null) {
+					Utils.mostrarError("Seleccione un contacto valido", this.ventanaPrincipal);
+				}
+				else {
+					this.dialogContactos.dispose();
+					this.usuario.agregarContacto(contacto);
+				}
 			} catch (ContactoRepetidoException e1) {
 				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
 			}
