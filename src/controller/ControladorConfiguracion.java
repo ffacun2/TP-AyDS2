@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import api.ServidorAPI;
+import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
 import requests.OKResponse;
 import requests.Request;

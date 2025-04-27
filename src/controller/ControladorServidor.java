@@ -2,7 +2,7 @@ package controller;
 
 import java.io.IOException;
 
-import model.Servidor;
+import servidor.Servidor;
 import utils.Utils;
 import view.VentanaServidor;
 

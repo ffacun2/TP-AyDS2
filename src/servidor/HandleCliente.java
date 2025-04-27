@@ -1,4 +1,4 @@
-package model;
+package servidor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import api.MensajeResponse;
 import interfaces.IEnviable;
+import model.Contacto;
+import model.Mensaje;
 import requests.DirectoriosResponse;
+import requests.MensajeResponse;
 
 @SuppressWarnings("deprecation")
 public class HandleCliente extends Observable implements Runnable{

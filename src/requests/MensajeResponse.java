@@ -1,8 +1,9 @@
-package api;
+package requests;
 
 import java.io.IOException;
 import java.time.LocalTime;
 
+import cliente.ServidorAPI;
 import interfaces.IRecibible;
 import model.Mensaje;
 

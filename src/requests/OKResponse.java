@@ -3,7 +3,7 @@ package requests;
 import java.io.IOException;
 import java.io.Serializable;
 
-import api.ServidorAPI;
+import cliente.ServidorAPI;
 import interfaces.IRecibible;
 
 public class OKResponse implements IRecibible, Serializable{

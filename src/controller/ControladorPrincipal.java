@@ -9,7 +9,7 @@ import java.util.Observer;
 
 import javax.swing.JButton;
 
-import api.ServidorAPI;
+import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 import model.Contacto;
 import model.Conversacion;

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import api.ServidorAPI;
+import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 
 public class Usuario{

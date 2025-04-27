@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import api.ServidorAPI;
+import cliente.ServidorAPI;
 import interfaces.IRecibible;
 import model.Contacto;
 

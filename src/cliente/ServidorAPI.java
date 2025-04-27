@@ -1,4 +1,4 @@
-package api;
+package cliente;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,6 +12,7 @@ import java.util.Observable;
 import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
+import requests.MensajeResponse;
 
 @SuppressWarnings("deprecation")
 public class ServidorAPI extends Observable implements Runnable{

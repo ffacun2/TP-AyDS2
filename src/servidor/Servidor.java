@@ -1,4 +1,4 @@
-package model;
+package servidor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import interfaces.IEnviable;
 import interfaces.IServidor;
+import model.Contacto;
+import model.Mensaje;
 import requests.OKResponse;
 import requests.RequestDirectorio;
 import requests.RequestLogin;
