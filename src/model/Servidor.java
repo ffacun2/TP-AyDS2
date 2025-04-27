@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +15,6 @@ import requests.OKResponse;
 import requests.RequestDirectorio;
 import requests.RequestLogin;
 import requests.RequestLogout;
-import requests.RequestMensaje;
 import requests.RequestRegistro;
 
 
@@ -83,7 +81,7 @@ public class Servidor implements Runnable, IServidor{
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		System.out.println("Recibido request de registro...");
 		if (this.directorio.containsKey(nick)) {
-			out.writeObject(new OKResponse(false));
+			out.writeObject(new OKResponse(false,"Usuario ya registrado"));
 			socket.close();
 		}
 		else {
@@ -116,17 +114,22 @@ public class Servidor implements Runnable, IServidor{
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
-			//Actualiza socket, input y output
-			cliente.setSocket(socket);
-			cliente.setInput(in);
-			cliente.setOutput(out);
-			new Thread(cliente).start();
-			cliente.setEstado(true);
-			cliente.getOutput().writeObject(new OKResponse(true));
-			cliente.mandarMsjPendientes();
+			if (!cliente.getEstado()) {
+				//Actualiza socket, input y output
+				cliente.setSocket(socket);
+				cliente.setInput(in);
+				cliente.setOutput(out);
+				new Thread(cliente).start();
+				cliente.setEstado(true);
+				cliente.getOutput().writeObject(new OKResponse(true));
+				cliente.mandarMsjPendientes();
+			}
+			else {
+				out.writeObject(new OKResponse(false,"El usuario ya esta conectado."));
+			}
 		}
 		else {
-			out.writeObject(new OKResponse(false));
+			out.writeObject(new OKResponse(false,"No usuario existente"));
 			socket.close();
 		}
 	}

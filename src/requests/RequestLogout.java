@@ -7,6 +7,8 @@ import interfaces.IServidor;
 
 public class RequestLogout extends Request{
 
+	private static final long serialVersionUID = 1L;
+
 	public RequestLogout (String nickname) {
 		super(nickname);
 	}

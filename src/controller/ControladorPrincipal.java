@@ -23,6 +23,7 @@ import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
 
 
+@SuppressWarnings("deprecation")
 public class ControladorPrincipal implements ActionListener, Observer {
 	
 	private ControladorConfiguracion controladorConfiguracion;

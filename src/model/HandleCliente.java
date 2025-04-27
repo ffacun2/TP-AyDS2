@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -13,7 +12,6 @@ import java.util.Observer;
 import api.MensajeResponse;
 import interfaces.IEnviable;
 import requests.DirectoriosResponse;
-import requests.RequestMensaje;
 
 @SuppressWarnings("deprecation")
 public class HandleCliente extends Observable implements Runnable{

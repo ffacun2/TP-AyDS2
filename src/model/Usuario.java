@@ -1,16 +1,11 @@
 package model;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 
 import api.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import exceptions.FueraDeRangoException;
 
 public class Usuario{
 	private String nickname;

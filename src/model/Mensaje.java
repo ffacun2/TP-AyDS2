@@ -8,6 +8,7 @@ import interfaces.IEnviable;
 import interfaces.IServidor;
 
 public class Mensaje implements IEnviable {
+	private static final long serialVersionUID = 1L;
 	private String cuerpo;
 	private String nickEmisor;
 	private String nickReceptor;

@@ -9,6 +9,7 @@ import model.Mensaje;
 
 public class RequestMensaje implements IEnviable {
 
+	private static final long serialVersionUID = 1L;
 	private Mensaje mensaje;
 	
 	public RequestMensaje(Mensaje mensaje) {

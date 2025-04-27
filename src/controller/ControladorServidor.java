@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import model.Servidor;
@@ -26,12 +25,15 @@ public class ControladorServidor {
 		}
 		catch (NumberFormatException e) {
 			Utils.mostrarError("El dato a ingresar debe ser un numero natural", this.ventana);
+			this.ventana.dispose();
 		} 
 		catch (IllegalArgumentException e) {
 			Utils.mostrarError("El puerto debe estar en el rango [0,65535]", this.ventana);
+			this.ventana.dispose();
 		}
 		catch (IOException e) {
 			Utils.mostrarError("El puerto ingresado no puede ser utilizado", this.ventana);
+			this.ventana.dispose();
 		}
 		
 	}

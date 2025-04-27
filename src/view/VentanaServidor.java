@@ -8,13 +8,8 @@ import javax.swing.border.EmptyBorder;
 import utils.Utils;
 
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
-
 import javax.swing.JLabel;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import javax.swing.JTextField;
-import javax.swing.JButton;
 import javax.swing.BoxLayout;
 import javax.swing.SwingConstants;
 
