@@ -45,11 +45,8 @@ public class Servidor implements Runnable, IServidor{
 
 				in = new ObjectInputStream(socket.getInputStream());
 				
-				System.out.println(">>  (Servidor) Leyendo");
 				IEnviable req = (IEnviable)in.readObject();
-				System.out.println(">> Recibido una request "+ req);
 				req.manejarRequest(this,socket);
-				System.out.println(">> Manejada la request "+ req);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -175,7 +172,6 @@ public class Servidor implements Runnable, IServidor{
 		String nickReceptor = mensaje.getNickReceptor();
 		HandleCliente cliente = this.directorio.get(nickReceptor);
 		
-		System.out.println("llego un mensaje para " + nickReceptor);
 		if(cliente.getEstado()) {
 			cliente.enviarMensaje(mensaje);
 		}else {

@@ -42,10 +42,7 @@ public class ServidorAPI extends Observable implements Runnable{
 		try {
 			this.input = new ObjectInputStream(socket.getInputStream());
 			while(estado) {
-				System.out.println("Esperando respuesta del servidor...");
 				IRecibible res = (IRecibible)this.input.readObject();
-				
-				System.out.println(">>  Recibido "+res);
 				res.manejarResponse(this);
 			}
 			
@@ -55,7 +52,6 @@ public class ServidorAPI extends Observable implements Runnable{
 	}
 	
 	public void enviarRequest(IEnviable env) throws IOException {
-		System.out.println("(ServidorAPI) Enviando request");
 		
 		this.output.writeObject(env);
 		this.output.flush();

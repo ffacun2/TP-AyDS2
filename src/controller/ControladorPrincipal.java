@@ -108,7 +108,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			}
 			this.ventanaPrincipal.bloqueoAgrContacto(false);
 		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
-			System.out.println(Utils.MOSTRAR_AGENDA);
 			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.MOSTRAR_AGENDA);
 			this.dialogContactos.setVisible(true);
 		}
@@ -173,7 +172,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
- 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
+// 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
 			try {
 				this.usuario.enviarMensaje(msjObj, contactoActivo);
 				this.contactoActivo.agregarMensaje(msjObj);
@@ -258,7 +257,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	
  	public void cerrarSesion() {
  		try {
- 			System.out.println("se cierra sesion");
+// 			System.out.println("se cierra sesion");
  			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {

@@ -68,11 +68,8 @@ public class ControladorConfiguracion implements ActionListener{
 				hiloServer.start();
 				
 //				OKResponse response = (OKResponse)servidor.enviarRequest(request);
-				System.out.println("Enviando request "+request);
 				servidor.enviarRequest(request);
-				System.out.println(">>  Request enviada");
 				OKResponse response = (OKResponse)servidor.getResponse();
-				System.out.println(">>  Respuesta recibida "+response);
 				
 				if((response != null) && (response.isSuccess() == true)) {
 					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
