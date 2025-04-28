@@ -14,6 +14,11 @@ public class Utils {
 	public static String TITULO_AGR_CONTACTO = "Agregar contacto";
 	public static String CONFIRMAR_CONTACTO = "Aceptar contacto nueva conversacion";
 	public static String MENSAJE = "mensaje conversacion";
+	public static String REGISTRARSE = "REGISTRARSE";
+	public static String AGREGAR_CONTACTO = "AGREGAR_CONTACTO";
+	public static String MOSTRAR_DIRECTORIO = "MOSTRAR_DIRECTORIO";
+	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
+	public static int PUERTO_SERVER = 8888;
 	
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {

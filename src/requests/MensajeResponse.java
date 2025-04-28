@@ -1,23 +1,24 @@
-package model;
+package requests;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.time.LocalTime;
 
-import interfaces.IEnviable;
-import interfaces.IServidor;
+import cliente.ServidorAPI;
+import interfaces.IRecibible;
+import model.Mensaje;
 
-public class Mensaje implements IEnviable {
+public class MensajeResponse implements IRecibible{
+
 	private static final long serialVersionUID = 1L;
 	private String cuerpo;
 	private String nickEmisor;
 	private String nickReceptor;
 	private LocalTime  hora;
-	
-	public Mensaje(String nickEmisor,String nickReceptor,String cuerpo) {
-		this.cuerpo = cuerpo;
-		this.nickEmisor = nickEmisor;
-		this.nickReceptor = nickReceptor;
+
+	public MensajeResponse(Mensaje mensaje) {
+		this.cuerpo = mensaje.getCuerpo();
+		this.nickEmisor = mensaje.getNickEmisor();
+		this.nickReceptor = mensaje.getNickReceptor();
 		this.hora = LocalTime.now();
 	}
 
@@ -32,6 +33,7 @@ public class Mensaje implements IEnviable {
 	public LocalTime getHora() {
 		return hora;
 	}
+
 	
 	public String getNickReceptor() {
 		return this.nickReceptor;
@@ -44,8 +46,8 @@ public class Mensaje implements IEnviable {
 	}
 
 	@Override
-	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
-		servidor.handleMensaje(this);//chequear esto
+	public void manejarResponse(ServidorAPI servidor) throws IOException {
+		servidor.mensajeRecibido(this);
 	}
-
+	
 }

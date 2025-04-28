@@ -4,21 +4,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
-import model.Servidor;
+import requests.OKResponse;
+import requests.Request;
+import requests.RequestLogin;
+import requests.RequestRegistro;
 import utils.Utils;
 import view.VentanaConfiguracion;
 
 public class ControladorConfiguracion implements ActionListener{
 
-	
 	private VentanaConfiguracion ventanaConfiguracion;
 	private ControladorPrincipal controladorPrincipal;
 	
 	public ControladorConfiguracion() {
 		//Esta ventana config es la que se abre al inicio de la aplicacion, para crear el usuario
 		this.mostrarVentanaConfiguracion(Utils.TITULO, Utils.MODO_CONFIG);
-		this.controladorPrincipal = new ControladorPrincipal(this); //TODO Chequear si esta bien que el controlador config cree el otro controlador
 	}
 	
 	public VentanaConfiguracion getVentanaConfig() {
@@ -37,44 +39,51 @@ public class ControladorConfiguracion implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals(Utils.INGRESAR)) {
-			this.crearUsuario();
-		}
-		else if (comando.equals(Utils.CREAR_CONTACTO)) {
-			this.agregarContacto();
+		if (comando.equals(Utils.INGRESAR) || comando.equals(Utils.REGISTRARSE)) {
+			this.iniciarSesion(comando);
 		}
 	}
 
 	/**
-	 * Crea un nuevo usuario y servidor en la aplicacion, si este se crea correctamente se cierra
+	 * Manda una request al servidor para crear un nuevo usuario
 	 * la ventana de configuracion y se abre la ventana principal.
 	 * Caso contrario se muestra un mensaje de error.
-	 * Quien determine si el usuario se crea correctamente es el cliente usuario que lanza error de socket.
 	 */
-	private void crearUsuario() { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
-		
-		String ip = this.ventanaConfiguracion.getIp();
-		int puerto = Integer.parseInt(this.ventanaConfiguracion.getPuerto());
-		
+	private void iniciarSesion(String modo) { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
 		try {
-			Servidor server = new Servidor(ip, puerto);
-			server.addObserver(controladorPrincipal);
+			String nickname = this.ventanaConfiguracion.getNickname();
+			String ip = this.ventanaConfiguracion.getIp();
+			String puerto = this.ventanaConfiguracion.getPuerto();
 			
-			Thread hiloServer = new Thread(server);
-			hiloServer.start();
-			
-			if (controladorPrincipal
-					.crearUsuario(
-							this.ventanaConfiguracion.getNickname(),
-							Integer.parseInt(this.ventanaConfiguracion.getPuerto()), 
-							this.ventanaConfiguracion.getIp()
-							)
-				) {
-				this.ventanaConfiguracion.dispose();
-				this.controladorPrincipal.mostrarVentanaPrincipal();
-			}
-			else {
-				Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
+			if(!nickname.equals("") && !ip.equals("") && !puerto.equals("")) {
+				Request request;
+				if(modo.equals(Utils.INGRESAR)) {
+					request = new RequestLogin(nickname);
+				}else {
+					request = new RequestRegistro(nickname);
+				}
+				
+				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
+				Thread hiloServer = new Thread(servidor);
+				hiloServer.start();
+				
+//				OKResponse response = (OKResponse)servidor.enviarRequest(request);
+				servidor.enviarRequest(request);
+				OKResponse response = (OKResponse)servidor.getResponse();
+				
+				if((response != null) && (response.isSuccess() == true)) {
+					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
+					this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
+					servidor.setControladorListo();
+					this.ventanaConfiguracion.dispose();
+					this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
+				}else {
+					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
+					hiloServer.interrupt();
+					//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
+				}
+			}else {
+				Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
 			}
 			
 		} 
@@ -82,31 +91,11 @@ public class ControladorConfiguracion implements ActionListener{
 			Utils.mostrarError(e.getMessage(), ventanaConfiguracion);
 		}
 		catch (IOException e) {
-			Utils.mostrarError("El puerto ya esta siendo utilizado", this.ventanaConfiguracion);
-		}
-	}
-	
-	
-	
-	/**
-	 * Crea un nuevo contacto en la aplicacion, si este se crea correctamente se cierra.
-	 * 
-	 */
-	private void agregarContacto() {
-		//Creo que por tema de responsabilidades es mejor que este controlador solo tome los datos necesarios de la ventana y se lo pase al controlador principal, porque para agregar el contacto tmb necesito
-		//el usuario, que lo tiene el controlador principal
-		try {
-				this.controladorPrincipal.crearContacto(
-						this.ventanaConfiguracion.getIp(),
-						Integer.parseInt(this.ventanaConfiguracion.getPuerto()),
-						this.ventanaConfiguracion.getNickname()
-				);
-			this.ventanaConfiguracion.dispose();
-			Utils.mostrarVentanaEmergente("Contacto agregado exitosamente", this.controladorPrincipal.getVentanaPrincipal());
-		}
-		catch(Exception e) {
-			Utils.mostrarError(e.getMessage(),this.ventanaConfiguracion);
-		}
+			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
+		} //catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -121,4 +110,5 @@ public class ControladorConfiguracion implements ActionListener{
 	public void cerrar() {
 		this.controladorPrincipal.cerrarConfig();
 	}
+
 }

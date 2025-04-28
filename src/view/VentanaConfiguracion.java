@@ -2,7 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,24 +26,6 @@ public class VentanaConfiguracion extends JFrame {
 	private JTextField textFieldIp;
 	private JTextField textFieldPuerto;
 	private JTextField textFieldNickname;
-
-	/**
-	 * Launch the application.
-	 */
-	
-	  public static void main(String[] args) { 
-		  //TESTING
-		  
-		  EventQueue.invokeLater(new Runnable() { public void run() { 
-		  try { VentanaConfiguracion frame = new VentanaConfiguracion("Sistema de mensajeria instantanea",new ControladorConfiguracion(),Utils.MODO_CONFIG);
-		  //frame.setVisible(true);
-		  } catch (Exception e) {
-			  e.printStackTrace(); }
-		  } }
-		  );
-	  }
-	 
-
 
 	/**
 	 * Crea una instancia de JFrame de configuracion de usuario o para agregar un contacto
@@ -79,9 +60,16 @@ public class VentanaConfiguracion extends JFrame {
 		contentPane.add(panelS, BorderLayout.SOUTH);
 		
 		JButton btnIngresar;
+		JButton btnRegistrarse;
 		if (this.mode == Utils.MODO_CONFIG) {
 			btnIngresar = new JButton("Ingresar");
 			btnIngresar.setActionCommand(Utils.INGRESAR);
+			
+			btnRegistrarse = new JButton("Registrarse");
+			btnRegistrarse.setActionCommand(Utils.REGISTRARSE);
+			btnRegistrarse.addActionListener(this.controlador);
+			panelS.add(btnRegistrarse);
+			
 		}else {
 			btnIngresar = new JButton("Agregar contacto");
 			btnIngresar.setActionCommand(Utils.CREAR_CONTACTO);

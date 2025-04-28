@@ -1,23 +1,29 @@
 package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
 
+import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import exceptions.FueraDeRangoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
+import requests.DirectoriosResponse;
+import requests.RequestDirectorio;
+import requests.RequestLogout;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
 
 
+@SuppressWarnings("deprecation")
 public class ControladorPrincipal implements ActionListener, Observer {
 	
 	private ControladorConfiguracion controladorConfiguracion;
@@ -25,10 +31,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private DialogSeleccionarContacto dialogContactos;
 	private Usuario usuario;
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
+	private ServidorAPI servidor;
 	
-	
-	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion) {
+	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
+		this.servidor = servidor;
+		this.servidor.addObserver(this);
+		this.mostrarVentanaPrincipal();
 	}
 	
 	public VentanaPrincipal getVentanaPrincipal() {
@@ -46,14 +55,16 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals(Utils.CREAR_CONTACTO)) {
-			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
-			this.ventanaPrincipal.bloqueoAgrContacto(true);
+		if (comando.equals(Utils.MOSTRAR_DIRECTORIO)) {
+			try {
+				this.mostrarDirectorio();
+			} catch (ClassNotFoundException e1) {
+				Utils.mostrarError(e1.getMessage(), ventanaPrincipal);
+			}
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
-			
 			//Llama a la ventada de dialog con los contactos
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos());
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.CREAR_CONVERSACION);
 			this.dialogContactos.setVisible(true);	
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
@@ -65,19 +76,40 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
 			//Esto se llama desde el boton del dialog
 			Contacto contacto = this.dialogContactos.getContactoElegido();
-			this.dialogContactos.dispose();
-			this.crearConversacion(contacto);
+			if (contacto == null) {
+				Utils.mostrarError("Seleccione un contacto", this.ventanaPrincipal);
+			}
+			else {
+				this.dialogContactos.dispose();
+				this.crearConversacion(contacto);
+			}			
 			
 		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
-			boton.setText(contacto.toString());
+			this.contactoActivo = contacto;
+			boton.setText(contacto.getNickname());
 			this.ventanaPrincipal.setBorder(boton, null);
-			if (this.usuario.getContactos().contains(contacto)) {
-				this.contactoActivo = this.usuario.getContactos().get(this.usuario.getContactos().indexOf(contacto));
-				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-				this.ventanaPrincipal.bloquearMsj(false);
+			this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+			this.ventanaPrincipal.bloquearMsj(false);
+
+		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
+			Contacto contacto = this.dialogContactos.getContactoElegido();
+			try {
+				if (contacto == null) {
+					Utils.mostrarError("Seleccione un contacto valido", this.ventanaPrincipal);
+				}
+				else {
+					this.dialogContactos.dispose();
+					this.usuario.agregarContacto(contacto);
+				}
+			} catch (ContactoRepetidoException e1) {
+				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
 			}
+			this.ventanaPrincipal.bloqueoAgrContacto(false);
+		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.MOSTRAR_AGENDA);
+			this.dialogContactos.setVisible(true);
 		}
 	}
 	
@@ -91,9 +123,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public boolean crearUsuario(String ip, int puerto, String nickname) {
-			this.usuario = new Usuario(ip, puerto, nickname);	
-			return true;
+	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
+			this.usuario = new Usuario(nickname, puerto, ip,servidor);
 	}
 
 
@@ -103,16 +134,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param ip - ip del contacto
 	 * @param puerto - numero del contacto
 	 * @param nickname - nombre del contacto
+	 * @throws ClassNotFoundException 
 	 */
-	public void crearContacto(String ip, int puerto, String nickname) throws Exception {
+	public void mostrarDirectorio() throws ClassNotFoundException{	
 		try {
-			this.usuario.agregarContacto(new Contacto(nickname, puerto, ip));
-			this.ventanaPrincipal.bloqueoAgrContacto(false);
-			this.ventanaPrincipal.bloqueoNueConv(false);
+			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
+			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
+			this.dialogContactos.setVisible(true);
+		} catch (IOException e) {
+			Utils.mostrarError("No se pudo conectar al servidor", ventanaPrincipal);
 		}
-		catch (ContactoRepetidoException e) {
-			throw e;
-		}
+
 	}
 	
 	/**
@@ -126,8 +159,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			if(contacto.getConversacion() == null) {
 				contacto.setConversacion(new Conversacion());
 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-//				this.ventanaPrincipal.setNuevaConversacion();
-//				this.contactoActivo = contacto; 
 			}else {
 				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
 			}
@@ -140,14 +171,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param mensaje - mensaje a enviar
  	 */
  	protected void enviarMensaje(String mensaje) {
- 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.usuario.getPuerto(),this.usuario.getIp(),mensaje);
-		try {
-			this.usuario.enviarMensaje(msjObj, contactoActivo);
-			this.contactoActivo.agregarMensaje(msjObj);
-			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-		} catch (Exception exc) {
-			Utils.mostrarError("No se ha podido enviar el mensaje.",this.ventanaPrincipal);
-		}
+ 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
+// 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
+			try {
+				this.usuario.enviarMensaje(msjObj, contactoActivo);
+				this.contactoActivo.agregarMensaje(msjObj);
+				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				Utils.mostrarError("Se perdio la conexion", ventanaPrincipal);
+			}
  	}
  	
  	/**
@@ -157,10 +192,14 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	@Override
 	public void update(Observable o, Object arg) {
-		Mensaje mensaje = (Mensaje) arg;
-		
-		Contacto contacto = new Contacto( mensaje.getNickEmisor(), mensaje.getPuerto(),mensaje.getIp());
-		List<Contacto> agenda = this.usuario.getContactos();
+		if(arg instanceof Mensaje) {
+			this.cargarMensaje((Mensaje)arg);
+		}
+	}
+ 	
+ 	public void cargarMensaje(Mensaje mensaje) {
+		Contacto contacto = new Contacto( mensaje.getNickEmisor());
+		ArrayList<Contacto> agenda = this.usuario.getContactos();
 		int i;
 
 		//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
@@ -195,25 +234,37 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			catch (ContactoRepetidoException e) {
 				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
 			}
-			catch (FueraDeRangoException e) {
-				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
-			}
 			
 		}
-	}
+ 	}
  	
+ 	public void setTitulo(String title) {
+ 		this.ventanaPrincipal.setTitle(title);
+ 	}
  	
  	public void mostrarVentanaPrincipal() {
- 		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea: " + this.usuario.getNickname());
+ 		this.ventanaPrincipal = new VentanaPrincipal();
  		this.ventanaPrincipal.setControlador(this);
  		this.ventanaPrincipal.setLocationRelativeTo(null);
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
- 		this.ventanaPrincipal.bloqueoNueConv(true);
+ 		this.ventanaPrincipal.bloqueoNueConv(false);
  	}
  	
  	public void cerrarConfig() {
  		this.ventanaPrincipal.bloqueoAgrContacto(false);
  	}
+ 	
+ 	public void cerrarSesion() {
+ 		try {
+// 			System.out.println("se cierra sesion");
+ 			this.servidor.setEstado(false);
+			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
+		} catch (IOException e) {
+			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+		}
+ 	}
+ 	
+ 	
  	
 }

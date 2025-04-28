@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -13,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -36,9 +39,11 @@ public class VentanaPrincipal extends JFrame {
 	private JTextField textFieldMensaje;
 	private JTextArea textAreaConv;
 
-	private JButton btnAgrContacto;
+	private JButton btnDirectorio;
 	private JButton btnNueConv;
 	private JButton btnEnviar;
+	private JButton btnAgenda;
+
 	
 	private JPanel panelBotonesConversaciones;
 	private ControladorPrincipal controlador;
@@ -49,20 +54,19 @@ public class VentanaPrincipal extends JFrame {
 	
 	 public static void main(String[] args) { EventQueue.invokeLater(new
 	  Runnable() { public void run() { try { VentanaPrincipal frame = new
-	  VentanaPrincipal("Sistema de mensajeria instantanea");
+	  VentanaPrincipal();
 	  frame.setVisible(true); } catch (Exception e) { e.printStackTrace(); } } });
 	  }
 
 	/**
 	 * Create the frame.
 	 */
-	public VentanaPrincipal(String title) {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public VentanaPrincipal() {
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 503, 312);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		this.setTitle(title);
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
@@ -108,16 +112,16 @@ public class VentanaPrincipal extends JFrame {
 		
 		JPanel panelOpt = new JPanel();
 		panelIzq.add(panelOpt, BorderLayout.NORTH);
-		panelOpt.setLayout(new GridLayout(2, 1, 0, 0));
+		panelOpt.setLayout(new GridLayout(3, 1, 0, 0));
 		
 		JPanel panelAgrCont = new JPanel();
 		panelOpt.add(panelAgrCont);
 		panelAgrCont.setLayout(new BorderLayout(0, 0));
 		
-		JButton btnAgrContacto = new JButton("Agregar contacto");
-		panelAgrCont.add(btnAgrContacto, BorderLayout.CENTER);
-		btnAgrContacto.setActionCommand(Utils.CREAR_CONTACTO);
-		this.btnAgrContacto = btnAgrContacto;
+		JButton btnDirectorio = new JButton("Directorio");
+		panelAgrCont.add(btnDirectorio, BorderLayout.CENTER);
+		btnDirectorio.setActionCommand(Utils.MOSTRAR_DIRECTORIO);
+		this.btnDirectorio = btnDirectorio;
 		
 		JPanel panelNueConv = new JPanel();
 		panelOpt.add(panelNueConv);
@@ -130,6 +134,15 @@ public class VentanaPrincipal extends JFrame {
 		
 		JSeparator separator = new JSeparator();
 		panelNueConv.add(separator, BorderLayout.SOUTH);
+		
+		JPanel panelAgenda = new JPanel();
+		panelOpt.add(panelAgenda);
+		panelAgenda.setLayout(new BorderLayout(0, 0));
+		
+		JButton btnAgenda = new JButton("Agenda");
+		panelAgenda.add(btnAgenda, BorderLayout.CENTER);
+		btnAgenda.setActionCommand(Utils.MOSTRAR_AGENDA);
+		this.btnAgenda = btnAgenda;
 		
 		JPanel panelConversacione = new JPanel();
 		panelIzq.add(panelConversacione, BorderLayout.CENTER);
@@ -146,13 +159,20 @@ public class VentanaPrincipal extends JFrame {
 		panelBotonesConversaciones.setLayout(new BoxLayout(panelBotonesConversaciones, BoxLayout.Y_AXIS));
 		panelConversacione.add(scrollPane, BorderLayout.CENTER);
 		
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				cerrarSesion();
+			}
+		});
+		
 	}
 	
 	public void setControlador(ControladorPrincipal controlador) {
 		this.controlador = controlador;
-		this.btnAgrContacto.addActionListener(controlador);
+		this.btnDirectorio.addActionListener(controlador);
 		this.btnNueConv.addActionListener(controlador);
 		this.btnEnviar.addActionListener(controlador);
+		this.btnAgenda.addActionListener(controlador);
 	}
 
 	public String getMensaje() {
@@ -160,7 +180,7 @@ public class VentanaPrincipal extends JFrame {
 	}
 	
 	public void bloqueoAgrContacto(boolean cond) {
-		this.btnAgrContacto.setEnabled(!cond);
+		this.btnDirectorio.setEnabled(!cond);
 	}
 
 	public void bloqueoNueConv(boolean cond) {
@@ -241,5 +261,14 @@ public class VentanaPrincipal extends JFrame {
 	public void bloquearMsj(boolean cond) {
 		this.textFieldMensaje.setEnabled(!cond);
 		this.btnEnviar.setEnabled(!cond);
+	}
+	
+	public void cerrarSesion() {
+		int confirm = JOptionPane.showConfirmDialog(null, "¿Seguro que querés salir?", "Confirmar salida", JOptionPane.YES_NO_OPTION);
+
+		if (confirm == JOptionPane.YES_OPTION) {
+			this.controlador.cerrarSesion();
+		    this.dispose();
+		}
 	}
 }

@@ -1,27 +1,24 @@
 package model;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
+import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import exceptions.FueraDeRangoException;
 
 public class Usuario{
 	private String nickname;
 	private int puerto;
 	private String ip;
-	private ArrayList<Contacto> contactos;
-	private Servidor servidor;
+	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
+	private ServidorAPI servidor;
 	
-	public Usuario(String nickname,int puerto,String ip) {
+	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
 		this.nickname = nickname;
 		this.puerto = puerto;
-		this.ip = ip;
-		this.contactos = new ArrayList<Contacto>();
+		this.ip = ip; 
+		this.servidor = servidor;
 	}
 
 	public String getNickname() {
@@ -40,21 +37,12 @@ public class Usuario{
 		return contactos;
 	}
 
-	public Servidor getServidor() {
-		return servidor;
-	}
 
-	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException, FueraDeRangoException {
-		Iterator<Contacto> it = this.contactos.iterator();
-		Contacto aux;
-		
-		while (it.hasNext()) {
-			aux = it.next();
-			if (aux.getPuerto() == contacto.getPuerto() || aux.getIp() == contacto.getIp())
+	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException{
+		for(Contacto aux: this.contactos) {
+			if(aux.equals(contacto)) {
 				throw new ContactoRepetidoException();
-			if (aux.getPuerto() < 0 || aux.getPuerto() > 65535)
-				throw new FueraDeRangoException();
-			System.out.println(aux.getPuerto());
+			}
 		}
 		this.contactos.add(contacto);
 	}
@@ -70,17 +58,6 @@ public class Usuario{
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
-		try {
-			Socket socket = new Socket(contacto.getIp(),contacto.getPuerto());
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			out.writeObject(mensaje);
-			out.flush();
-			out.close();
-			socket.close();
-		}
-		catch (FueraDeRangoException e){
-			throw e;
-		}
-
+		this.servidor.enviarRequest(mensaje);
 	}
 }
