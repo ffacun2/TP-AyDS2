@@ -78,7 +78,6 @@ public class Servidor implements Runnable, IServidor{
 	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException { //OK
 		String nick = req.getNickname();
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-		System.out.println("Recibido request de registro...");
 		if (this.directorio.containsKey(nick)) {
 			out.writeObject(new OKResponse(false,"Usuario ya registrado"));
 			socket.close();
@@ -145,7 +144,6 @@ public class Servidor implements Runnable, IServidor{
 	public void handleCerrarSesion(RequestLogout req, Socket socket) throws IOException {
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		System.out.println("Hasta aca llega");
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			cliente.getOutput().writeObject(new OKResponse(true));
