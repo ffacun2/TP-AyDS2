@@ -75,6 +75,7 @@ public class ControladorServidor implements ActionListener {
 		else {
 			this.servidor.setEstado(false);
 			this.ventana.setStartLabel("Servidor detenido...");
+			this.servidor = null;
 		}
 	}
 	

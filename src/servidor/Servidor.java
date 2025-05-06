@@ -14,6 +14,7 @@ import interfaces.IServidor;
 import model.Contacto;
 import model.Mensaje;
 import requests.OKResponse;
+import requests.Pulso;
 import requests.RequestDirectorio;
 import requests.RequestLogin;
 import requests.RequestLogout;
@@ -36,6 +37,7 @@ public class Servidor implements Runnable, IServidor{
 	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
 	private ConcurrentHashMap<String,HandleCliente> directorio;
 	private ObjectInputStream in;
+	private ObjectOutputStream out;
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
 		this.puerto = puerto;
@@ -53,13 +55,14 @@ public class Servidor implements Runnable, IServidor{
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
 				System.out.println("Conexion con: "+socket.getPort());
-
-				in = new ObjectInputStream(socket.getInputStream());
+				this.out = new ObjectOutputStream(socket.getOutputStream());
+				this.in = new ObjectInputStream(socket.getInputStream());
 				
 				//TODO diferenciar mensaje de monitor y usuario
 				
-				
+				System.out.println("Recibe");
 				IEnviable req = (IEnviable)in.readObject();
+				System.out.println(((Pulso)req).getMensaje()+" --");
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
@@ -109,13 +112,12 @@ public class Servidor implements Runnable, IServidor{
 	 */
 	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException { //OK
 		String nick = req.getNickname();
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
-			out.writeObject(new OKResponse(false,"Usuario ya registrado"));
+			this.out.writeObject(new OKResponse(false,"Usuario ya registrado"));
 			socket.close();
 		}
 		else {
-			out.writeObject(new OKResponse(true));
+			this.out.writeObject(new OKResponse(true));
 			HandleCliente hCliente = new HandleCliente(socket,this);
 			hCliente.setInput(in);
 			hCliente.setOutput(out);
@@ -141,7 +143,6 @@ public class Servidor implements Runnable, IServidor{
 	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			if (!cliente.getEstado()) {
@@ -209,5 +210,15 @@ public class Servidor implements Runnable, IServidor{
 		}
 	}
 	
+	
+	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
+		ObjectOutputStream out = new ObjectOutputStream(serverSocket.accept().getOutputStream());
+		
+		if (pulso.getMensaje().equals("PING")) {
+			out.writeObject(new Pulso("PONG"));
+			out.flush();
+			
+		}
+	}
 
 }

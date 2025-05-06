@@ -5,6 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import interfaces.IEnviable;
+import requests.Pulso;
+
 /*
  * Clase que representa el HeartBeat del sistema
  * Se encarga de enviar un mensaje al servidor activo para verificar si esta activo
@@ -36,33 +39,43 @@ public class HeartBeat implements Runnable {
 		while (true) {
 		
 			//Paso 1 : Busco un servidor disponible.
+			System.out.println("Buscando servidor disponible...");
 			while (puertoNuevo == -1) {
+				System.out.println("busco disponible");
 				puertoNuevo = this.buscoServidorDisponible();
 				if (puertoNuevo != -1) {
 					this.monitor.cambioServidor(puertoNuevo);
 				}
 				else {
 					try {
-						Thread.sleep(3000); // Espera 5 segundos antes de volver a verificar
+						Thread.sleep(4000); // Espera 2 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
 			}
-			
+			cerrarSocket();
+			System.out.println("Servidor disponible encontrado en el puerto: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {
-				try {
-					this.out.writeObject("ping");
-					this.out.flush();
+				try ( Socket socket = new Socket("localhost", puertoNuevo);
+					  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+					  ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+					)  {
+					System.out.println("Mando ping");
+					out.writeObject(new Pulso("PING"));
+					out.flush();
 					
-					socket.setSoTimeout(3000); // Timeout para esperar la respuesta del servidor
-					String respuesta = (String) this.in.readObject();
+					socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
+					Pulso respuesta = (Pulso) in.readObject();
 					
-					if (respuesta == null || !respuesta.equals("pong")) {
+					if (respuesta == null || !respuesta.getMensaje().equals("PONG")) {
+						System.out.println("El server no responde");
 						throw new IOException("El servidor no responde");
 					}
+					
 					Thread.sleep(5000);
+					cerrarSocket();
 				} 
 				catch (Exception e) {
 					puertoNuevo = -1;
@@ -104,18 +117,20 @@ public class HeartBeat implements Runnable {
 			this.out = new ObjectOutputStream(socket.getOutputStream());
 			this.in = new ObjectInputStream(socket.getInputStream());
 			
-			this.out.writeObject("ping");
+			this.out.writeObject(new Pulso("PING"));
 			this.out.flush();
+			System.out.println("ACA");
+			socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
 			
-			socket.setSoTimeout(2000); // Timeout para esperar la respuesta del servidor
-			
-			String respuesta = (String) this.in.readObject();
+			Pulso respuesta = (Pulso) this.in.readObject();
+			System.out.println("Mando, ahora espero rta");
 			if (respuesta == null) {
 				return false;
 			}
 		} catch (Exception e) {
 			return false;
 		}
+		System.out.println("ahora si");
 		return true;
 	}
 
