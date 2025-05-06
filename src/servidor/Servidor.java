@@ -23,12 +23,14 @@ import requests.RequestRegistro;
 public class Servidor implements Runnable, IServidor{
 
 	private int puerto;
+	private boolean estado = false; //true si el servidor esta activo, false si no lo esta
 	private ServerSocket serverSocket; //recibe
 	private ConcurrentHashMap<String,HandleCliente> directorio;
 	private ObjectInputStream in;
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
-		this.puerto = puerto;		
+		this.puerto = puerto;
+		this.estado = true; //el servidor se inicia en estado activo
 		this.serverSocket = new ServerSocket(puerto);
 		this.directorio = new ConcurrentHashMap<String,HandleCliente>();
 	}
@@ -36,7 +38,7 @@ public class Servidor implements Runnable, IServidor{
 	@Override
 	public void run() {
 		try {
-			while (true) {
+			while (this.estado) {
 				System.out.println("Escuchando en el puerto: "+ this.puerto +" ...");
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre server y usuario
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
@@ -66,6 +68,24 @@ public class Servidor implements Runnable, IServidor{
 		return contacto;
 	}
 	
+	
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+		if (!estado) 
+			this.detenerServidor();
+	}
+	
+	public boolean getEstado() {
+		return this.estado;
+	}
+	
+	public void detenerServidor() {
+		try {
+			serverSocket.close();
+		}
+		catch (IOException e) {
+		}
+	}
 	
 	/**
 	 * Al recibir el request re registro, se verifica que el nick no este en uso y se procede a crear en caso
@@ -175,6 +195,10 @@ public class Servidor implements Runnable, IServidor{
 		}else {
 			cliente.addMensajePendiente(mensaje);
 		}
+	}
+	
+	public void heartBeat() {
+		
 	}
 
 }

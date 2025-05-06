@@ -18,8 +18,13 @@ public class Utils {
 	public static String AGREGAR_CONTACTO = "AGREGAR_CONTACTO";
 	public static String MOSTRAR_DIRECTORIO = "MOSTRAR_DIRECTORIO";
 	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
-	public static int PUERTO_SERVER = 8888;
 	
+	public static int PUERTO_SERVER1 = 8888;
+	public static int PUERTO_SERVER2 = 8889;
+	public static String INICIAR_SERVER = "INICIAR_SERVER";
+	public static String DETENER_SERVER = "DETENER_SERVER";
+	
+	public static int PUERTO_MONITOR = 9999;
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
 		JOptionPane.showMessageDialog(ventana, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
