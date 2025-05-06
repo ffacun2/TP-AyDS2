@@ -28,12 +28,9 @@ public class Monitor  {
 		new Thread(new MonitorCliente(this)).start();
 	}
 	
-	public synchronized void cambioServidor() {
-		if (this.puertosSecundarios.isEmpty()) {
-			throw new RuntimeException("No hay servidores secundarios disponibles");
-		}
+	public synchronized void cambioServidor(int puertoServerNuevo) {
 		this.puertosSecundarios.add(this.puertoServidorActivo); //Agrego al final el servidor caido
-		this.puertoServidorActivo = this.puertosSecundarios.poll(); //Saco el primero de la cola
+		this.puertoServidorActivo = puertoServerNuevo;
 	}
 	
 	
@@ -43,5 +40,9 @@ public class Monitor  {
 	
 	public synchronized int getPuertoServidorActivo() {
 		return this.puertoServidorActivo;
+	}
+	
+	public synchronized Queue<Integer> getPuertosSecundarios() {
+		return this.puertosSecundarios;
 	}
 }

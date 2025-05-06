@@ -1,5 +1,10 @@
 package monitor;
 
+/*
+ * Se encarga de recibir los mensajes de los clientes
+ * que piden el puerto del servidor activo para conectase
+ * a el.
+ */
 public class MonitorCliente implements Runnable {
 	
 	private Monitor monitor;

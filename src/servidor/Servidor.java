@@ -19,12 +19,21 @@ import requests.RequestLogin;
 import requests.RequestLogout;
 import requests.RequestRegistro;
 
-
+/*
+ * Clase que representa el servidor del sistema
+ * Se encarga de gestionar las conexiones de los clientes
+ * y de enviar los mensajes entre ellos
+ * Crea el socket del servidor y lo pone a escuchar en el puerto indicado
+ * Recibe los mensajes de los clientes y los procesa
+ * Crea un hilo para cada cliente que se conecta
+ * El servidor se ejecuta en un hilo separado y se detiene cuando se cierra la ventana
+ * 
+ */
 public class Servidor implements Runnable, IServidor{
 
 	private int puerto;
 	private boolean estado = false; //true si el servidor esta activo, false si no lo esta
-	private ServerSocket serverSocket; //recibe
+	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
 	private ConcurrentHashMap<String,HandleCliente> directorio;
 	private ObjectInputStream in;
 	
@@ -46,6 +55,9 @@ public class Servidor implements Runnable, IServidor{
 				System.out.println("Conexion con: "+socket.getPort());
 
 				in = new ObjectInputStream(socket.getInputStream());
+				
+				//TODO diferenciar mensaje de monitor y usuario
+				
 				
 				IEnviable req = (IEnviable)in.readObject();
 				req.manejarRequest(this,socket);
@@ -197,8 +209,5 @@ public class Servidor implements Runnable, IServidor{
 		}
 	}
 	
-	public void heartBeat() {
-		
-	}
 
 }

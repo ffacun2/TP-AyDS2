@@ -11,7 +11,7 @@ public class ControladorServidor implements ActionListener {
 
 	private VentanaServidor ventana;
 	private Servidor servidor;
-	private int puerto = Utils.PUERTO_SERVER1;
+	private int puerto;
 	
 	public ControladorServidor(int puerto) {
 		this.puerto = puerto;
@@ -21,7 +21,11 @@ public class ControladorServidor implements ActionListener {
 		this.ventana.setLocationRelativeTo(null);
 	}
 
-	
+	/*
+	 * Captura los eventos de los botones de la ventana
+	 * INICIAR_SERVER: inicia el servidor
+	 * DETENER_SERVER: detiene el servidor
+	 */
 	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		String comando = e.getActionCommand();
@@ -34,11 +38,14 @@ public class ControladorServidor implements ActionListener {
 	}
 	
 	/**
-	 * Inicia el servidor y lo pone a escuchar en el puerto indicado en Utils.PUERTO_SERVER
+	 * Inicia el servidor y lo pone a escuchar en el puerto ingresado.
+	 * @trhows IOException : si el puerto no puede ser utilizado
+	 * @throws IllegalArgumentException : si el puerto no es valido
+	 * @throws NumberFormatException : si el puerto no es un numero
 	 */
 	public void startServer() {
 		try {
-			this.servidor = new Servidor(Utils.PUERTO_SERVER1);
+			this.servidor = new Servidor(this.puerto);
 			new Thread(this.servidor).start();
 			this.ventana.setStartLabel("Servidor Iniciado...");
 		}
