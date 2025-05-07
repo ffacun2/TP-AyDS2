@@ -41,7 +41,7 @@ public class HeartBeat implements Runnable {
 			//Paso 1 : Busco un servidor disponible.
 			System.out.println("Buscando servidor disponible...");
 			while (puertoNuevo == -1) {
-				System.out.println("busco disponible");
+				System.out.println("Entro bucle buscando servidor");
 				puertoNuevo = this.buscoServidorDisponible();
 				if (puertoNuevo != -1) {
 					this.monitor.cambioServidor(puertoNuevo);
@@ -55,9 +55,10 @@ public class HeartBeat implements Runnable {
 				}
 			}
 			cerrarSocket();
-			System.out.println("Servidor disponible encontrado en el puerto: " + puertoNuevo);
+			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {
+				System.out.println("Entro bucle monitoreando servidor");
 				try ( Socket socket = new Socket("localhost", puertoNuevo);
 					  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 					  ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -66,7 +67,7 @@ public class HeartBeat implements Runnable {
 					out.writeObject(new Pulso("PING"));
 					out.flush();
 					
-					socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
+//					socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
 					Pulso respuesta = (Pulso) in.readObject();
 					
 					if (respuesta == null || !respuesta.getMensaje().equals("PONG")) {
@@ -113,25 +114,24 @@ public class HeartBeat implements Runnable {
 	 */
 	protected boolean verificoServidor(int puerto) {
 		try {
+			System.out.println("Entro metodo verificoServidor");
 			this.socket = new Socket("localhost", puerto);
 			this.out = new ObjectOutputStream(socket.getOutputStream());
 			this.in = new ObjectInputStream(socket.getInputStream());
 			
+			socket.setSoTimeout(3000); // Timeout para esperar la respuesta del servidor
+			
 			this.out.writeObject(new Pulso("PING"));
 			this.out.flush();
-			System.out.println("ACA");
-			socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
+			System.out.println("Mande punso, espero rta");
 			
 			Pulso respuesta = (Pulso) this.in.readObject();
-			System.out.println("Mando, ahora espero rta");
-			if (respuesta == null) {
-				return false;
-			}
+			System.out.println("LLego rta");
+			
+			return respuesta != null && respuesta.getMensaje().equals("PONG");
 		} catch (Exception e) {
 			return false;
 		}
-		System.out.println("ahora si");
-		return true;
 	}
 
 	/*

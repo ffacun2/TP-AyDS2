@@ -60,9 +60,8 @@ public class Servidor implements Runnable, IServidor{
 				
 				//TODO diferenciar mensaje de monitor y usuario
 				
-				System.out.println("Recibe");
 				IEnviable req = (IEnviable)in.readObject();
-				System.out.println(((Pulso)req).getMensaje()+" --");
+				System.out.println("Recibe pulso en servidor");
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
@@ -212,12 +211,10 @@ public class Servidor implements Runnable, IServidor{
 	
 	
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
-		ObjectOutputStream out = new ObjectOutputStream(serverSocket.accept().getOutputStream());
-		
+		System.out.println("Mando PONG desde servidor");
 		if (pulso.getMensaje().equals("PING")) {
 			out.writeObject(new Pulso("PONG"));
 			out.flush();
-			
 		}
 	}
 
