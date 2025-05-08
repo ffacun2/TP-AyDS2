@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import interfaces.IEnviable;
 import requests.Pulso;
 
 /*
@@ -48,13 +47,14 @@ public class HeartBeat implements Runnable {
 				}
 				else {
 					try {
-						Thread.sleep(4000); // Espera 2 segundos antes de volver a verificar
+						Thread.sleep(4000); // Espera 4 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 			cerrarSocket();
+			this.monitor.setPuertoServidorActivo(puertoNuevo);
 			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {

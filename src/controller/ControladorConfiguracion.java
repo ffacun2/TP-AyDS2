@@ -63,6 +63,10 @@ public class ControladorConfiguracion implements ActionListener{
 					request = new RequestRegistro(nickname);
 				}
 				
+				//Aca me conecto al monitor y pido el puerto del servidor activo
+				// el puerto es el que se le pasa al servidorAPI
+				// Podria implementar reintentos de conexion al servidor
+				// a llegar a x intentos, muestra mensaje de no hay conexion
 				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
 				Thread hiloServer = new Thread(servidor);
 				hiloServer.start();

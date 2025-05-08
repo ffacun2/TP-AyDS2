@@ -58,10 +58,12 @@ public class Servidor implements Runnable, IServidor{
 				this.out = new ObjectOutputStream(socket.getOutputStream());
 				this.in = new ObjectInputStream(socket.getInputStream());
 				
-				//TODO diferenciar mensaje de monitor y usuario
-				
+								
 				IEnviable req = (IEnviable)in.readObject();
 				System.out.println("Recibe pulso en servidor");
+				//Por ahora manejor Ping/Pong
+				// Conviene mandar lista de directorios? asi voy guardando backup en monitor
+				// vendria a ser resincronizacion?
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
