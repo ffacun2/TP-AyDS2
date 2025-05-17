@@ -72,6 +72,7 @@ public class Servidor implements Runnable, IServidor{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("Cerrando");
 	}
 	
 	public ArrayList<Contacto> getAgenda(String nickname) {
@@ -123,16 +124,16 @@ public class Servidor implements Runnable, IServidor{
 		else {
 			this.out.writeObject(new OKResponse(true));
 			HandleCliente hCliente = new HandleCliente(socket,this);
-			hCliente.setInput(in);
-			hCliente.setOutput(out);
-			
-			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
+			hCliente.setOutput(this.out);
+			hCliente.setInput(this.in);
 			
 			Thread hilo = new Thread(hCliente);
 			hCliente.setHilo(hilo);
 			
 			this.directorio.put(nick, hCliente);
 			hilo.start();
+			
+			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
 		}
 	}
 	
@@ -149,24 +150,29 @@ public class Servidor implements Runnable, IServidor{
 	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
+		System.out.println("llego a is");
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			if (!cliente.getEstado()) {
 				//Actualiza socket, input y output
 				cliente.setSocket(socket);
-				cliente.setInput(in);
-				cliente.setOutput(out);
-				new Thread(cliente).start();
+				cliente.setOutput(this.out);
+				cliente.setInput(this.in);
 				cliente.setEstado(true);
+
+				new Thread(cliente).start();
 				cliente.getOutput().writeObject(new OKResponse(true));
-				System.out.println(cliente.getMensajesPendientes());
+				cliente.getOutput().flush();
+				System.out.println("Inicio sesion");
 				cliente.mandarMsjPendientes();
 			}
 			else {
+				System.out.println("inic ses.ya coenctado");
 				out.writeObject(new OKResponse(false,"El usuario ya esta conectado."));
 			}
 		}
 		else {
+			System.out.println("inic ses.No existe");
 			out.writeObject(new OKResponse(false,"No usuario existente"));
 			socket.close();
 		}
@@ -262,6 +268,15 @@ public class Servidor implements Runnable, IServidor{
 		for (HandleClienteDTO elemento : snapshot) {
 			HandleCliente cliente = new HandleCliente(elemento.getMensajesPendientes(),this);
 			this.directorio.put(elemento.getNickName(), cliente);
+		}
+	}
+	
+	
+	public void cerrarSocketServer() {
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -42,17 +43,28 @@ public class HandleCliente extends Observable implements Runnable {
 	
 	@Override
 	public void run() {
-		try {
-			while (estado) {
+		System.out.println("Iniciando HandleCliente");
+		while (estado && servidor.getEstado()) {
+			try {
 				IEnviable req;
 				
+				socket.setSoTimeout(2000);
 				req = (IEnviable)this.input.readObject();
 				req.manejarRequest(servidor,this.socket);
 			}
+			catch (SocketTimeoutException e) {
+				//No hace nada, si se pasa de 2 seg vuelve a ejecutar
+				//Es para controlar el estado del servidor
+			}
+			catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+			}	
 		}
-		catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}	
+		try {
+			socket.close();
+		}catch (Exception e) {
+		}
+		System.out.println("Cerrando handleCliente");
 	}
 
 	public void mandarMsjPendientes() throws IOException {

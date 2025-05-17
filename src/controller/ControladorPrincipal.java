@@ -140,8 +140,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public void mostrarDirectorio() throws ClassNotFoundException{	
 		try {
+			System.out.println("Entro dire");
 			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			System.out.println("envie peti");
 			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
+			System.out.println("recibi peti");
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
 		} catch (IOException e) {
@@ -176,11 +179,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
 // 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
+ 		System.out.println("metodo enviarmensj controlador pric");
 			try {
 				this.usuario.enviarMensaje(msjObj, contactoActivo);
+				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
+				System.out.println("fin de try");
 			} catch (IOException e) {
+				System.out.println("catch de metodo enviar mensaje");
 				if (!this.reconectar())
 					Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
 			}
@@ -193,12 +200,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	@Override
 	public void update(Observable o, Object arg) {
+ 		System.out.println("Entra al update.");
 		if(arg instanceof Mensaje) {
 			this.cargarMensaje((Mensaje)arg);
 		}
-		else if (arg.equals(Utils.RECONEXION)){
-			System.out.println("> REINTENTO DE RECONEXION");
-			this.reconectar();
+		else if (arg instanceof String) {
+			if(((String)arg).equals(Utils.RECONEXION))
+				this.reconectar();
 		}
 	}
  	
@@ -275,11 +283,16 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public boolean reconectar() {
  		try {
  			int puerto = this.servidor.getPuertoServidorActivo();
+ 			this.servidor.setEstado(false);
+ 			
+ 			this.servidor = new ServidorAPI();
 			this.servidor.iniciarApi("localhost", puerto);
+			new Thread(this.servidor).start();
+			this.usuario.setServidor(this.servidor);
+			this.servidor.setControladorListo();
+			
 			this.servidor.enviarRequest(new RequestLogin(this.usuario.getNickname()));
 			OKResponse res = (OKResponse)this.servidor.getResponse();
-			System.out.println(res);
-			System.out.println("Puerto de reconexion: "+puerto);
 			if (res.isSuccess())
 				return true; //Deberia ser siempre true
 			else {

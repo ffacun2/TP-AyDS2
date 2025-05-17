@@ -15,7 +15,6 @@ import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
 import requests.MensajeResponse;
-import requests.RequestLogin;
 import utils.Utils;
 
 @SuppressWarnings("deprecation")
@@ -41,23 +40,27 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	@Override
 	public void run() {
+		System.out.println("Iniciando ServerAPi "+socket.getPort());
 		while(estado) {
 			IRecibible res;
 			try {
-				System.out.println("> Espero a que llegue un objeto para leer");
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
 				
 			} catch (EOFException | SocketException e) {
+				try {
+					Thread.sleep(3000);
+				}catch (Exception eh) {}
 				System.out.println("catch 1");
-				this.hasChanged();
+				this.setChanged();
 				this.notifyObservers(Utils.RECONEXION);
 			} catch (ClassNotFoundException | IOException e) {
 				System.out.println("catch 2");
-				this.hasChanged();
+				this.setChanged();
 				this.notifyObservers(Utils.RECONEXION);
 			}
 		}
+		System.out.println("Cerrando serverApi "+socket.getPort());
 	}
 	
 	public void enviarRequest(IEnviable env) throws IOException {
@@ -66,14 +69,15 @@ public class ServidorAPI extends Observable implements Runnable {
 			this.output.flush();
 		}
 		catch (IOException e) { //Reintento
+			e.printStackTrace();
 			try {
-				Thread.sleep(3000);
+				Thread.sleep(4000);
 			}
 			catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
 				throw new RuntimeException("Reintento interrumpido",ie);
 			}
 		
+			System.out.println("EnviarRequest ServidorAPI 2 intento");
 			this.output.writeObject(env);
 			this.output.flush();
 		}
@@ -81,6 +85,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 
 	public void setResponse(IRecibible res) {
+		System.out.println("LLego rta");
 		synchronized (lock) {
 			this.lastResponse = res;
 			lock.notifyAll();

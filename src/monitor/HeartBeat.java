@@ -46,7 +46,7 @@ public class HeartBeat implements Runnable {
 				}
 				else {
 					try {
-						Thread.sleep(3000); // Espera 3 segundos antes de volver a verificar
+						Thread.sleep(2000); // Espera 2 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -129,7 +129,7 @@ public class HeartBeat implements Runnable {
 			this.out.flush();
 //			System.out.println("Mande punso, espero rta");
 			
-			socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
+			socket.setSoTimeout(3000); // Timeout para esperar la respuesta del servidor
 			Pulso respuesta = (Pulso) this.in.readObject();
 //			System.out.println("LLego rta");
 			

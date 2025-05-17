@@ -37,6 +37,9 @@ public class Usuario{
 		return contactos;
 	}
 
+	public void setServidor(ServidorAPI server) {
+		this.servidor = server;
+	}
 
 	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException{
 		for(Contacto aux: this.contactos) {
