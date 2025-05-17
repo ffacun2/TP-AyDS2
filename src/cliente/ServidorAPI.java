@@ -27,7 +27,9 @@ public class ServidorAPI extends Observable implements Runnable{
 	
 	private IRecibible lastResponse;
 	
-	public ServidorAPI(String ip, int puerto) throws UnknownHostException, IOException {
+	//TODO agregar metodo para establecer nueva conexion
+	//TODO agregar metodo para cortar la conexion actual
+	public ServidorAPI(String ip, int puerto) throws UnknownHostException, IOException { //TODO cambiar el constructor para que sea mas generico
 		this.socket = new Socket(ip,puerto);
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		this.output.flush();
@@ -47,14 +49,27 @@ public class ServidorAPI extends Observable implements Runnable{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			//TODO Sesion cerrada
+			//TODO Sesion cerrada, que avise al controlador con el update
 		}
 	}
 	
 	public void enviarRequest(IEnviable env) throws IOException {
+		try {
+			this.output.writeObject(env);
+			this.output.flush();
+		}
+		catch (IOException e) {
+			try {
+				Thread.sleep(3000);
+			}
+			catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+				throw new RuntimeException("Reintento interrumpido",ie);
+			}
 		
-		this.output.writeObject(env);
-		this.output.flush();
+			this.output.writeObject(env);
+			this.output.flush();
+		}
 	}
 	
 

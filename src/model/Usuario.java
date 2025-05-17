@@ -56,6 +56,7 @@ public class Usuario{
 	 * 
 	 * @throws UnknownHostException: No se puede conectar con el contacto. 
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
+	 * @throws  
 	 */
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
 		this.servidor.enviarRequest(mensaje);
