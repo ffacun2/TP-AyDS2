@@ -13,9 +13,11 @@ import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
 import requests.MensajeResponse;
+import utils.Utils;
 
 @SuppressWarnings("deprecation")
-public class ServidorAPI extends Observable implements Runnable{
+public class ServidorAPI extends Observable implements Runnable {
+	
 	private Socket socket;
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
@@ -29,10 +31,7 @@ public class ServidorAPI extends Observable implements Runnable{
 	
 	//TODO agregar metodo para establecer nueva conexion
 	//TODO agregar metodo para cortar la conexion actual
-	public ServidorAPI(String ip, int puerto) throws UnknownHostException, IOException { //TODO cambiar el constructor para que sea mas generico
-		this.socket = new Socket(ip,puerto);
-		this.output = new ObjectOutputStream(socket.getOutputStream());
-		this.output.flush();
+	public ServidorAPI() throws UnknownHostException, IOException { //TODO cambiar el constructor para que sea mas generico
 		this.lastResponse = null;
 		this.estado = true;
 		this.controladorListo = false;
@@ -41,15 +40,15 @@ public class ServidorAPI extends Observable implements Runnable{
 	
 	@Override
 	public void run() {
-		try {
-			this.input = new ObjectInputStream(socket.getInputStream());
-			while(estado) {
-				IRecibible res = (IRecibible)this.input.readObject();
+		while(estado) {
+			IRecibible res;
+			try {
+				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-		} catch (IOException | ClassNotFoundException e) {
-			//TODO Sesion cerrada, que avise al controlador con el update
 		}
 	}
 	
@@ -125,5 +124,33 @@ public class ServidorAPI extends Observable implements Runnable{
 			}
 			this.bufferMensajes.clear();
 		}
+	}
+	
+	public void iniciarApi (String ip, int puerto) throws UnknownHostException, IOException {
+		this.socket = new Socket(ip,puerto);
+		this.output = new ObjectOutputStream(socket.getOutputStream());
+		this.input = new ObjectInputStream(socket.getInputStream());
+	}
+	
+	public Integer getPuertoServidorActivo() {
+		try (
+			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());			
+			) {
+
+			out.writeObject("SOLICITAR_PUERTO");
+			out.flush();
+			
+			return (Integer) in.readObject();
+			
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		} 
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

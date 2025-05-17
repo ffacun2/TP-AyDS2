@@ -16,7 +16,7 @@ import requests.DirectoriosResponse;
 import requests.MensajeResponse;
 
 @SuppressWarnings("deprecation")
-public class HandleCliente extends Observable implements Runnable{
+public class HandleCliente extends Observable implements Runnable {
 	
 	private Servidor servidor;
 	private Socket socket;

@@ -3,9 +3,6 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
@@ -53,8 +50,9 @@ public class ControladorConfiguracion implements ActionListener{
 	 * Caso contrario se muestra un mensaje de error.
 	 */
 	private void iniciarSesion(String modo) { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
-		int intentos = 0;
+		
 		Integer puertoServidorActivo = 0;
+		
 		try {
 			String nickname = this.ventanaConfiguracion.getNickname();
 			String ip = this.ventanaConfiguracion.getIp();
@@ -70,16 +68,11 @@ public class ControladorConfiguracion implements ActionListener{
 				
 				//Aca me conecto al monitor y pido el puerto del servidor activo
 				// el puerto es el que se le pasa al servidorAPI
-				// Podria implementar reintentos de conexion al servidor
-				// a llegar a x intentos, muestra mensaje de no hay conexion
+				ServidorAPI servidor = new ServidorAPI();
+				puertoServidorActivo = servidor.getPuertoServidorActivo();	
 				
-				while (puertoServidorActivo != null && intentos < 3) {
-					puertoServidorActivo = this.getPuertoServidorActivo();
-					intentos++;
-					
-				}
 				if (puertoServidorActivo != null) {
-					ServidorAPI servidor = new ServidorAPI("localhost", puertoServidorActivo);
+					servidor.iniciarApi(ip, puertoServidorActivo);
 					Thread hiloServer = new Thread(servidor);
 					hiloServer.start();
 					
@@ -112,10 +105,7 @@ public class ControladorConfiguracion implements ActionListener{
 		}
 		catch (IOException e) {
 			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
-		} //catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		} 
 	}
 
 	/**
@@ -131,26 +121,6 @@ public class ControladorConfiguracion implements ActionListener{
 		this.controladorPrincipal.cerrarConfig();
 	}
 	
-	private Integer getPuertoServidorActivo() {
-		try (
-			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());			
-			){
-
-			out.writeObject("SOLICITAR_PUERTO");
-			out.flush();
-			
-			return (Integer) in.readObject();
-			
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	
 
 }
