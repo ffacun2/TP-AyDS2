@@ -1,10 +1,17 @@
 package monitor;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Queue;
 
+import requests.Sync;
+import servidor.HandleClienteDTO;
 import utils.Utils;
 
 /*
@@ -15,13 +22,15 @@ import utils.Utils;
  * y el MonitorCliente que se encarga de recibir los mensajes de los clientes
  * sobre que Servidor esta activo y conectarse.
  */
-public class Monitor  implements Runnable{
+public class Monitor {
 
 	private int puertoServidorActivo;
 	private Queue<Integer> puertosSecundarios;
 	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
+	private ArrayList<HandleClienteDTO> backup;
 	
 	public Monitor(int... puertos) {
+		this.backup = new ArrayList<>();
 		this.puertosSecundarios = new ArrayDeque<>();
 		for (int puerto: puertos) {
 			this.puertosSecundarios.add(puerto);
@@ -30,11 +39,12 @@ public class Monitor  implements Runnable{
 	
 	public void iniciar() {
 		new Thread(new HeartBeat(this)).start();
-		this.run();
+		new Thread(this::clienteListener).start();
+		new Thread(this::servidorBackupListener).start();
 	}
 	
-	@Override
-	public void run() {
+	
+	private void clienteListener() {
 		try {
 			this.serverSocket = new ServerSocket(Utils.PUERTO_MONITOR);		
 			
@@ -44,13 +54,58 @@ public class Monitor  implements Runnable{
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre monitor y usuario
 				//Puede pasar que se quieran conectar simultaneamente varios usuarios
 				//para eso uso hilos por cada usuario
-				new Thread(new MonitorCliente(this, socket)).start();
+				new Thread(new ClienteListener(this, socket)).start();
 			}		
 		} catch (Exception e) {
 			System.out.println("Error al crear el socket del monitor: " + e.getMessage());
 			return;
 		}
 	}
+	
+	
+	private void servidorBackupListener() {
+		ObjectOutputStream out;
+		ObjectInputStream in;
+		try {
+			ServerSocket serverSocket = new ServerSocket(Utils.PUERTO_SYNC);
+			
+			while (true) {
+				Socket socket = serverSocket.accept();
+				out = new ObjectOutputStream(socket.getOutputStream());
+				in = new ObjectInputStream(socket.getInputStream());
+				
+				socket.setSoTimeout(3000);
+				//Aca recibo el objeto con los datos del backup
+				ArrayList<HandleClienteDTO> snapshot = (ArrayList<HandleClienteDTO>)in.readObject();
+				this.backup = snapshot;
+			}
+		} 
+		catch(Exception e) {
+			System.out.println("Error al hacer el backup: " +e.getMessage());
+			return;
+		}
+	}
+	
+	public void sincronizacion () {
+		try (
+			Socket socket = new Socket("localhost",this.puertoServidorActivo);	
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+			){
+			
+			out.writeObject(new Sync(this.backup));
+			out.flush();
+			
+		} 
+		catch (UnknownHostException e) {
+			e.printStackTrace();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	//Los metodos son sincronizador porque varios hilos pueden llamar a los metodos simultaneamente
 	// Los hilos que los llaman los de monitorCliente
@@ -73,5 +128,5 @@ public class Monitor  implements Runnable{
 		return this.puertosSecundarios;
 	}
 
-	
+
 }

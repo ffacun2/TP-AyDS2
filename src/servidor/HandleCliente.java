@@ -34,6 +34,11 @@ public class HandleCliente extends Observable implements Runnable {
 		this.estado = true;
 	}
 	
+	public HandleCliente(List<Mensaje> msjPendiente) {
+		this.mensajesPendientes = msjPendiente;
+		this.estado = false;
+	}
+	
 	@Override
 	public void run() {
 		while (estado) {

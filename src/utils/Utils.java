@@ -25,6 +25,7 @@ public class Utils {
 	public static String DETENER_SERVER = "DETENER_SERVER";
 	
 	public static int PUERTO_MONITOR = 9999;
+	public static int PUERTO_SYNC = 9998;
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
 		JOptionPane.showMessageDialog(ventana, mensaje, "Error", JOptionPane.ERROR_MESSAGE);

@@ -10,12 +10,12 @@ import java.net.Socket;
  * que piden el puerto del servidor activo para conectase
  * a el.
  */
-public class MonitorCliente implements Runnable {
+public class ClienteListener implements Runnable {
 	
 	private Monitor monitor;
 	private Socket socket;
 	
-	public MonitorCliente(Monitor monitor, Socket socket) {
+	public ClienteListener(Monitor monitor, Socket socket) {
 		this.monitor = monitor;
 		this.socket = socket;
 	}
@@ -27,6 +27,7 @@ public class MonitorCliente implements Runnable {
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 		){
+			socket.setSoTimeout(3000);
 			String peticion = (String) in.readObject();
 			if (peticion != null && peticion.equals("SOLICITAR_PUERTO")){
 				int puertoActivo = monitor.getPuertoServidorActivo();
@@ -40,7 +41,11 @@ public class MonitorCliente implements Runnable {
 			e.printStackTrace();
 		}
 		finally {
-			
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		// in.readObject(); //Recibe el mensaje del cliente

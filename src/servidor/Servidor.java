@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +21,7 @@ import requests.RequestDirectorio;
 import requests.RequestLogin;
 import requests.RequestLogout;
 import requests.RequestRegistro;
+import utils.Utils;
 
 /*
  * Clase que representa el servidor del sistema
@@ -123,6 +126,8 @@ public class Servidor implements Runnable, IServidor{
 			hCliente.setInput(in);
 			hCliente.setOutput(out);
 			
+			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
+			
 			Thread hilo = new Thread(hCliente);
 			hCliente.setHilo(hilo);
 			
@@ -183,6 +188,7 @@ public class Servidor implements Runnable, IServidor{
 			cliente.getOutput().writeObject(new OKResponse(true));
 			cliente.setEstado(false);
 			cliente.getSocket().close();
+			
 		}
 	}
 	
@@ -208,25 +214,53 @@ public class Servidor implements Runnable, IServidor{
 			cliente.enviarMensaje(mensaje);
 		}else {
 			cliente.addMensajePendiente(mensaje);
+			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
 		}
 	}
 	
 	
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
 		System.out.println("Mando PONG desde servidor");
-		if (pulso.getMensaje().equals("PING")) {
-			//Entra al if solo cuando se hace resincronizacion
-			if (pulso.getDirectorios() != null) 
-				this.setDirectorios(pulso.getDirectorios());
-			
-			//TODO Directorio no es serializable, ver alternativas
-			out.writeObject(new Pulso("PONG",null));
+		if (pulso.getMensaje().equals("PING")) {			
+			out.writeObject(new Pulso("PONG"));
 			out.flush();
 		}
 	}
 	
-	public void setDirectorios(ConcurrentHashMap<String, HandleCliente> directorios) {
-		this.directorio = directorios;
+	public List<HandleClienteDTO> generarSnapShot() {
+		List<HandleClienteDTO> snapshot = new ArrayList<>();
+		
+		for ( Map.Entry<String, HandleCliente> elemento : this.directorio.entrySet()) {
+			String nick = elemento.getKey();
+			HandleCliente cliente = elemento.getValue();
+			
+			HandleClienteDTO dto = new HandleClienteDTO(nick,cliente.getMensajesPendientes(),cliente.getEstado());
+			snapshot.add(dto);
+		}
+		return snapshot;
+	}
+	
+	public void enviarSnapShot (List<HandleClienteDTO> snapshot) {
+		try (
+			Socket socket = new Socket("localhost",Utils.PUERTO_SYNC);
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			) {
+			
+			out.writeObject(snapshot);
+			out.flush();
+		}
+		catch(IOException e) {
+			e.getStackTrace();
+		}
+		
+	}
+	
+	public void guardarSnapShot(List<HandleClienteDTO> snapshot) {
+		
+		for (HandleClienteDTO elemento : snapshot) {
+			HandleCliente cliente = new HandleCliente(elemento.getMensajesPendientes());
+			this.directorio.put(elemento.getNickName(), cliente);
+		}
 	}
 
 }

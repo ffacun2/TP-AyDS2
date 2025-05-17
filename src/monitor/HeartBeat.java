@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
 
 import requests.Pulso;
-import servidor.HandleCliente;
 
 /*
  * Clase que representa el HeartBeat del sistema
@@ -21,7 +19,6 @@ public class HeartBeat implements Runnable {
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private Socket socket;
-	private ConcurrentHashMap<String, HandleCliente> directorios;
 	
 	public HeartBeat(Monitor monitor) {
 		this.monitor = monitor;
@@ -58,6 +55,7 @@ public class HeartBeat implements Runnable {
 			}
 			cerrarSocket();
 			this.monitor.setPuertoServidorActivo(puertoNuevo);
+			this.monitor.sincronizacion();
 			
 			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
@@ -82,7 +80,6 @@ public class HeartBeat implements Runnable {
 						throw new IOException("El servidor no responde");
 					}
 					//Siempre recibo PONG y el directorio del servidor activo
-					this.directorios = respuesta.getDirectorios();
 					Thread.sleep(4000);
 				} 
 				catch (Exception e) {
@@ -128,8 +125,6 @@ public class HeartBeat implements Runnable {
 			this.out = new ObjectOutputStream(socket.getOutputStream());
 			this.in = new ObjectInputStream(socket.getInputStream());
 			
-			//Va esta instruccion pero la comento para probar, ya que directorio no es serializable y tira error
-//			this.out.writeObject(new Pulso("PING",this.directorios));
 			this.out.writeObject(new Pulso("PING"));
 			this.out.flush();
 			System.out.println("Mande punso, espero rta");

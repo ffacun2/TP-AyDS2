@@ -1,9 +1,11 @@
 package cliente;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,8 +45,13 @@ public class ServidorAPI extends Observable implements Runnable {
 			try {
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
+				
+			} catch (EOFException | SocketException e) {
+				//if ( !reconectar())
+					estado = false;
 			} catch (ClassNotFoundException | IOException e) {
 				// TODO Cuando se pierda la conexion acá va a saltar un error
+				estado = false;
 				e.printStackTrace();
 			}
 		}
@@ -140,6 +147,7 @@ public class ServidorAPI extends Observable implements Runnable {
 			out.writeObject("SOLICITAR_PUERTO");
 			out.flush();
 			
+			socket.setSoTimeout(3000);
 			return (Integer) in.readObject();
 			
 		} 
