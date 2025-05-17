@@ -143,7 +143,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
 		} catch (IOException e) {
-			Utils.mostrarError("No se pudo conectar al servidor", ventanaPrincipal);
+			this.reconectar();
 		}
 
 	}
@@ -178,10 +178,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.reconectar();
 			} catch (IOException e) {
-				Utils.mostrarError("Se perdio la conexion", ventanaPrincipal);
+				this.reconectar();
 			}
  	}
  	
@@ -261,10 +260,17 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {
-			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+			this.reconectar();
 		}
  	}
  	
- 	
+ 	public void reconectar() {
+ 		try {
+ 			int puerto = this.servidor.getPuertoServidorActivo();
+			this.servidor.iniciarApi("localhost", puerto);
+		} catch (IOException e) {
+			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+		}
+ 	}
  	
 }

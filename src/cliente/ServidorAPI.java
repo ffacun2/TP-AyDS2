@@ -28,9 +28,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	private ArrayList<Mensaje> bufferMensajes;
 	
 	private IRecibible lastResponse;
-	
-	//TODO agregar metodo para establecer nueva conexion
-	//TODO agregar metodo para cortar la conexion actual
+
 	public ServidorAPI() throws UnknownHostException, IOException { //TODO cambiar el constructor para que sea mas generico
 		this.lastResponse = null;
 		this.estado = true;
@@ -46,7 +44,7 @@ public class ServidorAPI extends Observable implements Runnable {
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
+				// TODO Cuando se pierda la conexion acá va a saltar un error
 				e.printStackTrace();
 			}
 		}

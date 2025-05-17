@@ -76,7 +76,6 @@ public class ControladorConfiguracion implements ActionListener{
 					Thread hiloServer = new Thread(servidor);
 					hiloServer.start();
 					
-	//				OKResponse response = (OKResponse)servidor.enviarRequest(request);
 					servidor.enviarRequest(request);
 					OKResponse response = (OKResponse)servidor.getResponse();
 					
