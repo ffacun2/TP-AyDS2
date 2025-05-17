@@ -16,7 +16,9 @@ import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
 import requests.DirectoriosResponse;
+import requests.OKResponse;
 import requests.RequestDirectorio;
+import requests.RequestLogin;
 import requests.RequestLogout;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
@@ -143,7 +145,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
 		} catch (IOException e) {
-			this.reconectar();
+			if (!this.reconectar())
+				Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
 		}
 
 	}
@@ -177,10 +180,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.usuario.enviarMensaje(msjObj, contactoActivo);
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-			} catch (UnknownHostException e) {
-				this.reconectar();
 			} catch (IOException e) {
-				this.reconectar();
+				if (!this.reconectar())
+					Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
 			}
  	}
  	
@@ -193,6 +195,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void update(Observable o, Object arg) {
 		if(arg instanceof Mensaje) {
 			this.cargarMensaje((Mensaje)arg);
+		}
+		else if (arg.equals(Utils.RECONEXION)){
+			this.reconectar();
 		}
 	}
  	
@@ -260,17 +265,27 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {
-			this.reconectar();
+			if (!this.reconectar())
+				Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+//			this.reconectar();
 		}
  	}
  	
- 	public void reconectar() {
+ 	public boolean reconectar() {
  		try {
  			int puerto = this.servidor.getPuertoServidorActivo();
 			this.servidor.iniciarApi("localhost", puerto);
+			this.servidor.enviarRequest(new RequestLogin(this.usuario.getNickname()));
+			OKResponse res = (OKResponse)this.servidor.getResponse();
+			if (res.isSuccess())
+				return true; //Deberia ser siempre true
+			else {
+				Utils.mostrarError(res.getMensajeError(), ventanaPrincipal);
+				return false;
+			}
 		} catch (IOException e) {
-			Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+			Utils.mostrarError("Se perdio la conexion con los servidores", ventanaPrincipal);
+			return false;
 		}
  	}
- 	
 }

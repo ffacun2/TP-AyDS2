@@ -77,7 +77,7 @@ public class ControladorConfiguracion implements ActionListener{
 					hiloServer.start();
 					
 					servidor.enviarRequest(request);
-					OKResponse response = (OKResponse)servidor.getResponse();
+					OKResponse response = (OKResponse)servidor.getResponse(); //bloqueante
 					
 					if((response != null) && (response.isSuccess() == true)) {
 						this.controladorPrincipal = new ControladorPrincipal(this, servidor);

@@ -15,6 +15,7 @@ import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
 import requests.MensajeResponse;
+import requests.RequestLogin;
 import utils.Utils;
 
 @SuppressWarnings("deprecation")
@@ -31,7 +32,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	private IRecibible lastResponse;
 
-	public ServidorAPI() throws UnknownHostException, IOException { //TODO cambiar el constructor para que sea mas generico
+	public ServidorAPI() throws UnknownHostException, IOException {
 		this.lastResponse = null;
 		this.estado = true;
 		this.controladorListo = false;
@@ -47,12 +48,11 @@ public class ServidorAPI extends Observable implements Runnable {
 				res.manejarResponse(this);
 				
 			} catch (EOFException | SocketException e) {
-				//if ( !reconectar())
-					estado = false;
+				this.hasChanged();
+				this.notifyObservers(Utils.RECONEXION);
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Cuando se pierda la conexion acá va a saltar un error
-				estado = false;
-				e.printStackTrace();
+				this.hasChanged();
+				this.notifyObservers(Utils.RECONEXION);
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class ServidorAPI extends Observable implements Runnable {
 			this.output.writeObject(env);
 			this.output.flush();
 		}
-		catch (IOException e) {
+		catch (IOException e) { //Reintento
 			try {
 				Thread.sleep(3000);
 			}
@@ -100,11 +100,14 @@ public class ServidorAPI extends Observable implements Runnable {
 		}
 	}
 	
+	/** Setea el estado de la API cuando se <b>cierra sesion</b>
+	 * @param estado: nuevo estado
+	 */
 	public void setEstado(boolean estado) {
 		this.estado = estado;
 		this.controladorListo = false;
-		//Habria que mandar el estado al servidor?
 	}
+		//Habria que mandar el estado al servidor?
 	
 	public void mensajeRecibido(MensajeResponse mensaje) {
 		
@@ -118,6 +121,9 @@ public class ServidorAPI extends Observable implements Runnable {
 		}
 	}
 	
+	/** 
+	 *  Indica que el controlador esta listo, y envia todos los mensajes pendientes que llegaron ubicados en el bufer
+	 */
 	public void setControladorListo() {
 		synchronized (this) {
 			this.controladorListo = true;
@@ -159,4 +165,5 @@ public class ServidorAPI extends Observable implements Runnable {
 		}
 		return null;
 	}
+
 }

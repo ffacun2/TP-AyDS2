@@ -18,6 +18,7 @@ public class Utils {
 	public static String AGREGAR_CONTACTO = "AGREGAR_CONTACTO";
 	public static String MOSTRAR_DIRECTORIO = "MOSTRAR_DIRECTORIO";
 	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
+	public static String RECONEXION = "RECONEXION";
 	
 	public static int PUERTO_SERVER1 = 8888;
 	public static int PUERTO_SERVER2 = 8889;
