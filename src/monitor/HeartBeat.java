@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 
 import requests.Pulso;
+import servidor.HandleCliente;
 
 /*
  * Clase que representa el HeartBeat del sistema
@@ -19,7 +21,7 @@ public class HeartBeat implements Runnable {
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private Socket socket;
-	
+	private ConcurrentHashMap<String, HandleCliente> directorios;
 	
 	public HeartBeat(Monitor monitor) {
 		this.monitor = monitor;
@@ -47,41 +49,46 @@ public class HeartBeat implements Runnable {
 				}
 				else {
 					try {
-						Thread.sleep(3000); // Espera 4 segundos antes de volver a verificar
+						Thread.sleep(3000); // Espera 3 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				System.out.println(puertoNuevo);
+				System.out.println("puerto en bucle de busqueda:"+puertoNuevo);
 			}
 			cerrarSocket();
 			this.monitor.setPuertoServidorActivo(puertoNuevo);
+			
 			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {
 				System.out.println("Entro bucle monitoreando servidor");
+				//Por cada iteracion del bucle, creo un nuevo socket para no bloquear el serversocket del servidor
 				try ( 
 					Socket socket = new Socket("localhost", puertoNuevo);
 					ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 					ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 					)  {
+					
 					System.out.println("Mando ping");
 					out.writeObject(new Pulso("PING"));
 					out.flush();
 					
-//					socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
+					socket.setSoTimeout(4000);//Timeout para esperar la rta
 					Pulso respuesta = (Pulso) in.readObject();
 					
 					if (respuesta == null || !respuesta.getMensaje().equals("PONG")) {
 						System.out.println("El server no responde");
 						throw new IOException("El servidor no responde");
 					}
-					
-					Thread.sleep(5000);
-//					cerrarSocket();
+					//Siempre recibo PONG y el directorio del servidor activo
+					this.directorios = respuesta.getDirectorios();
+					Thread.sleep(4000);
 				} 
 				catch (Exception e) {
 					puertoNuevo = -1;
+				}
+				finally {
 					cerrarSocket();
 				}
 			}
@@ -121,12 +128,13 @@ public class HeartBeat implements Runnable {
 			this.out = new ObjectOutputStream(socket.getOutputStream());
 			this.in = new ObjectInputStream(socket.getInputStream());
 			
-			socket.setSoTimeout(3000); // Timeout para esperar la respuesta del servidor
-			
+			//Va esta instruccion pero la comento para probar, ya que directorio no es serializable y tira error
+//			this.out.writeObject(new Pulso("PING",this.directorios));
 			this.out.writeObject(new Pulso("PING"));
 			this.out.flush();
 			System.out.println("Mande punso, espero rta");
 			
+			socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
 			Pulso respuesta = (Pulso) this.in.readObject();
 			System.out.println("LLego rta");
 			

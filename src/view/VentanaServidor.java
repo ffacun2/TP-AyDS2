@@ -99,4 +99,12 @@ public class VentanaServidor extends JFrame {
 		this.btnStop.setActionCommand(Utils.DETENER_SERVER);
 	}
 	
+	public void setEnableButtonInicio(boolean estado) {
+		this.btnStart.setEnabled(estado);
+	}
+	
+	public void setEnableButtonFinalizar(boolean estado) {
+		this.btnStop.setEnabled(estado);
+	}
+	
 }

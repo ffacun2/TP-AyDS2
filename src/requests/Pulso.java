@@ -27,8 +27,7 @@ public class Pulso implements IEnviable {
 
 	@Override
 	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
-		((Servidor)servidor).handleHeartBeat(this,socket);
-		
+		((Servidor)servidor).handleHeartBeat(this,socket);		
 	}
 
 	public String getMensaje() {

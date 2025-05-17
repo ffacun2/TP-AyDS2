@@ -215,9 +215,18 @@ public class Servidor implements Runnable, IServidor{
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
 		System.out.println("Mando PONG desde servidor");
 		if (pulso.getMensaje().equals("PING")) {
-//			out.writeObject(new Pulso("PONG",this.directorio));
+			//Entra al if solo cuando se hace resincronizacion
+			if (pulso.getDirectorios() != null) 
+				this.setDirectorios(pulso.getDirectorios());
+			
+			//TODO Directorio no es serializable, ver alternativas
+			out.writeObject(new Pulso("PONG",null));
 			out.flush();
 		}
+	}
+	
+	public void setDirectorios(ConcurrentHashMap<String, HandleCliente> directorios) {
+		this.directorio = directorios;
 	}
 
 }

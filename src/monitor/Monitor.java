@@ -52,6 +52,9 @@ public class Monitor  implements Runnable{
 		}
 	}
 	
+	//Los metodos son sincronizador porque varios hilos pueden llamar a los metodos simultaneamente
+	// Los hilos que los llaman los de monitorCliente
+	
 	public synchronized void cambioServidor(int puertoServerNuevo) {
 		this.puertosSecundarios.add(this.puertoServidorActivo); //Agrego al final el servidor caido
 		this.puertoServidorActivo = puertoServerNuevo;

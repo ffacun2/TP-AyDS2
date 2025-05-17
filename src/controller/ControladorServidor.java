@@ -19,6 +19,7 @@ public class ControladorServidor implements ActionListener {
 		this.ventana.setControlador(this);
 		this.ventana.setVisible(true);
 		this.ventana.setLocationRelativeTo(null);
+		this.startServer();
 	}
 
 	/*
@@ -48,6 +49,8 @@ public class ControladorServidor implements ActionListener {
 			this.servidor = new Servidor(this.puerto);
 			new Thread(this.servidor).start();
 			this.ventana.setStartLabel("Servidor Iniciado...");
+			this.ventana.setEnableButtonFinalizar(true);
+			this.ventana.setEnableButtonInicio(false);
 		}
 		catch (NumberFormatException e) {
 			Utils.mostrarError("El dato a ingresar debe ser un numero natural", this.ventana);
@@ -76,6 +79,9 @@ public class ControladorServidor implements ActionListener {
 			this.servidor.setEstado(false);
 			this.ventana.setStartLabel("Servidor detenido...");
 			this.servidor = null;
+			this.ventana.setEnableButtonFinalizar(false);
+			this.ventana.setEnableButtonInicio(true);
+			
 		}
 	}
 	
