@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,10 +45,15 @@ public class ServidorAPI extends Observable implements Runnable {
 		while(estado) {
 			IRecibible res;
 			try {
+				socket.setSoTimeout(3000);
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
 				
-			} catch (EOFException | SocketException e) {
+			
+				
+			}
+			catch (SocketTimeoutException e) {} // No hace nada, es para que cicle el input y no quede bloqueado (para cerra sesion)
+			catch (EOFException | SocketException e) {
 				try {
 					Thread.sleep(3000);
 				}catch (Exception eh) {}
@@ -118,14 +124,17 @@ public class ServidorAPI extends Observable implements Runnable {
 		//Habria que mandar el estado al servidor?
 	
 	public void mensajeRecibido(MensajeResponse mensaje) {
-		
+		System.out.println("Recibi msj");
 		synchronized (this) {
 			Mensaje mensajeRecibido = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), mensaje.getCuerpo());
+			System.out.println("Dentro bloque sync");
 			if (this.controladorListo) {
 				this.setChanged();
 				this.notifyObservers(mensajeRecibido);
-			}else
+			}else {
 				this.bufferMensajes.add(mensajeRecibido);
+				System.out.println("controlador no listo");
+			}
 		}
 	}
 	

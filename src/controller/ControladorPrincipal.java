@@ -289,6 +289,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.servidor.iniciarApi("localhost", puerto);
 			new Thread(this.servidor).start();
 			this.usuario.setServidor(this.servidor);
+			this.servidor.addObserver(this);
 			this.servidor.setControladorListo();
 			
 			this.servidor.enviarRequest(new RequestLogin(this.usuario.getNickname()));

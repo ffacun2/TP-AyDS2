@@ -218,6 +218,7 @@ public class Servidor implements Runnable, IServidor{
 		HandleCliente cliente = this.directorio.get(nickReceptor);
 		
 		if(cliente.getEstado()) {
+			System.out.println(mensaje.toString());
 			cliente.enviarMensaje(mensaje);
 		}else {
 			cliente.addMensajePendiente(mensaje);
