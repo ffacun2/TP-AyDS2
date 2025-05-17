@@ -215,7 +215,7 @@ public class Servidor implements Runnable, IServidor{
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
 		System.out.println("Mando PONG desde servidor");
 		if (pulso.getMensaje().equals("PING")) {
-			out.writeObject(new Pulso("PONG"));
+//			out.writeObject(new Pulso("PONG",this.directorio));
 			out.flush();
 		}
 	}

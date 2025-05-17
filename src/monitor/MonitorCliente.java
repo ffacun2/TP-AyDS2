@@ -1,11 +1,9 @@
 package monitor;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
-
-import utils.Utils;
 
 /*
  * Se encarga de recibir los mensajes de los clientes
@@ -15,42 +13,51 @@ import utils.Utils;
 public class MonitorCliente implements Runnable {
 	
 	private Monitor monitor;
-	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
+	private Socket socket;
 	
-	public MonitorCliente(Monitor monitor) {
+	public MonitorCliente(Monitor monitor, Socket socket) {
 		this.monitor = monitor;
+		this.socket = socket;
 	}
+
 
 	@Override
 	public void run() {
-		try {
-			this.serverSocket = new ServerSocket(Utils.PUERTO_MONITOR);		
+		try(		
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+		){
+			String peticion = (String) in.readObject();
+			if (peticion != null && peticion.equals("SOLICITAR_PUERTO")){
+				int puertoActivo = monitor.getPuertoServidorActivo();
+				out.writeObject(puertoActivo);
+				out.flush();
+			}
 			
-			while(true) {
-				//Por cada cliente que se conecta, se crea un nuevo socket
-				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre monitor y usuario
-				
-				ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-				ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-				
-				// in.readObject(); //Recibe el mensaje del cliente
-				
-				// Recibe peticion de usuario 
-				// y le envia el puerto del servidor activo
-				//Nuevo request?
-				// out.writeObject(new nuevoRequest??(this.monitor.getPuertoServidorActivo()));
-				// El usuario se encarga de cerrar el socket.
-				
-				
-				//DEberia hacer un nuevo hilo para cada cliente que se conecta?
-				// Por si el varios clientes se conectan al mismo tiempo
-				// o no es necesario?
-				
-			}		
-		} catch (Exception e) {
-			System.out.println("Error al crear el socket del monitor: " + e.getMessage());
-			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
+		finally {
+			
+		}
+		
+		// in.readObject(); //Recibe el mensaje del cliente
+		
+		// Recibe peticion de usuario 
+		// y le envia el puerto del servidor activo
+		//Nuevo request?
+		// out.writeObject(new nuevoRequest??(this.monitor.getPuertoServidorActivo()));
+		// El usuario se encarga de cerrar el socket.
+		
+		
+		//DEberia hacer un nuevo hilo para cada cliente que se conecta?
+		// Por si el varios clientes se conectan al mismo tiempo
+		// o no es necesario?
 	}
+
+	
+	
 
 }

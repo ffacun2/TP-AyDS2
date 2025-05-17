@@ -47,11 +47,12 @@ public class HeartBeat implements Runnable {
 				}
 				else {
 					try {
-						Thread.sleep(4000); // Espera 4 segundos antes de volver a verificar
+						Thread.sleep(3000); // Espera 4 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
+				System.out.println(puertoNuevo);
 			}
 			cerrarSocket();
 			this.monitor.setPuertoServidorActivo(puertoNuevo);
@@ -59,9 +60,10 @@ public class HeartBeat implements Runnable {
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {
 				System.out.println("Entro bucle monitoreando servidor");
-				try ( Socket socket = new Socket("localhost", puertoNuevo);
-					  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-					  ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+				try ( 
+					Socket socket = new Socket("localhost", puertoNuevo);
+					ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+					ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 					)  {
 					System.out.println("Mando ping");
 					out.writeObject(new Pulso("PING"));
@@ -76,7 +78,7 @@ public class HeartBeat implements Runnable {
 					}
 					
 					Thread.sleep(5000);
-					cerrarSocket();
+//					cerrarSocket();
 				} 
 				catch (Exception e) {
 					puertoNuevo = -1;

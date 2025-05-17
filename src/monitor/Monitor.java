@@ -1,7 +1,11 @@
 package monitor;
 
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.Queue;
+
+import utils.Utils;
 
 /*
  * Clase que representa el monitor del sistema
@@ -11,10 +15,11 @@ import java.util.Queue;
  * y el MonitorCliente que se encarga de recibir los mensajes de los clientes
  * sobre que Servidor esta activo y conectarse.
  */
-public class Monitor  {
+public class Monitor  implements Runnable{
 
 	private int puertoServidorActivo;
 	private Queue<Integer> puertosSecundarios;
+	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
 	
 	public Monitor(int... puertos) {
 		this.puertosSecundarios = new ArrayDeque<>();
@@ -25,7 +30,26 @@ public class Monitor  {
 	
 	public void iniciar() {
 		new Thread(new HeartBeat(this)).start();
-		new Thread(new MonitorCliente(this)).start();
+		this.run();
+	}
+	
+	@Override
+	public void run() {
+		try {
+			this.serverSocket = new ServerSocket(Utils.PUERTO_MONITOR);		
+			
+			while(true) {
+				System.out.println("Monitor escuchando...");
+				//Por cada cliente que se conecta, se crea un nuevo socket
+				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre monitor y usuario
+				//Puede pasar que se quieran conectar simultaneamente varios usuarios
+				//para eso uso hilos por cada usuario
+				new Thread(new MonitorCliente(this, socket)).start();
+			}		
+		} catch (Exception e) {
+			System.out.println("Error al crear el socket del monitor: " + e.getMessage());
+			return;
+		}
 	}
 	
 	public synchronized void cambioServidor(int puertoServerNuevo) {
@@ -45,4 +69,6 @@ public class Monitor  {
 	public synchronized Queue<Integer> getPuertosSecundarios() {
 		return this.puertosSecundarios;
 	}
+
+	
 }

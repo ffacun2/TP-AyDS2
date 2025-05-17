@@ -3,6 +3,9 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
@@ -50,6 +53,8 @@ public class ControladorConfiguracion implements ActionListener{
 	 * Caso contrario se muestra un mensaje de error.
 	 */
 	private void iniciarSesion(String modo) { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
+		int intentos = 0;
+		Integer puertoServidorActivo = 0;
 		try {
 			String nickname = this.ventanaConfiguracion.getNickname();
 			String ip = this.ventanaConfiguracion.getIp();
@@ -67,24 +72,35 @@ public class ControladorConfiguracion implements ActionListener{
 				// el puerto es el que se le pasa al servidorAPI
 				// Podria implementar reintentos de conexion al servidor
 				// a llegar a x intentos, muestra mensaje de no hay conexion
-				ServidorAPI servidor = new ServidorAPI("localhost", 8888);
-				Thread hiloServer = new Thread(servidor);
-				hiloServer.start();
 				
-//				OKResponse response = (OKResponse)servidor.enviarRequest(request);
-				servidor.enviarRequest(request);
-				OKResponse response = (OKResponse)servidor.getResponse();
-				
-				if((response != null) && (response.isSuccess() == true)) {
-					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
-					this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
-					servidor.setControladorListo();
-					this.ventanaConfiguracion.dispose();
-					this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
-				}else {
-					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
-					hiloServer.interrupt();
-					//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
+				while (puertoServidorActivo != null && intentos < 3) {
+					puertoServidorActivo = this.getPuertoServidorActivo();
+					intentos++;
+					
+				}
+				if (puertoServidorActivo != null) {
+					ServidorAPI servidor = new ServidorAPI("localhost", puertoServidorActivo);
+					Thread hiloServer = new Thread(servidor);
+					hiloServer.start();
+					
+	//				OKResponse response = (OKResponse)servidor.enviarRequest(request);
+					servidor.enviarRequest(request);
+					OKResponse response = (OKResponse)servidor.getResponse();
+					
+					if((response != null) && (response.isSuccess() == true)) {
+						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
+						this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
+						servidor.setControladorListo();
+						this.ventanaConfiguracion.dispose();
+						this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
+					}else {
+						Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
+						hiloServer.interrupt();
+						//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
+					}
+				}
+				else {
+					throw new IOException();
 				}
 			}else {
 				Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
@@ -113,6 +129,28 @@ public class ControladorConfiguracion implements ActionListener{
 	
 	public void cerrar() {
 		this.controladorPrincipal.cerrarConfig();
+	}
+	
+	private Integer getPuertoServidorActivo() {
+		try (
+			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());			
+			){
+
+			out.writeObject("SOLICITAR_PUERTO");
+			out.flush();
+			
+			return (Integer) in.readObject();
+			
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		} 
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
