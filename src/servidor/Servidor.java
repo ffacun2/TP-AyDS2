@@ -53,17 +53,17 @@ public class Servidor implements Runnable, IServidor{
 	public void run() {
 		try {
 			while (this.estado) {
-				System.out.println("Escuchando en el puerto: "+ this.puerto +" ...");
+//				System.out.println("Escuchando en el puerto: "+ this.puerto +" ...");
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre server y usuario
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
-				System.out.println("Conexion con: "+socket.getPort());
+//				System.out.println("Conexion con: "+socket.getPort());
 				this.out = new ObjectOutputStream(socket.getOutputStream());
 				this.in = new ObjectInputStream(socket.getInputStream());
 				
 								
 				IEnviable req = (IEnviable)in.readObject();
-				System.out.println("Recibe pulso en servidor");
+//				System.out.println("Recibe pulso en servidor");
 				//Por ahora manejor Ping/Pong
 				// Conviene mandar lista de directorios? asi voy guardando backup en monitor
 				// vendria a ser resincronizacion?
@@ -159,6 +159,7 @@ public class Servidor implements Runnable, IServidor{
 				new Thread(cliente).start();
 				cliente.setEstado(true);
 				cliente.getOutput().writeObject(new OKResponse(true));
+				System.out.println(cliente.getMensajesPendientes());
 				cliente.mandarMsjPendientes();
 			}
 			else {
@@ -214,13 +215,14 @@ public class Servidor implements Runnable, IServidor{
 			cliente.enviarMensaje(mensaje);
 		}else {
 			cliente.addMensajePendiente(mensaje);
+//			System.out.println("Llegado un mensaje para un usuario desconectado");
 			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
 		}
 	}
 	
 	
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
-		System.out.println("Mando PONG desde servidor");
+//		System.out.println("Mando PONG desde servidor");
 		if (pulso.getMensaje().equals("PING")) {			
 			out.writeObject(new Pulso("PONG"));
 			out.flush();
@@ -258,7 +260,7 @@ public class Servidor implements Runnable, IServidor{
 	public void guardarSnapShot(List<HandleClienteDTO> snapshot) {
 		
 		for (HandleClienteDTO elemento : snapshot) {
-			HandleCliente cliente = new HandleCliente(elemento.getMensajesPendientes());
+			HandleCliente cliente = new HandleCliente(elemento.getMensajesPendientes(),this);
 			this.directorio.put(elemento.getNickName(), cliente);
 		}
 	}

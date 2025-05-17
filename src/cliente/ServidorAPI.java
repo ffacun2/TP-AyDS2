@@ -44,13 +44,16 @@ public class ServidorAPI extends Observable implements Runnable {
 		while(estado) {
 			IRecibible res;
 			try {
+				System.out.println("> Espero a que llegue un objeto para leer");
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
 				
 			} catch (EOFException | SocketException e) {
+				System.out.println("catch 1");
 				this.hasChanged();
 				this.notifyObservers(Utils.RECONEXION);
 			} catch (ClassNotFoundException | IOException e) {
+				System.out.println("catch 2");
 				this.hasChanged();
 				this.notifyObservers(Utils.RECONEXION);
 			}

@@ -39,7 +39,7 @@ public class HeartBeat implements Runnable {
 			//Paso 1 : Busco un servidor disponible.
 			System.out.println("Buscando servidor disponible...");
 			while (puertoNuevo == -1) {
-				System.out.println("Entro bucle buscando servidor");
+//				System.out.println("Entro bucle buscando servidor");
 				puertoNuevo = this.buscoServidorDisponible();
 				if (puertoNuevo != -1) {
 					this.monitor.cambioServidor(puertoNuevo);
@@ -57,10 +57,10 @@ public class HeartBeat implements Runnable {
 			this.monitor.setPuertoServidorActivo(puertoNuevo);
 			this.monitor.sincronizacion();
 			
-			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
+//			System.out.println("sali bucle buscando servidor disponible: " + puertoNuevo);
 			//Paso 2 : Monitoreo el servidor activo
 			while (puertoNuevo != -1) {
-				System.out.println("Entro bucle monitoreando servidor");
+//				System.out.println("Entro bucle monitoreando servidor");
 				//Por cada iteracion del bucle, creo un nuevo socket para no bloquear el serversocket del servidor
 				try ( 
 					Socket socket = new Socket("localhost", puertoNuevo);
@@ -68,7 +68,7 @@ public class HeartBeat implements Runnable {
 					ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 					)  {
 					
-					System.out.println("Mando ping");
+//					System.out.println("Mando ping");
 					out.writeObject(new Pulso("PING"));
 					out.flush();
 					
@@ -76,7 +76,7 @@ public class HeartBeat implements Runnable {
 					Pulso respuesta = (Pulso) in.readObject();
 					
 					if (respuesta == null || !respuesta.getMensaje().equals("PONG")) {
-						System.out.println("El server no responde");
+//						System.out.println("El server no responde");
 						throw new IOException("El servidor no responde");
 					}
 					//Siempre recibo PONG y el directorio del servidor activo
@@ -120,18 +120,18 @@ public class HeartBeat implements Runnable {
 	 */
 	protected boolean verificoServidor(int puerto) {
 		try {
-			System.out.println("Entro metodo verificoServidor");
+//			System.out.println("Entro metodo verificoServidor");
 			this.socket = new Socket("localhost", puerto);
 			this.out = new ObjectOutputStream(socket.getOutputStream());
 			this.in = new ObjectInputStream(socket.getInputStream());
 			
 			this.out.writeObject(new Pulso("PING"));
 			this.out.flush();
-			System.out.println("Mande punso, espero rta");
+//			System.out.println("Mande punso, espero rta");
 			
 			socket.setSoTimeout(4000); // Timeout para esperar la respuesta del servidor
 			Pulso respuesta = (Pulso) this.in.readObject();
-			System.out.println("LLego rta");
+//			System.out.println("LLego rta");
 			
 			return respuesta != null && respuesta.getMensaje().equals("PONG");
 		} catch (Exception e) {

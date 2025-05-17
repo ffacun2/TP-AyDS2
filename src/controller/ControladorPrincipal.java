@@ -197,6 +197,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.cargarMensaje((Mensaje)arg);
 		}
 		else if (arg.equals(Utils.RECONEXION)){
+			System.out.println("> REINTENTO DE RECONEXION");
 			this.reconectar();
 		}
 	}
@@ -277,6 +278,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.servidor.iniciarApi("localhost", puerto);
 			this.servidor.enviarRequest(new RequestLogin(this.usuario.getNickname()));
 			OKResponse res = (OKResponse)this.servidor.getResponse();
+			System.out.println(res);
+			System.out.println("Puerto de reconexion: "+puerto);
 			if (res.isSuccess())
 				return true; //Deberia ser siempre true
 			else {

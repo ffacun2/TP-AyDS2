@@ -34,22 +34,25 @@ public class HandleCliente extends Observable implements Runnable {
 		this.estado = true;
 	}
 	
-	public HandleCliente(List<Mensaje> msjPendiente) {
+	public HandleCliente(List<Mensaje> msjPendiente, Servidor servidor) {
 		this.mensajesPendientes = msjPendiente;
+		this.servidor = servidor;
 		this.estado = false;
 	}
 	
 	@Override
 	public void run() {
-		while (estado) {
+		try {
+			while (estado) {
 				IEnviable req;
-				try {
-					req = (IEnviable)this.input.readObject();
-					req.manejarRequest(servidor,this.socket);
-				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
-				}
+				
+				req = (IEnviable)this.input.readObject();
+				req.manejarRequest(servidor,this.socket);
+			}
 		}
+		catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}	
 	}
 
 	public void mandarMsjPendientes() throws IOException {
