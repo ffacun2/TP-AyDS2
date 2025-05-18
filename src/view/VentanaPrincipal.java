@@ -264,7 +264,7 @@ public class VentanaPrincipal extends JFrame {
 	}
 	
 	public void cerrarSesion() {
-		int confirm = JOptionPane.showConfirmDialog(null, "¿Seguro que querés salir?", "Confirmar salida", JOptionPane.YES_NO_OPTION);
+		int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que querés salir?", "Confirmar salida", JOptionPane.YES_NO_OPTION);
 
 		if (confirm == JOptionPane.YES_OPTION) {
 			this.controlador.cerrarSesion();

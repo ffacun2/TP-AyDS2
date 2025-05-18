@@ -87,7 +87,7 @@ public class ControladorConfiguracion implements ActionListener{
 						this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
 					}else {
 						Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
-						hiloServer.interrupt();
+						servidor.setEstado(false);
 						//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
 					}
 				}

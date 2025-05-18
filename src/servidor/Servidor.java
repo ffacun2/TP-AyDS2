@@ -33,7 +33,7 @@ import utils.Utils;
  * El servidor se ejecuta en un hilo separado y se detiene cuando se cierra la ventana
  * 
  */
-public class Servidor implements Runnable, IServidor{
+public class Servidor implements Runnable, IServidor {
 
 	private int puerto;
 	private boolean estado = false; //true si el servidor esta activo, false si no lo esta

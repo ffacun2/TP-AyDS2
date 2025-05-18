@@ -258,7 +258,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void mostrarVentanaPrincipal() {
  		this.ventanaPrincipal = new VentanaPrincipal();
  		this.ventanaPrincipal.setControlador(this);
- 		this.ventanaPrincipal.setLocationRelativeTo(null);
+ 		this.ventanaPrincipal.setLocationRelativeTo(this.controladorConfiguracion.getVentanaConfig());
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
  		this.ventanaPrincipal.bloqueoNueConv(false);

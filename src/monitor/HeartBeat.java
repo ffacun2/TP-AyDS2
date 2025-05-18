@@ -46,7 +46,7 @@ public class HeartBeat implements Runnable {
 				}
 				else {
 					try {
-						Thread.sleep(2000); // Espera 2 segundos antes de volver a verificar
+						Thread.sleep(1000); // Espera 1 segundos antes de volver a verificar
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -80,7 +80,7 @@ public class HeartBeat implements Runnable {
 						throw new IOException("El servidor no responde");
 					}
 					//Siempre recibo PONG y el directorio del servidor activo
-					Thread.sleep(4000);
+					Thread.sleep(2000);
 				} 
 				catch (Exception e) {
 					puertoNuevo = -1;
