@@ -103,7 +103,7 @@ public class ControladorConfiguracion implements ActionListener{
 			Utils.mostrarError(e.getMessage(), ventanaConfiguracion);
 		}
 		catch (IOException e) {
-			Utils.mostrarError("No se pudo conectar al servidor", this.ventanaConfiguracion);
+			Utils.mostrarError("No hay servidores activos", this.ventanaConfiguracion);
 		} 
 	}
 

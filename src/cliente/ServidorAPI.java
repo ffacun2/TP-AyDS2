@@ -49,8 +49,6 @@ public class ServidorAPI extends Observable implements Runnable {
 				res = (IRecibible)this.input.readObject();
 				res.manejarResponse(this);
 				
-			
-				
 			}
 			catch (SocketTimeoutException e) {} // No hace nada, es para que cicle el input y no quede bloqueado (para cerra sesion)
 			catch (EOFException | SocketException e) {
@@ -160,7 +158,7 @@ public class ServidorAPI extends Observable implements Runnable {
 		this.input = new ObjectInputStream(socket.getInputStream());
 	}
 	
-	public Integer getPuertoServidorActivo() {
+	public Integer getPuertoServidorActivo() throws IOException{
 		try (
 			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -173,10 +171,7 @@ public class ServidorAPI extends Observable implements Runnable {
 			socket.setSoTimeout(3000);
 			return (Integer) in.readObject();
 			
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
+		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}

@@ -148,8 +148,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
 		} catch (IOException e) {
-			if (!this.reconectar())
-				Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+			this.reconectar();
 		}
 
 	}
@@ -188,8 +187,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println("fin de try");
 			} catch (IOException e) {
 				System.out.println("catch de metodo enviar mensaje");
-				if (!this.reconectar())
-					Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
+				this.reconectar();
 			}
  	}
  	
@@ -270,13 +268,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	
  	public void cerrarSesion() {
  		try {
-// 			System.out.println("se cierra sesion");
  			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {
-			if (!this.reconectar())
-				Utils.mostrarError("Se perdio la conexion con el servidor", ventanaPrincipal);
-//			this.reconectar();
+			this.reconectar();
 		}
  	}
  	
@@ -302,6 +297,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			}
 		} catch (IOException e) {
 			Utils.mostrarError("Se perdio la conexion con los servidores", ventanaPrincipal);
+			this.servidor.setEstado(false);
 			return false;
 		}
  	}
