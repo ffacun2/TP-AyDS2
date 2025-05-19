@@ -80,7 +80,7 @@ public class HeartBeat implements Runnable {
 						throw new IOException("El servidor no responde");
 					}
 					//Siempre recibo PONG y el directorio del servidor activo
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				} 
 				catch (Exception e) {
 					puertoNuevo = -1;

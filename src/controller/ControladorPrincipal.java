@@ -8,6 +8,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
@@ -140,15 +141,21 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public void mostrarDirectorio() throws ClassNotFoundException{	
 		try {
-			System.out.println("Entro dire");
 			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
-			System.out.println("envie peti");
 			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
-			System.out.println("recibi peti");
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
 		} catch (IOException e) {
-			this.reconectar();
+			try {
+				Thread.sleep(2000);
+			}
+			catch(InterruptedException ie) {}
+			try {
+				if(this.servidor.getEstado())
+					servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			}
+			catch (Exception ex) {
+			}
 		}
 
 	}
@@ -178,16 +185,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
 // 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
- 		System.out.println("metodo enviarmensj controlador pric");
 			try {
 				this.usuario.enviarMensaje(msjObj, contactoActivo);
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				System.out.println("fin de try");
 			} catch (IOException e) {
-				System.out.println("catch de metodo enviar mensaje");
-				this.reconectar();
+				try {
+					Thread.sleep(2000);
+				}
+				catch(InterruptedException ie) {}
+				if(this.servidor.getEstado())
+					enviarMensaje(mensaje);
 			}
  	}
  	
@@ -198,7 +207,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	@Override
 	public void update(Observable o, Object arg) {
- 		System.out.println("Entra al update.");
 		if(arg instanceof Mensaje) {
 			this.cargarMensaje((Mensaje)arg);
 		}
@@ -271,7 +279,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			this.servidor.setEstado(false);
 			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
 		} catch (IOException e) {
-			this.reconectar();
+//			this.reconectar();
 		}
  	}
  	
@@ -293,11 +301,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				return true; //Deberia ser siempre true
 			else {
 				Utils.mostrarError(res.getMensajeError(), ventanaPrincipal);
+				this.servidor.setEstado(false);
 				return false;
 			}
 		} catch (IOException e) {
 			Utils.mostrarError("Se perdio la conexion con los servidores", ventanaPrincipal);
 			this.servidor.setEstado(false);
+			this.ventanaPrincipal.dispose();
 			return false;
 		}
  	}

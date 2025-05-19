@@ -72,7 +72,7 @@ public class ServidorAPI extends Observable implements Runnable {
 			this.output.writeObject(env);
 			this.output.flush();
 		}
-		catch (IOException e) { //Reintento
+		catch (Exception e) { //Reintento
 			e.printStackTrace();
 			try {
 				Thread.sleep(4000);
@@ -119,7 +119,9 @@ public class ServidorAPI extends Observable implements Runnable {
 		this.estado = estado;
 		this.controladorListo = false;
 	}
-		//Habria que mandar el estado al servidor?
+	public boolean getEstado() {
+		return this.estado;
+	}
 	
 	public void mensajeRecibido(MensajeResponse mensaje) {
 		System.out.println("Recibi msj");

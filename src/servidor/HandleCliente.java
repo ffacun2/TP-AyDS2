@@ -57,7 +57,7 @@ public class HandleCliente extends Observable implements Runnable {
 				//Es para controlar el estado del servidor
 			}
 			catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
+				this.estado = false;
 			}	
 		}
 		try {
