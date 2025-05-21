@@ -3,6 +3,7 @@ package model;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import interfaces.IEnviable;
 import interfaces.IServidor;
@@ -29,8 +30,8 @@ public class Mensaje implements IEnviable {
 		return nickEmisor;
 	}
 
-	public LocalTime getHora() {
-		return hora;
+	public String getHora() {
+		return hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 	}
 	
 	public String getNickReceptor() {
@@ -39,7 +40,7 @@ public class Mensaje implements IEnviable {
 	
 	@Override
 	public String toString() {
-		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor;
+		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor+", \n";
 		return texto;
 	}
 
@@ -47,5 +48,4 @@ public class Mensaje implements IEnviable {
 	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
 		servidor.handleMensaje(this);//chequear esto
 	}
-
 }

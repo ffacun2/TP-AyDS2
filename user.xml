@@ -1,0 +1,26 @@
+<Usuario>
+  <nickname>facu</nickname>
+  <puerto>1234</puerto>
+  <ip>localhost</ip>
+  <contactos>
+    <contactos>
+      <nickname>Contacto1</nickname>
+      <conversacion>
+        <mensajes>
+          <mensajes>
+            <cuerpo>HOla</cuerpo>
+            <nickEmisor>Emisor</nickEmisor>
+            <nickReceptor>Receptor</nickReceptor>
+            <hora>11:37:12</hora>
+          </mensajes>
+          <mensajes>
+            <cuerpo>Como estas</cuerpo>
+            <nickEmisor>Receptor</nickEmisor>
+            <nickReceptor>Emisor</nickReceptor>
+            <hora>11:37:12</hora>
+          </mensajes>
+        </mensajes>
+      </conversacion>
+    </contactos>
+  </contactos>
+</Usuario>

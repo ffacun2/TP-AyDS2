@@ -84,6 +84,13 @@ public class Monitor {
 			System.out.println("Error al hacer el backup: " +e.getMessage());
 			return;
 		}
+		finally {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public void sincronizacion () {

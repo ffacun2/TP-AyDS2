@@ -214,7 +214,7 @@ public class VentanaPrincipal extends JFrame {
 		Iterator<Mensaje> it = conversacion.getMensajes().iterator();
 		while (it.hasNext()) {
 			Mensaje msj = it.next();
-			this.textAreaConv.append(msj.getNickEmisor()+"["+msj.getHora().getHour()+":"+msj.getHora().getMinute()+"]:"+msj.getCuerpo()+"\n");
+			this.textAreaConv.append(msj.getNickEmisor()+"["+msj.getHora()+"]:"+msj.getCuerpo()+"\n");
 		}
 	}
 	

@@ -64,4 +64,18 @@ public class Usuario{
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) throws UnknownHostException, IOException {
 		this.servidor.enviarRequest(mensaje);
 	}
+
+	@Override
+	public String toString() {
+		return "Usuario {"+
+					"nickname: "+nickname+
+					"IP: "+ip+
+					"Puerto: "+puerto+
+					"Contactos: ["+contactos+
+					"]\n}\n";
+	}
+	
+	
+	
+	
 }

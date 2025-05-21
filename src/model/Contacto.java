@@ -42,7 +42,8 @@ public class Contacto implements Serializable{
 	
 	@Override
 	public String toString() {
-		String texto = this.nickname;
-		return texto;
+		return "{"+"nickname:"+nickname+
+				"conversacion:["+conversacion+
+				"]}\n";
 	}
 }

@@ -16,4 +16,11 @@ public class Conversacion {
 	public void agregarMensaje(Mensaje mensaje) {
 		this.mensajes.add(mensaje);
 	}
+
+	@Override
+	public String toString() {
+		return "{["+mensajes+"]}\n";
+	}
+	
+	
 }

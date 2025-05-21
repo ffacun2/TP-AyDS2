@@ -1,0 +1,21 @@
+{
+  "nickname" : "facu",
+  "puerto" : 1234,
+  "ip" : "localhost",
+  "contactos" : [ {
+    "nickname" : "Contacto1",
+    "conversacion" : {
+      "mensajes" : [ {
+        "cuerpo" : "HOla",
+        "nickEmisor" : "Emisor",
+        "nickReceptor" : "Receptor",
+        "hora" : "11:37:12"
+      }, {
+        "cuerpo" : "Como estas",
+        "nickEmisor" : "Receptor",
+        "nickReceptor" : "Emisor",
+        "hora" : "11:37:12"
+      } ]
+    }
+  } ]
+}
