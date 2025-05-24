@@ -1,6 +1,6 @@
 package persistencia.factory;
 
-import persistencia.dao.PersistenciaTemplate;
+import persistencia.template.PersistenciaTemplate;
 
 public class TxtPersistenciaFactory implements PersistenciaFactory {
 

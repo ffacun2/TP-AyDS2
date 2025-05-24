@@ -1,4 +1,4 @@
-package persistencia.dao;
+package persistencia.template;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 

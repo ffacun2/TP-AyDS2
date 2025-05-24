@@ -1,7 +1,7 @@
 package persistencia.factory;
 
-import persistencia.dao.PersistenciaTemplate;
-import persistencia.dao.PersistenciaXML;
+import persistencia.template.PersistenciaTemplate;
+import persistencia.template.PersistenciaXML;
 
 public class XmlPersistenciaFactory implements PersistenciaFactory{
 

@@ -11,13 +11,13 @@
             <cuerpo>HOla</cuerpo>
             <nickEmisor>Emisor</nickEmisor>
             <nickReceptor>Receptor</nickReceptor>
-            <hora>11:37:12</hora>
+            <hora>22:30:43</hora>
           </mensajes>
           <mensajes>
             <cuerpo>Como estas</cuerpo>
             <nickEmisor>Receptor</nickEmisor>
             <nickReceptor>Emisor</nickReceptor>
-            <hora>11:37:12</hora>
+            <hora>22:30:43</hora>
           </mensajes>
         </mensajes>
       </conversacion>

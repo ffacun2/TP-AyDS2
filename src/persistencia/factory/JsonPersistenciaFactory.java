@@ -1,7 +1,7 @@
 package persistencia.factory;
 
-import persistencia.dao.PersistenciaJSON;
-import persistencia.dao.PersistenciaTemplate;
+import persistencia.template.PersistenciaJSON;
+import persistencia.template.PersistenciaTemplate;
 
 public class JsonPersistenciaFactory implements PersistenciaFactory{
 

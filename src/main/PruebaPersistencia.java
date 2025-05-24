@@ -6,10 +6,10 @@ import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
-import persistencia.dao.PersistenciaTemplate;
 import persistencia.factory.JsonPersistenciaFactory;
 import persistencia.factory.PersistenciaFactory;
 import persistencia.factory.XmlPersistenciaFactory;
+import persistencia.template.PersistenciaTemplate;
 
 public class PruebaPersistencia {
 

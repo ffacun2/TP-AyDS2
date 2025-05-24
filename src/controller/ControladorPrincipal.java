@@ -16,6 +16,8 @@ import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
+import persistencia.factory.PersistenciaFactory;
+import persistencia.template.PersistenciaTemplate;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestDirectorio;
@@ -35,6 +37,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Usuario usuario;
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
+	private PersistenciaFactory factory;
+	private PersistenciaTemplate<Usuario> persistencia;
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
