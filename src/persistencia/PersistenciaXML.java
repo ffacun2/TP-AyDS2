@@ -1,8 +1,8 @@
-package persistencia.template;
+package persistencia;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-public class PersistenciaXML<T> extends PersistenciaTemplate<T>{
+public class PersistenciaXML extends Persistencia{
 
 	private final XmlMapper mapper = new XmlMapper();
 	
@@ -12,12 +12,12 @@ public class PersistenciaXML<T> extends PersistenciaTemplate<T>{
 
 
 	@Override
-	protected void serializar(T usuario) throws Exception {
+	protected void serializar(Object usuario) throws Exception {
 		mapper.writerWithDefaultPrettyPrinter().writeValue(archivo, usuario);
 	}
 
 	@Override
-	protected T deserializar(Class<T> clase) throws Exception {
+	protected Object deserializar(Class<?> clase) throws Exception {
 		return mapper.readValue(archivo, clase);
 	}
 	

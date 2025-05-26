@@ -1,14 +1,14 @@
 package persistencia.factory;
 
-import persistencia.template.PersistenciaJSON;
-import persistencia.template.PersistenciaTemplate;
+import persistencia.Persistencia;
+import persistencia.PersistenciaJSON;
 
-public class JsonPersistenciaFactory implements PersistenciaFactory{
+public class JsonPersistenciaFactory extends PersistenciaFactory{
 
 
 	@Override
-	public <T> PersistenciaTemplate<T> crearSerializador(String path) {
-		return new PersistenciaJSON<T>(path);
+	public Persistencia crearSerializador(String path) {
+		return new PersistenciaJSON(path);
 	}
 
 }

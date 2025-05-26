@@ -1,13 +1,13 @@
 package persistencia.factory;
 
-import persistencia.template.PersistenciaTemplate;
-import persistencia.template.PersistenciaXML;
+import persistencia.Persistencia;
+import persistencia.PersistenciaXML;
 
-public class XmlPersistenciaFactory implements PersistenciaFactory{
+public class XmlPersistenciaFactory extends PersistenciaFactory{
 
 	@Override
-	public <T> PersistenciaTemplate<T> crearSerializador(String path) {
-		return new PersistenciaXML<T>(path);
+	public Persistencia crearSerializador(String path) {
+		return new PersistenciaXML(path);
 	}
 
 

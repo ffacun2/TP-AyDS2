@@ -2,16 +2,24 @@ package model;
 
 import java.io.Serializable;
 
-public class Contacto implements Serializable{
+import interfaces.SerializableTxt;
+
+public class Contacto implements Serializable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
 	private String nickname;
 	private Conversacion conversacion;
 
+	public Contacto() {
+	}
 	
 	public Contacto(String nickname) {
 		this.nickname = nickname;
 
 		this.conversacion = null;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public String getNickname() {
@@ -42,8 +50,11 @@ public class Contacto implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "{"+"nickname:"+nickname+
-				"conversacion:["+conversacion+
-				"]}\n";
+		return "nickname:"+nickname;
+	}
+
+	@Override
+	public String toTxt() {
+		return "#Contacto:" + this.nickname;
 	}
 }

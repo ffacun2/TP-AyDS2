@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
+import interfaces.SerializableTxt;
 
-public class Usuario{
+public class Usuario implements SerializableTxt {
 	private String nickname;
 	private int puerto;
 	private String ip;
 	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
+	@JsonIgnore
 	private ServidorAPI servidor;
 	
 	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
@@ -19,6 +23,27 @@ public class Usuario{
 		this.puerto = puerto;
 		this.ip = ip; 
 		this.servidor = servidor;
+	}
+
+	public Usuario() {
+		
+	}
+	
+	
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void setPuerto(int puerto) {
+		this.puerto = puerto;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+	
+	public void setContactos(ArrayList<Contacto> contactos) {
+		this.contactos = contactos;
 	}
 
 	public String getNickname() {
@@ -76,6 +101,9 @@ public class Usuario{
 	}
 	
 	
-	
+	@Override
+	public String toTxt() {
+		return "#Usuario:"+nickname+" | "+ip+ " | "+puerto;
+	}
 	
 }

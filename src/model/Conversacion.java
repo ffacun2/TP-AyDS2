@@ -9,6 +9,10 @@ public class Conversacion {
 		this.mensajes = new ArrayList<Mensaje>();
 	}
 
+	public void setMensajes(ArrayList<Mensaje> mensajes) {
+		this.mensajes = mensajes;
+	}
+
 	public ArrayList<Mensaje> getMensajes() {
 		return this.mensajes;
 	}

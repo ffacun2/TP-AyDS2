@@ -11,6 +11,7 @@ import requests.Request;
 import requests.RequestLogin;
 import requests.RequestRegistro;
 import utils.Utils;
+import view.DialogSeleccionarContacto;
 import view.VentanaConfiguracion;
 
 public class ControladorConfiguracion implements ActionListener{
@@ -81,7 +82,8 @@ public class ControladorConfiguracion implements ActionListener{
 					
 					if((response != null) && (response.isSuccess() == true)) {
 						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
-						this.controladorPrincipal.crearUsuario(ip, Integer.parseInt(puerto), nickname, servidor);
+						//El ultimo campo es el tipo de archivo, lo deje en txt pq estaba probando.
+						this.controladorPrincipal.crearSesion(ip, Integer.parseInt(puerto), nickname, servidor,"txt");
 						servidor.setControladorListo();
 						this.ventanaConfiguracion.dispose();
 						this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);

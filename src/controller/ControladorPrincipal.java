@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -16,8 +17,13 @@ import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
+import persistencia.Persistencia;
+import persistencia.PersistenciaJSON;
+import persistencia.PersistenciaTXT;
+import persistencia.factory.JsonPersistenciaFactory;
 import persistencia.factory.PersistenciaFactory;
-import persistencia.template.PersistenciaTemplate;
+import persistencia.factory.TxtPersistenciaFactory;
+import persistencia.factory.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestDirectorio;
@@ -38,7 +44,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
 	private PersistenciaFactory factory;
-	private PersistenciaTemplate<Usuario> persistencia;
+	private Persistencia persistencia;
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
@@ -102,17 +108,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
 
 		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
 			Contacto contacto = this.dialogContactos.getContactoElegido();
-			try {
 				if (contacto == null) {
 					Utils.mostrarError("Seleccione un contacto valido", this.ventanaPrincipal);
 				}
 				else {
 					this.dialogContactos.dispose();
-					this.usuario.agregarContacto(contacto);
+					this.agregarContacto(contacto);
 				}
-			} catch (ContactoRepetidoException e1) {
-				Utils.mostrarError("El contacto ya se encuentra agendado", ventanaPrincipal);
-			}
 			this.ventanaPrincipal.bloqueoAgrContacto(false);
 		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
 			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.MOSTRAR_AGENDA);
@@ -132,6 +134,20 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
 			this.usuario = new Usuario(nickname, puerto, ip,servidor);
+	}
+	
+	public void agregarContacto(Contacto contacto) {
+		try {
+			this.usuario.agregarContacto(contacto);
+			this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? contacto : this.usuario);
+		}
+		catch (ContactoRepetidoException e) {
+			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 
@@ -194,6 +210,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
+				this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? msjObj : this.usuario);
 			} catch (IOException e) {
 				try {
 					Thread.sleep(2000);
@@ -201,6 +218,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				catch(InterruptedException ie) {}
 				if(this.servidor.getEstado())
 					enviarMensaje(mensaje);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
  	}
  	
@@ -246,18 +265,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		else {
 			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
-			try {
-				this.usuario.agregarContacto(contacto);
-				contacto.setConversacion(new Conversacion());
-				contacto.getConversacion().agregarMensaje(mensaje);
-				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-				this.ventanaPrincipal.notificacion(contacto);
-				this.ventanaPrincipal.bloqueoNueConv(false);
-			}
-			catch (ContactoRepetidoException e) {
-				Utils.mostrarError(e.getMessage(), this.controladorConfiguracion.getVentanaConfig());
-			}
-			
+			this.agregarContacto(contacto);
+			contacto.setConversacion(new Conversacion());
+			contacto.getConversacion().agregarMensaje(mensaje);
+			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+			this.ventanaPrincipal.notificacion(contacto);
+			this.ventanaPrincipal.bloqueoNueConv(false);
+		}
+		
+		try {
+			this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? mensaje : this.usuario);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
  	}
  	
@@ -315,4 +334,50 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			return false;
 		}
  	}
+ 	
+ 	
+ 	public void crearSesion(String ip, int puerto, String nickname, ServidorAPI servidor,String ext) {
+ 		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
+ 		if (extension.isPresent()) {
+ 			this.setPersistencia(extension.get(), nickname);
+ 			try {
+				this.usuario = (Usuario) this.persistencia.cargar(Usuario.class);
+				this.usuario.setServidor(servidor);
+				
+				for(Contacto contacto : this.usuario.getContactos()) {
+					this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+ 		}
+ 		else {
+ 			this.crearUsuario(ip, puerto, nickname, servidor);
+ 			this.setPersistencia(ext, nickname);
+ 			try {
+				this.persistencia.guardar(this.usuario);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+ 		}
+ 	}
+ 	
+ 	
+ 	public void setPersistencia(String extension, String nickname) {
+ 		switch (extension) {
+			case "json":
+				this.factory = new JsonPersistenciaFactory();
+				this.persistencia = this.factory.crearSerializador(nickname+".json");
+				break;
+			case "xml":
+				this.factory = new XmlPersistenciaFactory();
+				this.persistencia = this.factory.crearSerializador(nickname+".xml");
+				break;
+			case "txt":
+				this.factory = new TxtPersistenciaFactory();
+				this.persistencia = this.factory.crearSerializador(nickname+".txt");
+				break;
+		}
+ 	}
+ 	
 }
