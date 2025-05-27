@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+
 import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
 import requests.OKResponse;
@@ -53,6 +56,7 @@ public class ControladorConfiguracion implements ActionListener{
 	private void iniciarSesion(String modo) { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
 		
 		Integer puertoServidorActivo = 0;
+		String tipoArchivo = null;
 		
 		try {
 			String nickname = this.ventanaConfiguracion.getNickname();
@@ -65,6 +69,11 @@ public class ControladorConfiguracion implements ActionListener{
 					request = new RequestLogin(nickname);
 				}else {
 					request = new RequestRegistro(nickname);
+					tipoArchivo = seleccionarTipoArchivo();
+				}
+				
+				if (modo.equals(Utils.REGISTRARSE) && tipoArchivo == null) {
+					return;
 				}
 				
 				//Aca me conecto al monitor y pido el puerto del servidor activo
@@ -83,7 +92,7 @@ public class ControladorConfiguracion implements ActionListener{
 					if((response != null) && (response.isSuccess() == true)) {
 						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
 						//El ultimo campo es el tipo de archivo, lo deje en txt pq estaba probando.
-						this.controladorPrincipal.crearSesion(ip, Integer.parseInt(puerto), nickname, servidor,"txt");
+						this.controladorPrincipal.crearSesion(ip, Integer.parseInt(puerto), nickname, servidor,tipoArchivo);
 						servidor.setControladorListo();
 						this.ventanaConfiguracion.dispose();
 						this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
@@ -122,6 +131,19 @@ public class ControladorConfiguracion implements ActionListener{
 		this.controladorPrincipal.cerrarConfig();
 	}
 	
-	
+	public String seleccionarTipoArchivo() {
+		String resultado = null;
+		
+		JComboBox<String> comboTipos = new JComboBox<>(Utils.TIPOS_ARCHIVO);
+		
+		int opc = JOptionPane.showConfirmDialog(this.ventanaConfiguracion,comboTipos, "Seleccione el tipo de archivo", JOptionPane.OK_CANCEL_OPTION);
+		
+		
+		if (opc == JOptionPane.OK_OPTION) {
+			resultado = (String) comboTipos.getSelectedItem();
+		} 
+		
+		return resultado;
+	}
 
 }

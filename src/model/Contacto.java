@@ -50,7 +50,7 @@ public class Contacto implements Serializable, SerializableTxt {
 	
 	@Override
 	public String toString() {
-		return "nickname:"+nickname;
+		return nickname;
 	}
 
 	@Override

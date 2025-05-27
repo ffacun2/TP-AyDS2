@@ -339,7 +339,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void crearSesion(String ip, int puerto, String nickname, ServidorAPI servidor,String ext) {
  		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
  		if (extension.isPresent()) {
- 			this.setPersistencia(extension.get(), nickname);
+ 			this.setPersistencia(extension.get().toUpperCase(), nickname);
  			try {
 				this.usuario = (Usuario) this.persistencia.cargar(Usuario.class);
 				this.usuario.setServidor(servidor);
@@ -362,18 +362,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		}
  	}
  	
- 	
+ 	//Se peude usar factory method para crear la persistencia ???
  	public void setPersistencia(String extension, String nickname) {
  		switch (extension) {
-			case "json":
+			case "JSON":
 				this.factory = new JsonPersistenciaFactory();
 				this.persistencia = this.factory.crearSerializador(nickname+".json");
 				break;
-			case "xml":
+			case "XML":
 				this.factory = new XmlPersistenciaFactory();
 				this.persistencia = this.factory.crearSerializador(nickname+".xml");
 				break;
-			case "txt":
+			case "TXT":
 				this.factory = new TxtPersistenciaFactory();
 				this.persistencia = this.factory.crearSerializador(nickname+".txt");
 				break;
