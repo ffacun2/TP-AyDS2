@@ -10,7 +10,7 @@ import java.util.Optional;
 import javax.swing.JButton;
 
 import cliente.ServidorAPI;
-import encriptacion.EncriptacionXOR;
+import encriptacion.EncriptacionCaesar;
 import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
 import model.Contacto;
@@ -52,7 +52,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
 		this.encriptador = new Encriptador();
-		this.encriptador.setTecnica(new EncriptacionXOR()); //Aca se setea el tipo de encriptacion
+		this.encriptador.setTecnica(new EncriptacionCaesar()); //Aca se setea el tipo de encriptacion
 		this.claveEncriptado = "Clave";
 		this.mostrarVentanaPrincipal();
 	}
@@ -209,8 +209,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
 			try {
-				msjObj = this.encriptador.encriptarMensaje(msjObj, this.claveEncriptado); //Encripta antes de enviar
-				this.usuario.enviarMensaje(msjObj, contactoActivo);
+				Mensaje msjEncriptado = this.encriptador.encriptarMensaje(msjObj, this.claveEncriptado); //Encripta antes de enviar
+				this.usuario.enviarMensaje(msjEncriptado, contactoActivo);
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());

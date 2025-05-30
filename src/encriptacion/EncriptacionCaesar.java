@@ -14,7 +14,7 @@ public class EncriptacionCaesar implements TecnicaEncriptacion{
 		
 		char[] arrayTexto = mensaje.getCuerpo().toCharArray();
 		
-		String textoCifrado = "";
+		String textoEncriptado = "";
 		
 		int i=0;
 		for(char c: arrayTexto) {
@@ -23,12 +23,13 @@ public class EncriptacionCaesar implements TecnicaEncriptacion{
 				i++;
 			}
 			
-			textoCifrado += alfabetoMod[i];
+			textoEncriptado += alfabetoMod[i];
 			i=0;
 		}
 		
-		mensaje.setCuerpo(textoCifrado);
-		return mensaje;
+		Mensaje mensajeEncriptado = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), textoEncriptado);
+		
+		return mensajeEncriptado;
 	}
 
 	@Override

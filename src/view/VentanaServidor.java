@@ -16,6 +16,9 @@ import javax.swing.BoxLayout;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.Component;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import java.awt.BorderLayout;
 
 public class VentanaServidor extends JFrame {
 
@@ -31,6 +34,7 @@ public class VentanaServidor extends JFrame {
 	private JPanel panel_3;
 	private JPanel panel_4;
 	private JPanel panel_5;
+	private JTextArea textArea;
 
 	public VentanaServidor(int puerto) {
 		super("Servidor");
@@ -62,6 +66,13 @@ public class VentanaServidor extends JFrame {
 		
 		panel_3 = new JPanel();
 		panel.add(panel_3);
+		panel_3.setLayout(new BorderLayout(0, 0));
+		
+		textArea = new JTextArea();
+		textArea.setEditable(false);
+		textArea.setFocusable(false);
+		textArea.setBorder(null);
+		panel_3.add(textArea, BorderLayout.CENTER);
 		
 		panel_4 = new JPanel();
 		panel.add(panel_4);
@@ -105,6 +116,11 @@ public class VentanaServidor extends JFrame {
 	
 	public void setEnableButtonFinalizar(boolean estado) {
 		this.btnStop.setEnabled(estado);
+	}
+
+
+	public void mostrarMensaje(String cuerpo) {
+		this.textArea.setText(cuerpo);
 	}
 	
 }

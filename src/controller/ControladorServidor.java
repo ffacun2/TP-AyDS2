@@ -47,6 +47,7 @@ public class ControladorServidor implements ActionListener {
 	public void startServer() {
 		try {
 			this.servidor = new Servidor(this.puerto);
+			this.servidor.setControlador(this);
 			new Thread(this.servidor).start();
 			this.ventana.setStartLabel("Servidor Iniciado...");
 			this.ventana.setEnableButtonFinalizar(true);
@@ -84,6 +85,10 @@ public class ControladorServidor implements ActionListener {
 			this.ventana.setEnableButtonInicio(true);
 			
 		}
+	}
+
+	public void mostrarMensaje(String cuerpo) {
+		this.ventana.mostrarMensaje(cuerpo);
 	}
 	
 }

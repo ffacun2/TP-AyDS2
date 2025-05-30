@@ -8,19 +8,18 @@ public class EncriptacionXOR implements TecnicaEncriptacion{
 	public Mensaje encriptarMensaje(Mensaje mensaje, String clave) {
 		char[] arrayCuerpo = mensaje.getCuerpo().toCharArray();
 		char[] arrayClave = clave.toCharArray();
-		String cuerpoCifrado= "";
+		String textoEncriptado= "";
 		
 		int j=0;
 		for(char c: arrayCuerpo) {
 			if(j == clave.length())
 				j =0;
 			
-			cuerpoCifrado += (char)(c^arrayClave[j++]);
+			textoEncriptado += (char)(c^arrayClave[j++]);
 		}
 		
-		mensaje.setCuerpo(cuerpoCifrado);
-		
-		return mensaje;
+		Mensaje mensajeEncriptado = new Mensaje(mensaje.getNickEmisor(), mensaje.getNickReceptor(), textoEncriptado);
+		return mensajeEncriptado;
 	}
 
 	@Override
