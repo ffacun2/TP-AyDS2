@@ -2,23 +2,22 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 
 import cliente.ServidorAPI;
+import encriptacion.EncriptacionCaesar;
+import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
 import persistencia.Persistencia;
-import persistencia.PersistenciaJSON;
 import persistencia.PersistenciaTXT;
 import persistencia.factory.JsonPersistenciaFactory;
 import persistencia.factory.PersistenciaFactory;
@@ -45,11 +44,16 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private ServidorAPI servidor;
 	private PersistenciaFactory factory;
 	private Persistencia persistencia;
+	private Encriptador encriptador;
+	private String claveEncriptado;
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
+		this.encriptador = new Encriptador();
+		this.encriptador.setTecnica(new EncriptacionCaesar()); //Aca se setea el tipo de encriptacion
+		this.claveEncriptado = "Clave";
 		this.mostrarVentanaPrincipal();
 	}
 	
@@ -205,9 +209,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
-// 		System.out.println("Emisor: " + msjObj.getNickEmisor()+"\n" + "Receptor: " + msjObj.getNickReceptor());
 			try {
-				this.usuario.enviarMensaje(msjObj, contactoActivo);
+				Mensaje msjEncriptado = this.encriptador.encriptarMensaje(msjObj, this.claveEncriptado); //Encripta antes de enviar
+				this.usuario.enviarMensaje(msjEncriptado, contactoActivo);
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
@@ -232,7 +236,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	@Override
 	public void update(Observable o, Object arg) {
 		if(arg instanceof Mensaje) {
-			this.cargarMensaje((Mensaje)arg);
+			Mensaje msj = this.encriptador.desencriptarMensaje((Mensaje)arg, claveEncriptado); //Desencripta antes de seguir
+			this.cargarMensaje(msj);
 		}
 		else if (arg instanceof String) {
 			if(((String)arg).equals(Utils.RECONEXION))

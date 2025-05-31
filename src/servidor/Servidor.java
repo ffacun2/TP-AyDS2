@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import controller.ControladorServidor;
 import interfaces.IEnviable;
 import interfaces.IServidor;
 import model.Contacto;
@@ -41,6 +42,7 @@ public class Servidor implements Runnable, IServidor {
 	private ConcurrentHashMap<String,HandleCliente> directorio;
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
+	private ControladorServidor controlador;
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
 		this.puerto = puerto;
@@ -219,6 +221,7 @@ public class Servidor implements Runnable, IServidor {
 		
 		if(cliente.getEstado()) {
 			System.out.println(mensaje.toString());
+			this.controlador.mostrarMensaje(mensaje.getCuerpo());
 			cliente.enviarMensaje(mensaje);
 		}else {
 			cliente.addMensajePendiente(mensaje);
@@ -279,6 +282,10 @@ public class Servidor implements Runnable, IServidor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setControlador(ControladorServidor controlador) {
+		this.controlador = controlador;
 	}
 
 }

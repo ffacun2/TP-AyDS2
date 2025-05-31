@@ -1,5 +1,0 @@
-#Usuario:user2 | localhost | 1235
-#Contacto:user1
-#Mensaje:user2|user1|QQQQQQQe|22:03:21
-#Contacto:user3
-#Mensaje:user2|user3|23123123|22:04:11
