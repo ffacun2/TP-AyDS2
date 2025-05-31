@@ -9,12 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 import interfaces.SerializableTxt;
+import utils.Utils;
 
 public class Usuario implements SerializableTxt {
 	private String nickname;
 	private int puerto;
 	private String ip;
 	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
+	private String idTipo = Utils.ID_USUARIO;
 	@JsonIgnore
 	private ServidorAPI servidor;
 	
@@ -105,5 +107,6 @@ public class Usuario implements SerializableTxt {
 	public String toTxt() {
 		return "#Usuario:"+nickname+" | "+ip+ " | "+puerto;
 	}
+	
 	
 }

@@ -2,6 +2,8 @@ package persistencia;
 
 import java.io.File;
 
+import model.Usuario;
+
 public abstract class Persistencia {
 	
 	protected final File archivo;
@@ -12,14 +14,14 @@ public abstract class Persistencia {
 	
 	
 	protected abstract void serializar(Object objeto) throws Exception;
-	protected abstract Object deserializar(Class<?> clase) throws Exception;
+	protected abstract Usuario deserializar(Usuario usuario) throws Exception;
 
 	public final void guardar(Object objeto) throws Exception {
 		serializar(objeto);
 	}
 	
-	public final <T> T cargar(Class<T> clase) throws Exception{
-		return clase.cast(deserializar(clase));
+	public final Usuario cargar(Usuario usuario) throws Exception{
+		return deserializar(usuario);
 	}
 	
 	

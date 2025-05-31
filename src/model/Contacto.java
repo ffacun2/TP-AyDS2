@@ -2,13 +2,19 @@ package model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import interfaces.SerializableTxt;
+import utils.Utils;
 
 public class Contacto implements Serializable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
 	private String nickname;
+	private boolean visto = true;
+	private String idTipo = Utils.ID_CONTACTO;
+	@JsonIgnore
 	private Conversacion conversacion;
-
+	
 	public Contacto() {
 	}
 	
@@ -57,4 +63,13 @@ public class Contacto implements Serializable, SerializableTxt {
 	public String toTxt() {
 		return "#Contacto:" + this.nickname;
 	}
+	
+	public boolean isVisto() {
+		return visto;
+	}
+	
+	public void setVisto(boolean cond) {
+		this.visto = cond;
+	}
+
 }

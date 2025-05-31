@@ -2,6 +2,8 @@ package persistencia;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import model.Usuario;
+
 public class PersistenciaXML extends Persistencia{
 
 	private final XmlMapper mapper = new XmlMapper();
@@ -17,8 +19,8 @@ public class PersistenciaXML extends Persistencia{
 	}
 
 	@Override
-	protected Object deserializar(Class<?> clase) throws Exception {
-		return mapper.readValue(archivo, clase);
+	protected Usuario deserializar(Usuario usuario) throws Exception {
+		return usuario;
 	}
 	
 }

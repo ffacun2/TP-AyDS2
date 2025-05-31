@@ -101,6 +101,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
 			this.contactoActivo = contacto;
+			this.contactoActivo.setVisto(true);
 			boton.setText(contacto.getNickname());
 			this.ventanaPrincipal.setBorder(boton, null);
 			this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
@@ -139,7 +140,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void agregarContacto(Contacto contacto) {
 		try {
 			this.usuario.agregarContacto(contacto);
-			this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? contacto : this.usuario);
+			this.persistencia.guardar(contacto);
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
@@ -210,7 +211,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? msjObj : this.usuario);
+				this.persistencia.guardar(mensaje);
 			} catch (IOException e) {
 				try {
 					Thread.sleep(2000);
@@ -259,6 +260,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				}
 				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(agenda.get(i)))) {
 					this.ventanaPrincipal.notificacion(agenda.get(i));
+					nuevo.setVisto(false);
 				}
 			
 			}
@@ -341,11 +343,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		if (extension.isPresent()) {
  			this.setPersistencia(extension.get().toUpperCase(), nickname);
  			try {
-				this.usuario = (Usuario) this.persistencia.cargar(Usuario.class);
-				this.usuario.setServidor(servidor);
+				this.usuario = this.persistencia.cargar(new Usuario(nickname,puerto,ip,servidor));
 				
 				for(Contacto contacto : this.usuario.getContactos()) {
 					this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
+					if (!contacto.isVisto()) {
+						this.ventanaPrincipal.notificacion(contacto);
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

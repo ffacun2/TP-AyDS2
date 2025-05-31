@@ -34,10 +34,9 @@ public class PersistenciaTXT extends Persistencia {
 	}
 
 	@Override
-	protected Object deserializar(Class<?> clase) throws Exception {
+	protected Usuario deserializar(Usuario usuario) throws Exception {
 		Map<String,Contacto> contactos = new HashMap<String, Contacto>();
 		String linea;
-		Usuario usuario = new Usuario();
 		reader = new BufferedReader(new FileReader(archivo));
 		while((linea = reader.readLine()) != null ) {
 			if (linea.startsWith("#Usuario:")) {
@@ -72,7 +71,7 @@ public class PersistenciaTXT extends Persistencia {
 		}
 		usuario.setContactos(new ArrayList<>(contactos.values()));
 		
-		return clase.cast(usuario);
+		return usuario;
 	}
 
 }

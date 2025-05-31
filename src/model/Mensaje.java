@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import interfaces.IEnviable;
 import interfaces.IServidor;
 import interfaces.SerializableTxt;
+import utils.Utils;
 
 public class Mensaje implements IEnviable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
@@ -17,6 +18,7 @@ public class Mensaje implements IEnviable, SerializableTxt {
 	private String nickEmisor;
 	private String nickReceptor;
 	private LocalTime  hora;
+	private String idTipo = Utils.ID_MENSAJE;
 	
 	public Mensaje() {
 	}
@@ -75,4 +77,5 @@ public class Mensaje implements IEnviable, SerializableTxt {
 	public String toTxt() {
 		return "#Mensaje:" + this.nickEmisor + "|" + this.nickReceptor + "|" + this.cuerpo + "|" + this.hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 	}
+
 }
