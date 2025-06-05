@@ -1,5 +1,9 @@
 package main;
 
+
+import javax.swing.JOptionPane;
+
+import config.ConfigServer;
 import controller.ControladorServidor;
 import monitor.Monitor;
 import utils.Utils;
@@ -7,11 +11,14 @@ import utils.Utils;
 public class MainServidor {
 
 	public static void main(String[] args) {
-		
-		new ControladorServidor(Utils.PUERTO_SERVER1);
-		new ControladorServidor(Utils.PUERTO_SERVER2);
-		
-		new Monitor(Utils.PUERTO_SERVER1, Utils.PUERTO_SERVER2).iniciar();
-	
-	}
+		int puerto;
+			ConfigServer config = new ConfigServer(".properties");
+			
+			puerto = config.buscarPuertoDisponible();
+			if (puerto == -1)
+				Utils.mostrarError("No se encontraron puertos disponibles para el servidor.", null);
+			else 
+				new ControladorServidor(puerto);
+			
+	}	
 }

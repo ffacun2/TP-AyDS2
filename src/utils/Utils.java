@@ -20,12 +20,9 @@ public class Utils {
 	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
 	public static String RECONEXION = "RECONEXION";
 	
-	public static int PUERTO_SERVER1 = 8888;
-	public static int PUERTO_SERVER2 = 8889;
 	public static String INICIAR_SERVER = "INICIAR_SERVER";
 	public static String DETENER_SERVER = "DETENER_SERVER";
 	
-	public static int PUERTO_MONITOR = 9999;
 	public static int PUERTO_SYNC = 9998;
 	
 	public static String[] TIPOS_ARCHIVO = {"JSON", "XML", "TXT"};

@@ -5,19 +5,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import utils.Utils;
 
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+import java.awt.event.WindowListener;
 
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.BoxLayout;
 import javax.swing.SwingConstants;
-import javax.swing.JButton;
-import java.awt.Component;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 
 public class VentanaServidor extends JFrame {
@@ -28,12 +24,7 @@ public class VentanaServidor extends JFrame {
 	private JLabel infoLabel;
 	private JLabel startLabel;
 	private JPanel panel;
-	private JButton btnStart;
-	private JButton btnStop;
-	private JPanel panel_2;
 	private JPanel panel_3;
-	private JPanel panel_4;
-	private JPanel panel_5;
 	private JTextArea textArea;
 
 	public VentanaServidor(int puerto) {
@@ -49,7 +40,7 @@ public class VentanaServidor extends JFrame {
 		this.startPanel = new JPanel();
 		startPanel.setLayout(new GridLayout(3, 1, 0, 0));
 		
-		this.startLabel = new JLabel("Servidor Detenido...");
+		this.startLabel = new JLabel("Servidor");
 		this.startLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		this.startLabel.setFont(new Font("Calibri", Font.BOLD, 26));
 		this.startPanel.add(startLabel);
@@ -73,27 +64,11 @@ public class VentanaServidor extends JFrame {
 		textArea.setFocusable(false);
 		textArea.setBorder(null);
 		panel_3.add(textArea, BorderLayout.CENTER);
-		
-		panel_4 = new JPanel();
-		panel.add(panel_4);
-		panel_4.setLayout(new GridLayout(1, 2, 0, 0));
-		
-		panel_2 = new JPanel();
-		panel_4.add(panel_2);
-		
-		btnStart = new JButton("Iniciar");
-		btnStart.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_2.add(btnStart);
-		btnStart.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		panel_5 = new JPanel();
-		panel_4.add(panel_5);
-		
-		btnStop = new JButton("Finalizar");
-		btnStop.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(btnStop);
 	}
 	
+	public void setWindowsListener(WindowListener listener) {
+		this.addWindowListener(listener);
+	}
 	
 	public void setInfoLabel(String text) {
 		this.infoLabel.setText(text);
@@ -101,21 +76,6 @@ public class VentanaServidor extends JFrame {
 	
 	public void setStartLabel(String text) {
 		this.startLabel.setText(text);
-	}
-	
-	public void setControlador(ActionListener control) {
-		this.btnStart.addActionListener(control);
-		this.btnStart.setActionCommand(Utils.INICIAR_SERVER);
-		this.btnStop.addActionListener(control);
-		this.btnStop.setActionCommand(Utils.DETENER_SERVER);
-	}
-	
-	public void setEnableButtonInicio(boolean estado) {
-		this.btnStart.setEnabled(estado);
-	}
-	
-	public void setEnableButtonFinalizar(boolean estado) {
-		this.btnStop.setEnabled(estado);
 	}
 
 

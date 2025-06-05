@@ -15,6 +15,8 @@ import javax.swing.border.EmptyBorder;
 
 import controller.ControladorConfiguracion;
 import utils.Utils;
+import java.awt.Component;
+import java.awt.Font;
 
 public class VentanaConfiguracion extends JFrame {
 
@@ -23,8 +25,6 @@ public class VentanaConfiguracion extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textFieldIp;
-	private JTextField textFieldPuerto;
 	private JTextField textFieldNickname;
 
 	/**
@@ -80,55 +80,43 @@ public class VentanaConfiguracion extends JFrame {
 		panelS.add(btnIngresar);
 		
 		JPanel panel_6 = new JPanel();
+		panel_6.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		contentPane.add(panel_6, BorderLayout.CENTER);
 		panel_6.setLayout(new GridLayout(0, 2, 3, 0));
 		
 		JPanel panelIp = new JPanel();
 		panel_6.add(panelIp);
 		
-		JLabel lblIp = new JLabel("IP");
-		panelIp.add(lblIp);
-		
 		JPanel panelTxtIp = new JPanel();
 		panel_6.add(panelTxtIp);
-		
-		textFieldIp = new JTextField();
-		textFieldIp.setColumns(10);
-		panelTxtIp.add(textFieldIp);
 		
 		JPanel panelPuerto = new JPanel();
 		panel_6.add(panelPuerto);
 		
-		JLabel lblPuerto = new JLabel("Puerto");
-		panelPuerto.add(lblPuerto);
+		JLabel lblNickname = new JLabel("Nickname");
+		lblNickname.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		panelPuerto.add(lblNickname);
 		
 		JPanel panelTxtPuerto = new JPanel();
 		panel_6.add(panelTxtPuerto);
 		
-		textFieldPuerto = new JTextField();
-		textFieldPuerto.setColumns(10);
-		panelTxtPuerto.add(textFieldPuerto);
+		textFieldNickname = new JTextField();
+		panelTxtPuerto.add(textFieldNickname);
+		textFieldNickname.setColumns(10);
 		
 		JPanel panelNickname = new JPanel();
 		panel_6.add(panelNickname);
 		
-		JLabel lblNickname = new JLabel("Nickname");
-		panelNickname.add(lblNickname);
-		
 		JPanel panelTxtNickname = new JPanel();
 		panel_6.add(panelTxtNickname);
-		
-		textFieldNickname = new JTextField();
-		textFieldNickname.setColumns(10);
-		panelTxtNickname.add(textFieldNickname);
 	}
 	
 	public String getIp() {
-		return this.textFieldIp.getText();
+		return "";
 	}
 	
 	public String getPuerto() {
-		return this.textFieldPuerto.getText();
+		return "1234";
 	}
 	
 	public String getNickname() {

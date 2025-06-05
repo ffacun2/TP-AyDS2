@@ -65,10 +65,6 @@ public class Servidor implements Runnable, IServidor {
 				
 								
 				IEnviable req = (IEnviable)in.readObject();
-//				System.out.println("Recibe pulso en servidor");
-				//Por ahora manejor Ping/Pong
-				// Conviene mandar lista de directorios? asi voy guardando backup en monitor
-				// vendria a ser resincronizacion?
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
@@ -231,12 +227,27 @@ public class Servidor implements Runnable, IServidor {
 	}
 	
 	
+	/**
+	 * Maneja el pulso de tipo PING, enviando un PONG de vuelta al monitor.
+	 * Este metodo se utiliza para verificar que el servidor esta activo y
+	 * responde a las peticiones de los clientes.
+	 * 
+	 * @param pulso Objeto Pulso que contiene el mensaje PING
+	 * @param socket Socket de conexion entre servidor y monitor
+	 * @throws IOException Si se pierde la conexion
+	 */
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
 //		System.out.println("Mando PONG desde servidor");
 		if (pulso.getMensaje().equals("PING")) {			
 			out.writeObject(new Pulso("PONG"));
 			out.flush();
 		}
+	}
+	
+	public void iniciarResincronizacion() {
+		//crea los la instancia de resinc que es la 
+		//encargada de enviar el snapshot a los
+		//servidores secundarios
 	}
 	
 	public List<HandleClienteDTO> generarSnapShot() {

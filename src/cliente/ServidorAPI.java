@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Observable;
 
+import config.ConfigServer;
 import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
@@ -160,24 +161,10 @@ public class ServidorAPI extends Observable implements Runnable {
 		this.input = new ObjectInputStream(socket.getInputStream());
 	}
 	
-	public Integer getPuertoServidorActivo() throws IOException{
-		try (
-			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());			
-			) {
-
-			out.writeObject("SOLICITAR_PUERTO");
-			out.flush();
-			
-			socket.setSoTimeout(3000);
-			return (Integer) in.readObject();
-			
-		}
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public Integer getPuertoServidorActivo() {
+		ConfigServer config = new ConfigServer(".properties");
+		
+		return config.obtenerPuertoActivo();
 	}
 
 }
