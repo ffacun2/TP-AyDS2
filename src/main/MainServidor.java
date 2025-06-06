@@ -1,11 +1,9 @@
 package main;
 
 
-import javax.swing.JOptionPane;
 
 import config.ConfigServer;
 import controller.ControladorServidor;
-import monitor.Monitor;
 import utils.Utils;
 
 public class MainServidor {

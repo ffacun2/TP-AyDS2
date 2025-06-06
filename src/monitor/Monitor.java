@@ -1,19 +1,6 @@
 package monitor;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Queue;
-
 import config.ConfigServer;
-import requests.Sync;
-import servidor.HandleClienteDTO;
-import utils.Utils;
 
 /*
  * Clase que representa el monitor del sistema

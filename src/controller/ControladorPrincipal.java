@@ -332,6 +332,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			else {
 				Utils.mostrarError(res.getMensajeError(), ventanaPrincipal);
 				this.servidor.setEstado(false);
+				this.ventanaPrincipal.dispose();
 				return false;
 			}
 		} catch (IOException e) {

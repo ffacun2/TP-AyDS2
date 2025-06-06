@@ -3,6 +3,8 @@ package config;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class ConfigServer {
@@ -91,7 +93,6 @@ public class ConfigServer {
 		boolean encontro = false;
 		int i = 1;
 		loadFile();
-		System.out.println("entra");
 		while (!encontro && i <= max) {
 			String key = "servidor"+i;
 			String onlineKey = key + ".online";
@@ -198,6 +199,30 @@ public class ConfigServer {
 			return key;
 		
 		return null; // No se encontro un servidor con ese puerto
+	}
+	
+	/**
+	 * Obtiene todos los puertos de servidores pasivos, es decir, aquellos que estan online pero no activos.
+	 * @return Una lista de puertos de servidores pasivos.
+	 */
+	public List<Integer> obtenerPuertosPasivos() {
+		List<Integer> puertos = new ArrayList<>();
+		int max = Integer.valueOf(properties.getProperty("servidores.max","10"));
+		
+		loadFile();
+		for (int i = 1; i <= max; i++) {
+			String key = "servidor"+i;
+			String portKey = key + ".port";
+			String onlineKey = key + ".online";
+			
+			if (properties.containsKey(portKey) && 
+				Boolean.parseBoolean(properties.getProperty(onlineKey, "false")))
+			{
+				puertos.add(Integer.valueOf(properties.getProperty(portKey)));
+			}
+		}
+		
+		return puertos;
 	}
 	
 }

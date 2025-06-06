@@ -29,14 +29,13 @@ public class PingEcho implements Runnable {
 	 * Se encarga de enviar un mensaje al servidor activo para verificar si esta activo
 	 * Primero busca un servidor disponible en la lista de servidores secundarios
 	 * Si lo encuentra, lo asigna como servidor activo y lo monitorea. 
-	 * Si no lo encuentra, espera 5 segundos y vuelve a buscar
+	 * Si no lo encuentra, espera 1 segundos y vuelve a buscar
 	 */
 	@Override
 	public void run() {
 
 		while (estado) {
 			puertoNuevo = monitor.getPuertoServidorActivo();
-			System.out.println("puerto:" + puertoNuevo);
 			while (puertoNuevo != -1) {
 				//Por cada iteracion del bucle, creo un nuevo socket para no bloquear el serversocket del servidor
 				try ( 
@@ -63,7 +62,7 @@ public class PingEcho implements Runnable {
 				}
 			}
 			monitor.manejoFallo(); // Maneja el fallo del servidor activo
-			delay(2000);
+			delay(500);
 		}
 	}
 	
