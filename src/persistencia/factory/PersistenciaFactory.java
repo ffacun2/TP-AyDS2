@@ -9,6 +9,14 @@ public abstract class  PersistenciaFactory {
 
 	public abstract Persistencia crearSerializador(String path);
 	
+	
+	/**
+	 * Busca en la ruta especificada un archivo con el nombre del usuario. Si este existe
+	 * devuelve la extension del mismo. (.txt, .json, .xml)
+	 * @param directorio - ruta donde se encuentra el archivo
+	 * @param username - nickname del usuario a loguearse
+	 * @return null si no se encuentra o la extension.
+	 */
 	public static Optional<String> buscoArchivo(String directorio, String username) {
 		File directory = new File(directorio);
 		

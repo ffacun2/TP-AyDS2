@@ -67,7 +67,6 @@ public class ConfigServer {
 				i++;
 				continue;
 			}
-			
 			port = Integer.valueOf(properties.getProperty(portKey));
 			online = Boolean.parseBoolean(properties.getProperty(onlineKey, "false"));
 			
@@ -102,7 +101,6 @@ public class ConfigServer {
 				i++;
 				continue;
 			}
-			
 			if (Boolean.parseBoolean(properties.getProperty(onlineKey))) {
 				String activeKey = key + ".active";
 				properties.setProperty(activeKey, "true");
@@ -137,7 +135,6 @@ public class ConfigServer {
 				i++;
 				continue;
 			}
-			
 			if (Boolean.parseBoolean(properties.getProperty(activeKey, "false"))) {
 				encontro = true;
 			}
@@ -187,7 +184,6 @@ public class ConfigServer {
 				i++;
 				continue;
 			}
-			
 			if (Integer.valueOf(properties.getProperty(portKey)).equals(puerto)) {
 				key = "servidor"+i;
 				encontro = true;
@@ -222,7 +218,6 @@ public class ConfigServer {
 				puertos.add(Integer.valueOf(properties.getProperty(portKey)));
 			}
 		}
-		
 		return puertos;
 	}
 	

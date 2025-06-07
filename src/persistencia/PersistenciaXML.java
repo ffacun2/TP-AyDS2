@@ -25,6 +25,10 @@ public class PersistenciaXML extends Persistencia{
 	}
 
 
+	/**
+	 *	Serializa el objeto recibido de paramtro en formato xml
+	 *
+	 */
 	@Override
 	protected void serializar(Object object) throws Exception {
 		try (
@@ -34,6 +38,10 @@ public class PersistenciaXML extends Persistencia{
 		}
 	}
 
+	/**
+	 * Deserializa los objetos almacenados en el archivo indicado por el constructor. Estos
+	 * objetos son almacenados en la clase usuario. Objetos serializable (Contacto, Mensaje)
+	 */
 	@Override
 	protected void deserializar(Usuario usuario) throws Exception {
 		try (

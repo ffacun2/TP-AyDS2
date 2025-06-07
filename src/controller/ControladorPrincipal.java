@@ -88,7 +88,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.enviarMensaje(this.ventanaPrincipal.getMensaje());
 				this.ventanaPrincipal.limpiarTxtField();
 			}
-			
 		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
 			//Esto se llama desde el boton del dialog
 			Contacto contacto = this.dialogContactos.getContactoElegido();
@@ -99,7 +98,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.dialogContactos.dispose();
 				this.crearConversacion(contacto);
 			}			
-			
 		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
 			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
@@ -244,11 +242,17 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 	}
  	
+ 	/**
+ 	 * Carga un mensaje en la conversacion del contacto activo.
+ 	 * Si el contacto no existe, lo agrega a la lista de contactos y crea una nueva conversacion.
+ 	 * Si el contacto existe, agrega el mensaje a la conversacion y modifica el panel del contacto para avisar que tiene un nuevo mensaje.
+ 	 * 
+ 	 * @param mensaje - mensaje a cargar
+ 	 */
  	public void cargarMensaje(Mensaje mensaje) {
 		Contacto contacto = new Contacto( mensaje.getNickEmisor());
 		ArrayList<Contacto> agenda = this.usuario.getContactos();
 		int i;
-
 		//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
 		//Para avisar que tiene un nuevo mensaje
 		if (agenda.contains(contacto)) {
@@ -266,7 +270,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 					this.ventanaPrincipal.notificacion(agenda.get(i));
 					nuevo.setVisto(false);
 				}
-			
 			}
 		}
 		else {
@@ -303,6 +306,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		this.ventanaPrincipal.bloqueoAgrContacto(false);
  	}
  	
+ 	/**
+ 	 * Cierra la sesion del usuario, es decir, envia un request de logout al servidor y cierra la ventana principal.
+ 	 * Si el request es exitoso, se cierra la ventana principal y se setea el estado del servidor a false.
+ 	 * Si no es exitoso, se muestra un mensaje de error.
+ 	 */
  	public void cerrarSesion() {
  		try {
  			this.servidor.setEstado(false);
@@ -312,9 +320,20 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
  	}
  	
+ 	/**
+ 	 * Reconecta al servidor, se usa cuando se pierde la conexion con el servidor.
+ 	 * Crea un nuevo servidor y lo inicia en el mismo puerto que estaba antes.
+ 	 * Luego envia un request de login al servidor con el nickname del usuario.
+ 	 * Si el request es exitoso, devuelve true, caso contrario devuelve false.
+ 	 * 
+ 	 * @return true si la reconexion fue exitosa, false si no lo fue.
+ 	 */
  	public boolean reconectar() {
  		try {
  			int puerto = this.servidor.getPuertoServidorActivo();
+ 			if(puerto == -1)
+ 				throw new IOException();
+ 			
  			this.servidor.setEstado(false);
  			
  			this.servidor = new ServidorAPI();
@@ -342,27 +361,34 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
  	}
  	
- 	
+ 	/**
+ 	 * * Este metodo se llama al iniciar la sesion, y se encarga de cargar los contactos y conversaciones del usuario.
+ 	 * * Si el archivo existe, se carga la informacion del usuario desde el archivo.
+ 	 * * Si el archivo no existe, se crea un nuevo archivo con la extension indicada.
+ 	 *
+ 	 * @param nickname - nombre del usuario
+ 	 * @param servidor - servidor al que se conecta el usuario
+ 	 * @param ext - extension del archivo de persistencia (json, xml, txt)
+ 	 */
  	public void crearSesion(String nickname, ServidorAPI servidor,String ext) {
  		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
 
  		this.crearUsuario(nickname, servidor);
  		if (extension.isPresent()) {
  			try {
-	 			System.out.println("extension: " + extension.get());
 	 			this.setPersistencia(extension.get().toUpperCase(), nickname);
 				this.persistencia.cargar(this.usuario);
-			} 
- 			catch (Exception e) {
-				e.printStackTrace();
-			}
- 			
-			for(Contacto contacto : this.usuario.getContactos()) {
-				this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
-				if (!contacto.isVisto()) {
-					this.ventanaPrincipal.notificacion(contacto);
+				
+				for(Contacto contacto : this.usuario.getContactos()) {
+					this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
+					if (!contacto.isVisto()) {
+						this.ventanaPrincipal.notificacion(contacto);
+					}
 				}
-			}
+ 			} 
+ 			catch (Exception e) {
+ 				e.printStackTrace();
+ 			}
  		}
  		else {
  			this.setPersistencia(ext, nickname);

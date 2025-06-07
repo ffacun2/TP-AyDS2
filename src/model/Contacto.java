@@ -61,7 +61,7 @@ public class Contacto implements Serializable, SerializableTxt {
 
 	@Override
 	public String toTxt() {
-		return "#Contacto:" + this.nickname;
+		return "#Contacto:" + this.nickname + "|" + this.visto;
 	}
 	
 	public boolean isVisto() {
