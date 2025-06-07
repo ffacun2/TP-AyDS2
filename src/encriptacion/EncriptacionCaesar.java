@@ -3,7 +3,13 @@ package encriptacion;
 import model.Mensaje;
 
 public class EncriptacionCaesar implements TecnicaEncriptacion{
-	private char[] alfabeto = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+	private char[] alfabeto = new char[256];
+	
+	public EncriptacionCaesar() {
+		for (int i=0; i<256; i++) {
+			alfabeto[i]= (char)i;
+		}
+	}
 	
 	@Override
 	public Mensaje encriptarMensaje(Mensaje mensaje, String clave) {
