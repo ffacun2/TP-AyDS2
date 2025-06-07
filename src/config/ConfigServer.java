@@ -15,6 +15,7 @@ public class ConfigServer {
 	
 	public ConfigServer(String configPath) {
 		this.configPath = configPath;
+		loadFile();
 	}
 	
 	/**

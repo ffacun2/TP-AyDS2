@@ -18,7 +18,6 @@ import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
 import persistencia.Persistencia;
-import persistencia.PersistenciaTXT;
 import persistencia.factory.JsonPersistenciaFactory;
 import persistencia.factory.PersistenciaFactory;
 import persistencia.factory.TxtPersistenciaFactory;
@@ -137,8 +136,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public void crearUsuario(String ip, int puerto, String nickname, ServidorAPI servidor) {
-			this.usuario = new Usuario(nickname, puerto, ip,servidor);
+	public void crearUsuario(String nickname, ServidorAPI servidor) {
+			this.usuario = new Usuario(nickname, servidor);
 	}
 	
 	public void agregarContacto(Contacto contacto) {
@@ -215,7 +214,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				this.persistencia.guardar(mensaje);
+				this.persistencia.guardar(msjObj);
 			} catch (IOException e) {
 				try {
 					Thread.sleep(2000);
@@ -281,7 +280,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		
 		try {
-			this.persistencia.guardar( (persistencia instanceof PersistenciaTXT) ? mensaje : this.usuario);
+			this.persistencia.guardar(mensaje);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -319,7 +318,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			this.servidor.setEstado(false);
  			
  			this.servidor = new ServidorAPI();
-			this.servidor.iniciarApi("localhost", puerto);
+			this.servidor.iniciarApi(puerto);
 			new Thread(this.servidor).start();
 			this.usuario.setServidor(this.servidor);
 			this.servidor.addObserver(this);
@@ -344,31 +343,29 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	}
  	
  	
- 	public void crearSesion(String ip, int puerto, String nickname, ServidorAPI servidor,String ext) {
+ 	public void crearSesion(String nickname, ServidorAPI servidor,String ext) {
  		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
+
+ 		this.crearUsuario(nickname, servidor);
  		if (extension.isPresent()) {
- 			this.setPersistencia(extension.get().toUpperCase(), nickname);
  			try {
-				this.usuario = this.persistencia.cargar(new Usuario(nickname,puerto,ip,servidor));
-				
-				for(Contacto contacto : this.usuario.getContactos()) {
-					this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
-					if (!contacto.isVisto()) {
-						this.ventanaPrincipal.notificacion(contacto);
-					}
-				}
-			} catch (Exception e) {
+	 			System.out.println("extension: " + extension.get());
+	 			this.setPersistencia(extension.get().toUpperCase(), nickname);
+				this.persistencia.cargar(this.usuario);
+			} 
+ 			catch (Exception e) {
 				e.printStackTrace();
+			}
+ 			
+			for(Contacto contacto : this.usuario.getContactos()) {
+				this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
+				if (!contacto.isVisto()) {
+					this.ventanaPrincipal.notificacion(contacto);
+				}
 			}
  		}
  		else {
- 			this.crearUsuario(ip, puerto, nickname, servidor);
  			this.setPersistencia(ext, nickname);
- 			try {
-				this.persistencia.guardar(this.usuario);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
  		}
  	}
  	

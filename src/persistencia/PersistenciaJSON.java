@@ -29,7 +29,7 @@ public class PersistenciaJSON extends Persistencia {
 	}
 
 	@Override
-	protected Usuario deserializar(Usuario usuario) throws Exception{
+	protected void deserializar(Usuario usuario) throws Exception{
 		Map<String,Contacto> contactos = new HashMap<String, Contacto>();
 		JsonNode arrayNode = mapper.readTree(this.archivo);
 		
@@ -56,7 +56,7 @@ public class PersistenciaJSON extends Persistencia {
 		ArrayList<Contacto> listaC = new ArrayList<Contacto>(contactos.values());
 		usuario.setContactos(listaC);
 		
-		return usuario;
+		
 	}
 
 }

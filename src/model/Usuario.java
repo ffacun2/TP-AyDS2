@@ -8,22 +8,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import interfaces.SerializableTxt;
 import utils.Utils;
 
-public class Usuario implements SerializableTxt {
+public class Usuario {
 	private String nickname;
-	private int puerto;
-	private String ip;
 	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
 	private String idTipo = Utils.ID_USUARIO;
 	@JsonIgnore
 	private ServidorAPI servidor;
 	
-	public Usuario(String nickname,int puerto,String ip, ServidorAPI servidor) {
+	public Usuario(String nickname, ServidorAPI servidor) {
 		this.nickname = nickname;
-		this.puerto = puerto;
-		this.ip = ip; 
 		this.servidor = servidor;
 	}
 
@@ -35,14 +30,6 @@ public class Usuario implements SerializableTxt {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-
-	public void setPuerto(int puerto) {
-		this.puerto = puerto;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
 	
 	public void setContactos(ArrayList<Contacto> contactos) {
 		this.contactos = contactos;
@@ -50,14 +37,6 @@ public class Usuario implements SerializableTxt {
 
 	public String getNickname() {
 		return nickname;
-	}
-
-	public int getPuerto() {
-		return puerto;
-	}
-	
-	public String getIp() {
-		return this.ip;
 	}
 
 	public ArrayList<Contacto> getContactos() {
@@ -96,17 +75,10 @@ public class Usuario implements SerializableTxt {
 	public String toString() {
 		return "Usuario {"+
 					"nickname: "+nickname+
-					"IP: "+ip+
-					"Puerto: "+puerto+
 					"Contactos: ["+contactos+
 					"]\n}\n";
 	}
 	
-	
-	@Override
-	public String toTxt() {
-		return "#Usuario:"+nickname+" | "+ip+ " | "+puerto;
-	}
 	
 	
 }

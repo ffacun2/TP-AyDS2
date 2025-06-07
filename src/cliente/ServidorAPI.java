@@ -155,12 +155,11 @@ public class ServidorAPI extends Observable implements Runnable {
 		}
 	}
 	
-	public void iniciarApi (String ip, int puerto) throws UnknownHostException, IOException {
+	public void iniciarApi (int puerto) throws UnknownHostException, IOException {
 		System.out.println(puerto);
-		this.socket = new Socket(ip,puerto);
+		this.socket = new Socket("localhost",puerto);
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		output.flush();
-		System.out.println("aca");
 		this.input = new ObjectInputStream(socket.getInputStream());
 	}
 	

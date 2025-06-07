@@ -15,8 +15,15 @@ public class ControladorServidor implements WindowListener{
 	private Servidor servidor;
 	private int puerto;
 	
-	public ControladorServidor(int puerto) {
-		this.puerto = puerto;
+	public ControladorServidor() {
+		try {
+			ConfigServer config = new ConfigServer(".properties");
+			this.puerto = config.buscarPuertoDisponible();
+		}
+		catch (Exception e) {
+			Utils.mostrarError("No se pudo iniciar el servidor. "+e.getMessage(), null);
+			return;
+		}
 		this.ventana = new VentanaServidor(puerto);
 		this.ventana.addWindowListener(this);
 		this.ventana.setVisible(true);
