@@ -56,7 +56,6 @@ public class PersistenciaXML extends Persistencia{
 				
 				if (linea.trim().endsWith("</Contacto>")) {
 					Contacto contacto = xmlMapper.readValue(sb.toString(), Contacto.class);
-					contacto.setConversacion(new Conversacion());
 					contactos.put(contacto.getNickname(), contacto);
 					sb.setLength(0); // Limpiar el StringBuilder para el siguiente contacto
 				}
@@ -64,12 +63,11 @@ public class PersistenciaXML extends Persistencia{
 					Mensaje mensaje = xmlMapper.readValue(sb.toString(), Mensaje.class);
 					
 					Contacto contacto = contactos.get(mensaje.getNickReceptor());
-					if (contacto != null)
-						contacto.getConversacion().getMensajes().add(mensaje);
-					else {
+					if (contacto == null)
 						contacto = contactos.get(mensaje.getNickEmisor());
-						contacto.getConversacion().getMensajes().add(mensaje);
-					}
+					if (contacto.getConversacion() == null)
+						contacto.setConversacion(new Conversacion());
+					contacto.agregarMensaje(mensaje);
 					sb.setLength(0); // Limpiar el StringBuilder para el siguiente mensaje
 				}
 			}

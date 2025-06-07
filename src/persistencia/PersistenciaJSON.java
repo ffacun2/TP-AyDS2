@@ -33,41 +33,14 @@ public class PersistenciaJSON extends Persistencia {
 				nodo.put("idTipo",Utils.ID_CONTACTO); //Agrego identificadores para saber que clase son a la hora de leer
 			else if (objeto instanceof Mensaje)
 				nodo.put("idTipo", Utils.ID_MENSAJE);
+			else if (objeto instanceof Conversacion)
+				nodo.put("idTipo", Utils.ID_CONVERSACION);
 			
 //			String json = mapper.writeValueAsString(objeto);
 			fw.write(mapper.writeValueAsString(nodo) + '\n');
 		}
-//		mapper.writerWithDefaultPrettyPrinter().writeValue(archivo, objeto);
 	}
 
-//	@Override
-//	protected void deserializar(Usuario usuario) throws Exception{
-//		Map<String,Contacto> contactos = new HashMap<String, Contacto>();
-//		JsonNode arrayNode = mapper.readTree(this.archivo);
-//		
-//		for (JsonNode nodo : arrayNode) {
-//			if (!nodo.has("idTipo")) continue;
-//			String tipo = nodo.get("idTipo").asText();
-//			
-//			switch (tipo) {
-//				case Utils.ID_CONTACTO  -> {
-//					Contacto c = mapper.treeToValue(nodo, Contacto.class);
-//					c.setConversacion(new Conversacion());
-//					contactos.put(c.getNickname(), c);
-//				}
-//				case Utils.ID_MENSAJE -> {
-//					Mensaje m = mapper.treeToValue(nodo, Mensaje.class);
-//					String nickContacto = m.getNickEmisor();
-//					if (nickContacto == usuario.getNickname())
-//						nickContacto = m.getNickReceptor();
-//					Contacto c = contactos.get(nickContacto);
-//					c.agregarMensaje(m);
-//				}
-//			}
-//		}
-//		ArrayList<Contacto> listaC = new ArrayList<Contacto>(contactos.values());
-//		usuario.setContactos(listaC);
-//	}
 	
 	protected void deserializar(Usuario usuario) throws Exception{
 		Map<String, Contacto> contactos = new HashMap<String, Contacto>();
@@ -82,7 +55,6 @@ public class PersistenciaJSON extends Persistencia {
 				switch (tipo) {
 				case Utils.ID_CONTACTO -> {
 					Contacto c = mapper.treeToValue(nodo, Contacto.class);
-					c.setConversacion(new Conversacion());
 					contactos.put(c.getNickname(), c);
 				}
 				case Utils.ID_MENSAJE -> {
@@ -91,8 +63,11 @@ public class PersistenciaJSON extends Persistencia {
 					if (nickContacto.equals(usuario.getNickname()))
 						nickContacto = m.getNickReceptor();
 					Contacto c = contactos.get(nickContacto);
-					if (c != null)
+					if (c != null) {
+						if (c.getConversacion() == null)
+							c.setConversacion(new Conversacion());
 						c.agregarMensaje(m);
+					}
 				}
 				}
 			}

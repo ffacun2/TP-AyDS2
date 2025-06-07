@@ -378,11 +378,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			try {
 	 			this.setPersistencia(extension.get().toUpperCase(), nickname);
 				this.persistencia.cargar(this.usuario);
-				
 				for(Contacto contacto : this.usuario.getContactos()) {
-					this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
-					if (!contacto.isVisto()) {
-						this.ventanaPrincipal.notificacion(contacto);
+					if (contacto.getConversacion() != null) {
+						this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
+						if (!contacto.isVisto()) {
+							this.ventanaPrincipal.notificacion(contacto);
+						}
 					}
 				}
  			} 

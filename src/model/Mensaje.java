@@ -12,7 +12,6 @@ import interfaces.IServidor;
 import interfaces.SerializableTxt;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class Mensaje implements IEnviable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
 	private String cuerpo;

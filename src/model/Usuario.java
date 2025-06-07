@@ -13,7 +13,6 @@ import utils.Utils;
 public class Usuario {
 	private String nickname;
 	private ArrayList<Contacto> contactos = new ArrayList<Contacto>();
-	private String idTipo = Utils.ID_USUARIO;
 	@JsonIgnore
 	private ServidorAPI servidor;
 	

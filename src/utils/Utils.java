@@ -26,7 +26,7 @@ public class Utils {
 	public static int PUERTO_SYNC = 9998;
 	
 	public static String[] TIPOS_ARCHIVO = {"JSON", "XML", "TXT"};
-	public static final String ID_USUARIO = "USUARIO";
+	public static final String ID_CONVERSACION = "CONVERSACION";
 	public static final String ID_MENSAJE = "MENSAJE";
 	public static final String ID_CONTACTO = "CONTACTO";
 	

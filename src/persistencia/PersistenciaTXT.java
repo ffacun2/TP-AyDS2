@@ -40,7 +40,6 @@ public class PersistenciaTXT extends Persistencia {
 				if (linea.startsWith("#Contacto:")) {
 					String nickname = linea.substring(10);
 					Contacto contacto = new Contacto(nickname);
-					contacto.setConversacion(new Conversacion());
 					contactos.put(nickname, contacto);
 				}
 				else if (linea.startsWith("#Mensaje:")) {
@@ -51,13 +50,11 @@ public class PersistenciaTXT extends Persistencia {
 					Mensaje mensaje = new Mensaje(emisor,receptor,cuerpo);
 					
 					Contacto contacto = contactos.get(receptor);
-					if (contacto != null)
-						contacto.getConversacion().getMensajes().add(mensaje);
-					else {
-						contacto = contactos.get(emisor);
-						contacto.getConversacion().getMensajes().add(mensaje);
-					}
-						
+					if (contacto == null)
+						contacto = contactos.get(receptor);
+					if (contacto.getConversacion() == null)
+						contacto.setConversacion(new Conversacion());
+					contacto.agregarMensaje(mensaje);
 				}
 			}
 			usuario.setContactos(new ArrayList<>(contactos.values()));
