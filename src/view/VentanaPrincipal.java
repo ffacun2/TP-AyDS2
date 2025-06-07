@@ -247,6 +247,7 @@ public class VentanaPrincipal extends JFrame {
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
 			botonActual.setText("*"+ contacto);
 			this.setBorder(botonActual, BorderFactory.createLineBorder(Color.green,2));
+//			contacto.setMsjPendiente(true);
 		}
 	}
 	
