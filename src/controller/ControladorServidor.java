@@ -85,7 +85,9 @@ public class ControladorServidor implements WindowListener{
 
 	@Override
 	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
+		ConfigServer config = new ConfigServer(".properties");
+		config.liberarServidor(puerto);
+		servidor.cerrarSocketServer();
 		
 	}
 

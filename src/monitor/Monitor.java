@@ -43,6 +43,10 @@ public class Monitor {
 		buscarServidor();
 	}
 	
+	public void libero(int port) {
+		configServer.liberarServidor(port);
+	}
+	
 	public synchronized void setPuertoServidorActivo(int puertoServidorActivo) {
 		this.puertoServidorActivo = puertoServidorActivo;
 	}
