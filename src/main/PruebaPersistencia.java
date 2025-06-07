@@ -20,7 +20,7 @@ public class PruebaPersistencia {
 		PersistenciaFactory factoryxml = new XmlPersistenciaFactory();
 		PersistenciaFactory factorytxt = new TxtPersistenciaFactory();
 		
-		Usuario usuario = new Usuario("facu",null);
+		Usuario usuario = new Usuario("guido",null);
 		Contacto contacto = new Contacto("Contacto1");
 		Mensaje mensaje1 = new Mensaje("Emisor","Receptor","Hola");
 		Mensaje mensaje2 = new Mensaje("Emisor","Receptor","Como estas?");
@@ -37,27 +37,28 @@ public class PruebaPersistencia {
 		
 		try {
 			json.guardar(usuario);
+			json.guardar(mensaje1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		Persistencia xml = factoryxml.crearSerializador("user.xml");
-		try {
-			xml.guardar(usuario);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		Persistencia txt = factorytxt.crearSerializador("user.txt");
-		try {
-			txt.guardar(usuario);
-			txt.guardar(contacto);
-			txt.guardar(mensaje1);
-			txt.guardar(mensaje2);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+//		Persistencia xml = factoryxml.crearSerializador("user.xml");
+//		try {
+//			xml.guardar(usuario);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		Persistencia txt = factorytxt.crearSerializador("user.txt");
+//		try {
+//			txt.guardar(usuario);
+//			txt.guardar(contacto);
+//			txt.guardar(mensaje1);
+//			txt.guardar(mensaje2);
+//		}
+//		catch(Exception e) {
+//			e.printStackTrace();
+//		}
 		System.out.println("termino.");
 	}
 }

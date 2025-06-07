@@ -77,7 +77,6 @@ public class ControladorConfiguracion implements ActionListener{
 				puertoServidorActivo = servidor.getPuertoServidorActivo();	
 				
 				if (puertoServidorActivo != -1) { //Si el puerto es -1, significa que no hay servidores activos
-					System.out.println();
 					servidor.iniciarApi(puertoServidorActivo); 
 					
 					Thread hiloServer = new Thread(servidor);

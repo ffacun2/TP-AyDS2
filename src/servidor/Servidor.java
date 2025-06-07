@@ -168,7 +168,7 @@ public class Servidor implements Runnable, IServidor {
 			}
 		}
 		else {
-			out.writeObject(new OKResponse(false,"No usuario existente"));
+			out.writeObject(new OKResponse(false,"Usuario no registrado"));
 			socket.close();
 		}
 	}

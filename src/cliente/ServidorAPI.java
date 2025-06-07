@@ -165,7 +165,6 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	public Integer getPuertoServidorActivo() {
 		ConfigServer config = new ConfigServer(".properties");
-		
 		return config.obtenerPuertoActivo();
 	}
 

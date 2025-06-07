@@ -5,11 +5,13 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import interfaces.IEnviable;
 import interfaces.IServidor;
 import interfaces.SerializableTxt;
-import utils.Utils;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Mensaje implements IEnviable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
@@ -17,7 +19,6 @@ public class Mensaje implements IEnviable, SerializableTxt {
 	private String nickEmisor;
 	private String nickReceptor;
 	private LocalTime  hora;
-	private String idTipo = Utils.ID_MENSAJE;
 	
 	public Mensaje() {
 	}

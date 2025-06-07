@@ -3,15 +3,15 @@ package model;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import interfaces.SerializableTxt;
-import utils.Utils;
 
+@JsonIgnoreProperties(ignoreUnknown = true) //Para que Jackson ignore los atributos desconocidos cuando lee
 public class Contacto implements Serializable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
 	private String nickname;
 	private boolean visto = true;
-	private String idTipo = Utils.ID_CONTACTO;
 	@JsonIgnore
 	private Conversacion conversacion;
 	
