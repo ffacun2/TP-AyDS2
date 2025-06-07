@@ -2,7 +2,6 @@ package main;
 
 
 import exceptions.ContactoRepetidoException;
-import interfaces.SerializableTxt;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
@@ -21,7 +20,7 @@ public class PruebaPersistencia {
 		PersistenciaFactory factoryxml = new XmlPersistenciaFactory();
 		PersistenciaFactory factorytxt = new TxtPersistenciaFactory();
 		
-		Usuario usuario = new Usuario("facu",1234,"localhost",null);
+		Usuario usuario = new Usuario("facu",null);
 		Contacto contacto = new Contacto("Contacto1");
 		Mensaje mensaje1 = new Mensaje("Emisor","Receptor","Hola");
 		Mensaje mensaje2 = new Mensaje("Emisor","Receptor","Como estas?");
