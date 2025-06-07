@@ -58,6 +58,7 @@ public class PingEcho implements Runnable {
 					delay(1000);
 				} 
 				catch (Exception e) {
+					monitor.libero(puertoNuevo);
 					puertoNuevo = -1;
 				}
 			}
