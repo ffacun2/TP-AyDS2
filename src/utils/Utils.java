@@ -30,11 +30,6 @@ public class Utils {
 	public static final String ID_MENSAJE = "MENSAJE";
 	public static final String ID_CONTACTO = "CONTACTO";
 	
-	public static final String ID_LOGIN = "LOGIN";
-	public static final String ID_REG = "REGISTRO";
-	public static final String ID_LOGOUT = "LOGOUT";
-	public static final String ID_DIRECTORIO = "DIRECTORIO";
-	
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
 		JOptionPane.showMessageDialog(ventana, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
