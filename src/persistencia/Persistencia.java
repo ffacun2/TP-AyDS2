@@ -1,6 +1,7 @@
 package persistencia;
 
 import java.io.File;
+import java.io.FileWriter;
 
 import model.Usuario;
 
@@ -24,5 +25,9 @@ public abstract class Persistencia {
 		deserializar(usuario);
 	}
 	
-	
+	public void crearArchivo(String nickname,String ext) throws Exception {
+		try (FileWriter fw = new FileWriter(nickname+"."+ext)){
+			
+		}
+	}
 }

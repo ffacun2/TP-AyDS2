@@ -11,6 +11,7 @@ import cliente.ServidorAPI;
 import exceptions.FueraDeRangoException;
 import requests.OKResponse;
 import requests.Request;
+import requests.RequestFactory;
 import requests.RequestLogin;
 import requests.RequestRegistro;
 import utils.Utils;
@@ -20,10 +21,12 @@ public class ControladorConfiguracion implements ActionListener{
 
 	private VentanaConfiguracion ventanaConfiguracion;
 	private ControladorPrincipal controladorPrincipal;
+	private RequestFactory reqFactory;
 	
 	public ControladorConfiguracion() {
 		//Esta ventana config es la que se abre al inicio de la aplicacion, para crear el usuario
 		this.mostrarVentanaConfiguracion(Utils.TITULO, Utils.MODO_CONFIG);
+		this.reqFactory = new RequestFactory();
 	}
 	
 	public VentanaConfiguracion getVentanaConfig() {
@@ -61,9 +64,9 @@ public class ControladorConfiguracion implements ActionListener{
 			if(!nickname.equals("")) {
 				Request request;
 				if(modo.equals(Utils.INGRESAR)) {
-					request = new RequestLogin(nickname);
+					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN,nickname);
 				}else {
-					request = new RequestRegistro(nickname);
+					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
 					tipoArchivo = seleccionarTipoArchivo();
 				}
 				

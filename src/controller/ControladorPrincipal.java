@@ -25,6 +25,7 @@ import persistencia.factory.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestDirectorio;
+import requests.RequestFactory;
 import requests.RequestLogin;
 import requests.RequestLogout;
 import utils.Utils;
@@ -45,6 +46,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Persistencia persistencia;
 	private Encriptador encriptador;
 	private String claveEncriptado;
+	private RequestFactory reqFactory;
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
@@ -52,6 +54,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		this.servidor.addObserver(this);
 		this.encriptador = new Encriptador();
 		this.encriptador.setTecnica(new EncriptacionCaesar()); //Aca se setea el tipo de encriptacion
+		this.reqFactory = new RequestFactory();
 		this.claveEncriptado = "Clave";
 		this.mostrarVentanaPrincipal();
 	}
@@ -163,7 +166,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 */
 	public void mostrarDirectorio() throws ClassNotFoundException{	
 		try {
-			servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+			servidor.enviarRequest(this.reqFactory.getRequest(Utils.ID_DIRECTORIO, usuario.getNickname()));
 			DirectoriosResponse agenda = (DirectoriosResponse)this.servidor.getResponse();
 			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, agenda.getNicks(), Utils.MODO_AGR_CONTACTO);
 			this.dialogContactos.setVisible(true);
@@ -174,7 +177,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			catch(InterruptedException ie) {}
 			try {
 				if(this.servidor.getEstado())
-					servidor.enviarRequest(new RequestDirectorio(this.usuario.getNickname()));
+					servidor.enviarRequest(this.reqFactory.getRequest(Utils.ID_DIRECTORIO, usuario.getNickname()));
 			}
 			catch (Exception ex) {
 			}
@@ -314,7 +317,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void cerrarSesion() {
  		try {
  			this.servidor.setEstado(false);
-			this.servidor.enviarRequest(new RequestLogout(this.usuario.getNickname()));
+			servidor.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGOUT, usuario.getNickname()));
 		} catch (IOException e) {
 //			this.reconectar();
 		}
@@ -343,7 +346,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.servidor.addObserver(this);
 			this.servidor.setControladorListo();
 			
-			this.servidor.enviarRequest(new RequestLogin(this.usuario.getNickname()));
+			servidor.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGIN, usuario.getNickname()));
 			OKResponse res = (OKResponse)this.servidor.getResponse();
 			if (res.isSuccess())
 				return true; //Deberia ser siempre true
@@ -393,6 +396,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		}
  		else {
  			this.setPersistencia(ext, nickname);
+ 			try {
+ 				this.persistencia.crearArchivo(nickname,ext);
+ 		 		}
+ 			catch (Exception e) {
+ 				e.printStackTrace();
+ 			}
  		}
  	}
  	
