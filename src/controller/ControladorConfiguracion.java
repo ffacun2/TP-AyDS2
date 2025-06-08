@@ -65,7 +65,7 @@ public class ControladorConfiguracion implements ActionListener{
 			if(!nickname.equals("")) {
 				Request request;
 				if(modo.equals(Utils.INGRESAR)) {
-					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN, nickname);
+					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
 				}else {
 					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
 					tipoArchivo = seleccionarTipoArchivo();
