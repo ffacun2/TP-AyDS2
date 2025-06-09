@@ -1,6 +1,8 @@
 package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -10,6 +12,7 @@ import java.util.Optional;
 import javax.swing.JButton;
 
 import cliente.ServidorAPI;
+import config.ConfigEncriptado;
 import encriptacion.EncriptacionCaesar;
 import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
@@ -24,10 +27,7 @@ import persistencia.factory.TxtPersistenciaFactory;
 import persistencia.factory.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
-import requests.RequestDirectorio;
 import requests.RequestFactory;
-import requests.RequestLogin;
-import requests.RequestLogout;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
@@ -53,9 +53,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
 		this.encriptador = new Encriptador();
-		this.encriptador.setTecnica(new EncriptacionCaesar()); //Aca se setea el tipo de encriptacion
+		
+		ConfigEncriptado config = this.leerArchivoConfig();
+		this.encriptador.setTecnica(config.getTecnicaEncriptado()); //Aca se setea el tipo de encriptacion
+		this.claveEncriptado = config.getClave();
 		this.reqFactory = new RequestFactory();
-		this.claveEncriptado = "Clave";
 		this.mostrarVentanaPrincipal();
 	}
 	
@@ -421,6 +423,20 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				this.persistencia = this.factory.crearSerializador(nickname+".txt");
 				break;
 		}
+ 	}
+ 	
+ 	public ConfigEncriptado leerArchivoConfig() {
+ 		 try (BufferedReader br = new BufferedReader(new FileReader("./configEncriptado.txt"))) {
+             br.readLine();
+ 			 String clave = br.readLine();
+             String tecnica = br.readLine();
+             ConfigEncriptado config = new ConfigEncriptado(clave,tecnica);
+             br.close();
+             return config;
+         } catch (IOException e) {
+             e.printStackTrace();
+         }
+ 		return null;	
  	}
  	
 }

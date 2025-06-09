@@ -1,0 +1,3 @@
+/------el primer string es la clave, el segundo XOR o Cesar-----/
+parte4
+XOR
