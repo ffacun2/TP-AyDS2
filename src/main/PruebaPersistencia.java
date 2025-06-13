@@ -6,22 +6,24 @@ import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
-import persistencia.Persistencia;
-import persistencia.factory.JsonPersistenciaFactory;
-import persistencia.factory.PersistenciaFactory;
-import persistencia.factory.TxtPersistenciaFactory;
-import persistencia.factory.XmlPersistenciaFactory;
+import persistencia.ContactoSerializador;
+import persistencia.PersistenciaFactory;
+import persistencia.json.JsonPersistenciaFactory;
+import persistencia.txt.TxtPersistenciaFactory;
+import persistencia.xml.XmlPersistenciaFactory;
+import utils.FileUtil;
 
 public class PruebaPersistencia {
 
 	
 	public static void main(String[] args) {
-		PersistenciaFactory factory = new JsonPersistenciaFactory();
+		PersistenciaFactory factoryjson = new JsonPersistenciaFactory();
 		PersistenciaFactory factoryxml = new XmlPersistenciaFactory();
 		PersistenciaFactory factorytxt = new TxtPersistenciaFactory();
 		
 		Usuario usuario = new Usuario("guido",null);
 		Contacto contacto = new Contacto("Contacto1");
+		Contacto contacto2 = new Contacto("Contacto2");
 		Mensaje mensaje1 = new Mensaje("Emisor","Receptor","Hola");
 		Mensaje mensaje2 = new Mensaje("Emisor","Receptor","Como estas?");
 		try {
@@ -29,26 +31,26 @@ public class PruebaPersistencia {
 			usuario.getContactos().get(0).setConversacion(new Conversacion());
 			usuario.getContactos().get(0).agregarMensaje(mensaje1);
 			usuario.getContactos().get(0).agregarMensaje(mensaje2);
+			usuario.agregarContacto(contacto2);
 		} catch (ContactoRepetidoException e) {
 			e.printStackTrace();
 		}
 		
-		Persistencia json = factory.crearSerializador("user.json");
-		
-		try {
-			json.guardar(usuario);
-			json.guardar(mensaje1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-//		Persistencia xml = factoryxml.crearSerializador("user.xml");
+//		Persistencia json = factory.crearSerializador("user.json");
+//		
 //		try {
-//			xml.guardar(usuario);
+//			json.guardar(usuario);
+//			json.guardar(mensaje1);
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
-//		
+		
+//		FileUtil.escribirArchivo("./guido-contacto.xml",factoryxml.crearContactoSerializador().serializar(usuario.getContactos()));
+		
+		
+		ContactoSerializador contactSerializer = factoryjson.crearContactoSerializador();
+		FileUtil.escribirArchivo("./guido-contacto.json", contactSerializer.serializar(contacto));
+		FileUtil.escribirArchivo("./guido-contacto.json", contactSerializer.serializar(contacto2));
 //		Persistencia txt = factorytxt.crearSerializador("user.txt");
 //		try {
 //			txt.guardar(usuario);
@@ -60,5 +62,9 @@ public class PruebaPersistencia {
 //			e.printStackTrace();
 //		}
 		System.out.println("termino.");
+//		System.out.println(factoryxml.crearContactoDeserializador().deserializar(FileUtil.leerArchivo("./guido-contacto.xml")));
+//		System.out.println(factorytxt.crearContactoDeserializador().deserializar(FileUtil.leerArchivo("./guido-contacto.txt")));
+		System.out.println(factoryjson.crearContactoDeserializador().deserializar(FileUtil.leerArchivo("./guido-contacto.json")));
+		
 	}
 }

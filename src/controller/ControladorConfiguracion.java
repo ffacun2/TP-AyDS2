@@ -12,8 +12,6 @@ import exceptions.FueraDeRangoException;
 import requests.OKResponse;
 import requests.Request;
 import requests.RequestFactory;
-import requests.RequestLogin;
-import requests.RequestRegistro;
 import utils.Utils;
 import view.VentanaConfiguracion;
 
@@ -67,7 +65,7 @@ public class ControladorConfiguracion implements ActionListener{
 					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN,nickname);
 				}else {
 					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
-					tipoArchivo = seleccionarTipoArchivo();
+					tipoArchivo = seleccionarTipoArchivo().toLowerCase();
 				}
 				
 				if (modo.equals(Utils.REGISTRARSE) && tipoArchivo == null) {

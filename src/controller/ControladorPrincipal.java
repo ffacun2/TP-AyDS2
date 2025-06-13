@@ -5,29 +5,35 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 
 import cliente.ServidorAPI;
 import config.ConfigEncriptado;
-import encriptacion.EncriptacionCaesar;
 import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
 import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
-import persistencia.Persistencia;
-import persistencia.factory.JsonPersistenciaFactory;
-import persistencia.factory.PersistenciaFactory;
-import persistencia.factory.TxtPersistenciaFactory;
-import persistencia.factory.XmlPersistenciaFactory;
+import persistencia.ContactoDeserializador;
+import persistencia.ContactoSerializador;
+import persistencia.MensajeDeserializador;
+import persistencia.MensajeSerializador;
+import persistencia.PersistenciaFactory;
+import persistencia.json.JsonPersistenciaFactory;
+import persistencia.txt.TxtPersistenciaFactory;
+import persistencia.xml.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestFactory;
+import utils.FileUtil;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
@@ -43,7 +49,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
 	private PersistenciaFactory factory;
-	private Persistencia persistencia;
+	private ContactoSerializador contactoSerializador;
+	private MensajeSerializador mensajeSerializador;
+	private String ext;
 	private Encriptador encriptador;
 	private String claveEncriptado;
 	private RequestFactory reqFactory;
@@ -59,6 +67,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		this.claveEncriptado = config.getClave();
 		this.reqFactory = new RequestFactory();
 		this.mostrarVentanaPrincipal();
+		System.out.println(claveEncriptado);
 	}
 	
 	public VentanaPrincipal getVentanaPrincipal() {
@@ -146,7 +155,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void agregarContacto(Contacto contacto) {
 		try {
 			this.usuario.agregarContacto(contacto);
-			this.persistencia.guardar(contacto);
+			FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-contactos."+this.ext, this.contactoSerializador.serializar(contacto));
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
@@ -217,7 +226,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				this.persistencia.guardar(msjObj);
+				FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-mensajes."+this.ext, this.mensajeSerializador.serializar(msjObj));
 			} catch (IOException e) {
 				try {
 					Thread.sleep(2000);
@@ -288,7 +297,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		
 		try {
-			this.persistencia.guardar(mensaje);
+			FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-mensajes."+this.ext, this.mensajeSerializador.serializar(mensaje));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -377,12 +386,32 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	public void crearSesion(String nickname, ServidorAPI servidor,String ext) {
  		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
-
+ 		ContactoDeserializador contactoDeserializador = null;
+ 		MensajeDeserializador mensajeDeserializador = null;
  		this.crearUsuario(nickname, servidor);
+ 		//Si el usuario ya esta registrado, el archivo deberia existir
  		if (extension.isPresent()) {
  			try {
-	 			this.setPersistencia(extension.get().toUpperCase(), nickname);
-				this.persistencia.cargar(this.usuario);
+ 				this.ext = extension.get();
+ 				this.setPersistencia(extension.get().toUpperCase(), nickname);
+ 				contactoDeserializador = factory.crearContactoDeserializador();
+ 				mensajeDeserializador = factory.crearMensajeDeserializador();
+
+ 				List<Contacto> contactosList = contactoDeserializador.deserializar(FileUtil.leerArchivo("./"+nickname+"-contactos."+extension.get()));
+				List<Mensaje> mensajes = mensajeDeserializador.deserializar(FileUtil.leerArchivo("./"+nickname+"-mensajes."+extension.get()));
+				Map<String, Contacto> mapa = contactosList.stream().collect(Collectors.toMap(Contacto::getNickname,c -> c));
+				
+				//Le cargo los mensajes a los contactos
+				for(Mensaje mensaje : mensajes) {
+					Contacto contacto = mapa.get(mensaje.getNickReceptor());
+					if (contacto == null)
+						contacto = mapa.get(mensaje.getNickEmisor());
+					if (contacto.getConversacion() == null)
+						contacto.setConversacion(new Conversacion());
+					contacto.agregarMensaje(mensaje);
+				}
+				this.usuario.setContactos(new ArrayList<>(mapa.values()));
+				// Le seteo los botones de conversacion al usuario
 				for(Contacto contacto : this.usuario.getContactos()) {
 					if (contacto.getConversacion() != null) {
 						this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
@@ -397,9 +426,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			}
  		}
  		else {
- 			this.setPersistencia(ext, nickname);
+ 			this.ext = ext;
+ 			this.setPersistencia(ext.toUpperCase(), nickname);
  			try {
- 				this.persistencia.crearArchivo(nickname,ext);
+ 				PersistenciaFactory.crearArchivo(".", nickname+"-contactos", ext);
+ 				PersistenciaFactory.crearArchivo(".", nickname+"-mensajes", ext);
  		 		}
  			catch (Exception e) {
  				e.printStackTrace();
@@ -412,17 +443,16 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		switch (extension) {
 			case "JSON":
 				this.factory = new JsonPersistenciaFactory();
-				this.persistencia = this.factory.crearSerializador(nickname+".json");
 				break;
 			case "XML":
 				this.factory = new XmlPersistenciaFactory();
-				this.persistencia = this.factory.crearSerializador(nickname+".xml");
 				break;
 			case "TXT":
 				this.factory = new TxtPersistenciaFactory();
-				this.persistencia = this.factory.crearSerializador(nickname+".txt");
 				break;
 		}
+ 		this.contactoSerializador = this.factory.crearContactoSerializador();
+ 		this.mensajeSerializador = this.factory.crearMensajeSerializador();
  	}
  	
  	public ConfigEncriptado leerArchivoConfig() {
