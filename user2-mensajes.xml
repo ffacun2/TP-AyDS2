@@ -1,0 +1,26 @@
+<mensajes>
+  <mensaje>
+    <cuerpo>111111111111111111</cuerpo>
+    <nickEmisor>user1</nickEmisor>
+    <nickReceptor>user2</nickReceptor>
+    <hora>14:22:20</hora>
+  </mensaje>
+  <mensaje>
+    <cuerpo>444444444444444444</cuerpo>
+    <nickEmisor>user2</nickEmisor>
+    <nickReceptor>user1</nickReceptor>
+    <hora>14:22:32</hora>
+  </mensaje>
+  <mensaje>
+    <cuerpo>222222rrsff</cuerpo>
+    <nickEmisor>user2</nickEmisor>
+    <nickReceptor>user3</nickReceptor>
+    <hora>14:24:50</hora>
+  </mensaje>
+  <mensaje>
+    <cuerpo>fqwfqwfqfqwfqfw</cuerpo>
+    <nickEmisor>user3</nickEmisor>
+    <nickReceptor>user2</nickReceptor>
+    <hora>14:24:53</hora>
+  </mensaje>
+</mensajes>

@@ -4,5 +4,5 @@ package persistencia;
 import model.Mensaje;
 
 public interface MensajeSerializador {
-	String serializar(Mensaje mensaje);
+	void serializar(Mensaje mensaje);
 }

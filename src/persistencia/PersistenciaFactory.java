@@ -4,6 +4,13 @@ import java.io.File;
 import java.util.Optional;
 
 public abstract class  PersistenciaFactory {
+	private String nickname;
+	private String extension;
+	
+	public PersistenciaFactory(String nickname, String extension) {
+		this.nickname = nickname;
+		this.extension = extension;
+	}
 
 	public abstract ContactoSerializador crearContactoSerializador();
 	public abstract MensajeSerializador crearMensajeSerializador();
@@ -48,5 +55,13 @@ public abstract class  PersistenciaFactory {
 		else {
 			throw new Exception("El archivo ya existe: " + file.getAbsolutePath());
 		}
+	}
+	
+	protected String getNickname() {
+		return this.nickname;
+	}
+	
+	protected String getExtension() {
+		return this.extension;
 	}
 }

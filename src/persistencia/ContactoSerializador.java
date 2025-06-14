@@ -4,5 +4,5 @@ package persistencia;
 import model.Contacto;
 
 public interface ContactoSerializador {
-	String serializar(Contacto contacto);
+	void serializar(Contacto contacto);
 }

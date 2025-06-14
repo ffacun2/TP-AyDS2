@@ -8,24 +8,28 @@ import persistencia.PersistenciaFactory;
 
 public class TxtPersistenciaFactory extends PersistenciaFactory {
 
+	public TxtPersistenciaFactory (String nickname, String extension) {
+		super(nickname,extension);
+	}
+	
 	@Override
 	public ContactoSerializador crearContactoSerializador() {
-		return new TxtContactoSerializador();
+		return new TxtContactoSerializador(getNickname()+"-contactos."+getExtension());
 	}
 
 	@Override
 	public MensajeSerializador crearMensajeSerializador() {
-		return new TxtMensajeSerializador();
+		return new TxtMensajeSerializador(getNickname()+"-mensajes."+getExtension());
 	}
 
 	@Override
 	public ContactoDeserializador crearContactoDeserializador() {
-		return new TxtContactoDeserializador();
+		return new TxtContactoDeserializador(getNickname()+"-contactos."+getExtension());
 	}
 
 	@Override
 	public MensajeDeserializador crearMensajeDeserializador() {
-		return new TxtMensajeDeserializador();
+		return new TxtMensajeDeserializador(getNickname()+"-mensajes."+getExtension());
 	}
 	
 }

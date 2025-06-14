@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
-import utils.Utils;
 
 public class Usuario {
 	private String nickname;
@@ -16,6 +15,7 @@ public class Usuario {
 	@JsonIgnore
 	private ServidorAPI servidor;
 	
+	@SuppressWarnings("exports")
 	public Usuario(String nickname, ServidorAPI servidor) {
 		this.nickname = nickname;
 		this.servidor = servidor;
@@ -42,6 +42,7 @@ public class Usuario {
 		return contactos;
 	}
 
+	@SuppressWarnings("exports")
 	public void setServidor(ServidorAPI server) {
 		this.servidor = server;
 	}

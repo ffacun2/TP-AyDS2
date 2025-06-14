@@ -1,7 +1,7 @@
 package persistencia.json;
 
 import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +12,20 @@ import persistencia.ContactoDeserializador;
 
 public class JsonContactoDeserializador implements ContactoDeserializador {
 	
-	private JsonMapper mapper = new JsonMapper();
+	private String path;
+	private JsonMapper mapper;
 
+	public JsonContactoDeserializador (String path) {
+		this.path = path;
+		this.mapper = new JsonMapper();
+	}
+	
 	@Override
-	public List<Contacto> deserializar(String contenido) {
+	public List<Contacto> deserializar() {
 		List<Contacto> contactos = new ArrayList<>();
 		String linea;
 		
-		try (BufferedReader reader = new BufferedReader(new StringReader(contenido))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(this.path))) {
 			while ((linea= reader.readLine()) != null) {
 				if (!linea.trim().isEmpty()) {
 					Contacto c = mapper.readValue(linea, Contacto.class);

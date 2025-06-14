@@ -66,7 +66,7 @@ public class Servidor implements Runnable, IServidor {
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Se cerró el socket del servidor :"+this.puerto);
 		}
 		finally {
 			this.cerrarSocketServer();

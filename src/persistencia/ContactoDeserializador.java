@@ -5,5 +5,5 @@ import java.util.List;
 import model.Contacto;
 
 public interface ContactoDeserializador {
-	List<Contacto> deserializar(String contenido);
+	List<Contacto> deserializar();
 }

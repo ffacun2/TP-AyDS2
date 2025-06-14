@@ -33,7 +33,6 @@ import persistencia.xml.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestFactory;
-import utils.FileUtil;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
@@ -51,7 +50,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private PersistenciaFactory factory;
 	private ContactoSerializador contactoSerializador;
 	private MensajeSerializador mensajeSerializador;
-	private String ext;
 	private Encriptador encriptador;
 	private String claveEncriptado;
 	private RequestFactory reqFactory;
@@ -155,7 +153,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void agregarContacto(Contacto contacto) {
 		try {
 			this.usuario.agregarContacto(contacto);
-			FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-contactos."+this.ext, this.contactoSerializador.serializar(contacto));
+			this.contactoSerializador.serializar(contacto);
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
@@ -226,7 +224,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				System.out.println(msjObj.toString());
 				this.contactoActivo.agregarMensaje(msjObj);
 				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-mensajes."+this.ext, this.mensajeSerializador.serializar(msjObj));
+				this.mensajeSerializador.serializar(msjObj);
 			} catch (IOException e) {
 				try {
 					Thread.sleep(2000);
@@ -297,7 +295,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		
 		try {
-			FileUtil.escribirArchivo("./"+this.usuario.getNickname()+"-mensajes."+this.ext, this.mensajeSerializador.serializar(mensaje));
+			this.mensajeSerializador.serializar(mensaje);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -392,13 +390,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		//Si el usuario ya esta registrado, el archivo deberia existir
  		if (extension.isPresent()) {
  			try {
- 				this.ext = extension.get();
  				this.setPersistencia(extension.get().toUpperCase(), nickname);
  				contactoDeserializador = factory.crearContactoDeserializador();
  				mensajeDeserializador = factory.crearMensajeDeserializador();
 
- 				List<Contacto> contactosList = contactoDeserializador.deserializar(FileUtil.leerArchivo("./"+nickname+"-contactos."+extension.get()));
-				List<Mensaje> mensajes = mensajeDeserializador.deserializar(FileUtil.leerArchivo("./"+nickname+"-mensajes."+extension.get()));
+ 				List<Contacto> contactosList = contactoDeserializador.deserializar();
+				List<Mensaje> mensajes = mensajeDeserializador.deserializar();
 				Map<String, Contacto> mapa = contactosList.stream().collect(Collectors.toMap(Contacto::getNickname,c -> c));
 				
 				//Le cargo los mensajes a los contactos
@@ -426,7 +423,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
  			}
  		}
  		else {
- 			this.ext = ext;
  			this.setPersistencia(ext.toUpperCase(), nickname);
  			try {
  				PersistenciaFactory.crearArchivo(".", nickname+"-contactos", ext);
@@ -442,13 +438,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void setPersistencia(String extension, String nickname) {
  		switch (extension) {
 			case "JSON":
-				this.factory = new JsonPersistenciaFactory();
+				this.factory = new JsonPersistenciaFactory(nickname,extension);
 				break;
 			case "XML":
-				this.factory = new XmlPersistenciaFactory();
+				this.factory = new XmlPersistenciaFactory(nickname,extension);
 				break;
 			case "TXT":
-				this.factory = new TxtPersistenciaFactory();
+				this.factory = new TxtPersistenciaFactory(nickname,extension);
 				break;
 		}
  		this.contactoSerializador = this.factory.crearContactoSerializador();

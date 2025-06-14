@@ -67,6 +67,7 @@ public class Mensaje implements IEnviable, SerializableTxt {
 		return texto;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void manejarRequest(IServidor servidor, Socket socket) throws IOException {
 		servidor.handleMensaje(this);//chequear esto
