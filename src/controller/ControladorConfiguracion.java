@@ -13,6 +13,7 @@ import requests.OKResponse;
 import requests.Request;
 import requests.RequestFactory;
 import utils.Utils;
+import view.DialogConfiguracion;
 import view.VentanaConfiguracion;
 
 public class ControladorConfiguracion implements ActionListener{
@@ -20,6 +21,11 @@ public class ControladorConfiguracion implements ActionListener{
 	private VentanaConfiguracion ventanaConfiguracion;
 	private ControladorPrincipal controladorPrincipal;
 	private RequestFactory reqFactory;
+	
+	DialogConfiguracion dialogConfiguracion;
+	private String clave;
+	private String tecnicaEncriptado;
+	private String tipoArchivo = null;
 	
 	public ControladorConfiguracion() {
 		//Esta ventana config es la que se abre al inicio de la aplicacion, para crear el usuario
@@ -43,8 +49,10 @@ public class ControladorConfiguracion implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals(Utils.INGRESAR) || comando.equals(Utils.REGISTRARSE)) {
+		if (comando.equals(Utils.INGRESAR) || comando.equals(Utils.REGISTRARSE)){
 			this.iniciarSesion(comando);
+		}else if(comando.equals(Utils.CONFIG_REGISTRO)) {
+			this.dialogConfiguracion.getConfiguracion();
 		}
 	}
 
@@ -55,7 +63,6 @@ public class ControladorConfiguracion implements ActionListener{
 	 */
 	private void iniciarSesion(String modo) { 
 		Integer puertoServidorActivo = 0;
-		String tipoArchivo = null;
 		String nickname = this.ventanaConfiguracion.getNickname();
 		
 		try {
@@ -65,11 +72,6 @@ public class ControladorConfiguracion implements ActionListener{
 					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN,nickname);
 				}else {
 					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
-					tipoArchivo = seleccionarTipoArchivo().toLowerCase();
-				}
-				
-				if (modo.equals(Utils.REGISTRARSE) && tipoArchivo == null) {
-					return;
 				}
 				
 				//Aca me conecto al monitor y pido el puerto del servidor activo
@@ -80,13 +82,16 @@ public class ControladorConfiguracion implements ActionListener{
 				if (puertoServidorActivo != -1) { //Si el puerto es -1, significa que no hay servidores activos
 					servidor.iniciarApi(puertoServidorActivo); 
 					
-					Thread hiloServer = new Thread(servidor);
+					Thread hiloServer = new Thread(servidor); 
 					hiloServer.start();
 					servidor.enviarRequest(request);
 					OKResponse response = (OKResponse)servidor.getResponse(); //bloqueante
 					if((response != null) && (response.isSuccess() == true)) {
-						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
-
+						
+						dialogConfiguracion= new DialogConfiguracion(this.ventanaConfiguracion, this, modo);
+						dialogConfiguracion.setVisible(true);
+						
+						this.controladorPrincipal = new ControladorPrincipal(this, servidor, this.clave, this.tecnicaEncriptado);
 						this.controladorPrincipal.crearSesion(nickname, servidor,tipoArchivo);
 						servidor.setControladorListo();
 						
@@ -125,6 +130,13 @@ public class ControladorConfiguracion implements ActionListener{
 	
 	public void cerrar() {
 		this.controladorPrincipal.cerrarConfig();
+	}
+	
+	public void setConfiguracion(String clave, String tecnicaEncriptado, String tipoArchivo) {
+		this.clave = clave;
+		this.tecnicaEncriptado = tecnicaEncriptado;
+		this.tipoArchivo = tipoArchivo;
+		System.out.println("Entro: " + clave + " " + tecnicaEncriptado + " " + tipoArchivo);
 	}
 	
 	public String seleccionarTipoArchivo() {

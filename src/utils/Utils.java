@@ -19,6 +19,7 @@ public class Utils {
 	public static String MOSTRAR_DIRECTORIO = "MOSTRAR_DIRECTORIO";
 	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
 	public static String RECONEXION = "RECONEXION";
+	public static String CONFIG_REGISTRO = "CONFIG_REGISTRO";
 	
 	public static String INICIAR_SERVER = "INICIAR_SERVER";
 	public static String DETENER_SERVER = "DETENER_SERVER";
@@ -34,6 +35,8 @@ public class Utils {
 	public static final String ID_REG = "REGISTRO";
 	public static final String ID_DIRECTORIO = "DIRECTORIO";
 	public static final String ID_LOGIN = "LOGIN";
+	
+	public static final String[] TECNICAS_ENCRIPTADO = {"XOR","CESAR"};
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {
 		JOptionPane.showMessageDialog(ventana, mensaje, "Error", JOptionPane.ERROR_MESSAGE);

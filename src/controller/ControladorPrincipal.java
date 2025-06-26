@@ -54,15 +54,14 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private String claveEncriptado;
 	private RequestFactory reqFactory;
 	
-	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
+	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor, String clave, String tecnicaEncriptado) {
 		this.controladorConfiguracion = controladorConfiguracion;
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
 		this.encriptador = new Encriptador();
 		
-		ConfigEncriptado config = this.leerArchivoConfig();
-		this.encriptador.setTecnica(config.getTecnicaEncriptado()); //Aca se setea el tipo de encriptacion
-		this.claveEncriptado = config.getClave();
+		this.encriptador.setTecnica(ConfigEncriptado.getTecnicaEncriptado(tecnicaEncriptado)); //Aca se setea el tipo de encriptacion
+		this.claveEncriptado = clave;
 		this.reqFactory = new RequestFactory();
 		this.mostrarVentanaPrincipal();
 		System.out.println(claveEncriptado);
@@ -109,6 +108,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			else {
 				this.dialogContactos.dispose();
 				this.crearConversacion(contacto);
+				this.contactoActivo = contacto;
+				this.contactoActivo.setVisto(true);
+				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+				this.ventanaPrincipal.bloquearMsj(false);
 			}			
 		}else if(comando.equals(Utils.MENSAJE)) {			
 			JButton boton =(JButton) e.getSource();
@@ -449,20 +452,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
  		this.contactoSerializador = this.factory.crearContactoSerializador();
  		this.mensajeSerializador = this.factory.crearMensajeSerializador();
- 	}
- 	
- 	public ConfigEncriptado leerArchivoConfig() {
- 		 try (BufferedReader br = new BufferedReader(new FileReader("./configEncriptado.txt"))) {
-             br.readLine();
- 			 String clave = br.readLine();
-             String tecnica = br.readLine();
-             ConfigEncriptado config = new ConfigEncriptado(clave,tecnica);
-             br.close();
-             return config;
-         } catch (IOException e) {
-             e.printStackTrace();
-         }
- 		return null;	
  	}
  	
 }
