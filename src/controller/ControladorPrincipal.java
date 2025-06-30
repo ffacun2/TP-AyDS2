@@ -30,21 +30,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Usuario usuario; //vuela
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
-//	private PersistenciaFactory factory; //vuela
-//	private ContactoSerializador contactoSerializador; //vuela
-////	private MensajeSerializador mensajeSerializador;//vuela
-//	private Encriptador encriptador; //vuela
-//	private String claveEncriptado; //vuela
 	private RequestFactory reqFactory; //vuela
 	
-	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor, String clave, String tecnicaEncriptado) {
+	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
 		this.controladorConfiguracion = controladorConfiguracion;
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
-//		this.encriptador = new Encriptador();
-		
-//		this.encriptador.setTecnica(ConfigEncriptado.getTecnicaEncriptado(tecnicaEncriptado)); //Aca se setea el tipo de encriptacion
-//		this.claveEncriptado = clave;
 		this.reqFactory = new RequestFactory();
 		this.mostrarVentanaPrincipal();
 	}
@@ -60,7 +51,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * Si el evento se obtiene del boton CONFIRMAR_CONTACTO, se agrega el contacto a la lista de contactos y se abre el chat.
 	 * Si el evento se obtiene del boton MENSAJE, el obtiene la conversacion del contacto seleccionado y la muestra en el JTextArea.
 	 */
-	@Override
+	@Override		
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
@@ -247,11 +238,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	public void cargarMensaje(Mensaje mensaje) {
  		try {
- 			Contacto contacto = this.usuario.cargarMensaje(mensaje);
-				if (this.contactoActivo != null && this.contactoActivo.equals(contacto)) 
-					this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(contacto))) 
-					this.ventanaPrincipal.notificacion(contacto);
+ 			String contacto = this.usuario.cargarMensaje(mensaje);
+ 			String contactoActivo = this.ventanaPrincipal.getContactoActivo();
+ 			
+			if (contactoActivo != null && contactoActivo.equals(contacto)) 
+				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+			if (contactoActivo == null || (contactoActivo != null && !contactoActivo.equals(contacto))) 
+				this.ventanaPrincipal.notificacion(contacto);
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.ventanaPrincipal);
@@ -339,14 +332,17 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param servidor - servidor al que se conecta el usuario
  	 * @param ext - extension del archivo de persistencia (json, xml, txt)
  	 */
- 	public void crearSesion(String nickname, ServidorAPI servidor,String ext) {
+ 	public void crearSesion(String nickname, ServidorAPI servidor,String ext, String clave, String tecnicaEncriptado) {
  		try {
  			crearUsuario(nickname, servidor);
-			this.usuario.iniciarSesion(ext);
+			this.usuario.iniciarSesion(ext,clave,tecnicaEncriptado);
 		} 
  		catch (ExtensionNotFoundException e) {
 			e.printStackTrace();
 		}
+ 		catch (Exception e) {
+ 			e.printStackTrace();
+ 		}
  	}
  	
 }

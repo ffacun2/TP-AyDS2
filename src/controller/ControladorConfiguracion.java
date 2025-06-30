@@ -96,8 +96,8 @@ public class ControladorConfiguracion implements ActionListener{
 						dialogConfiguracion= new DialogConfiguracion(this.ventanaConfiguracion, this, modo);
 						dialogConfiguracion.setVisible(true);
 						
-						this.controladorPrincipal = new ControladorPrincipal(this, servidor, this.clave, this.tecnicaEncriptado);
-						this.controladorPrincipal.crearSesion(nickname, servidor,tipoArchivo);
+						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
+						this.controladorPrincipal.crearSesion(nickname, servidor,tipoArchivo,this.clave, this.tecnicaEncriptado);
 						servidor.setControladorListo();
 						
 						this.ventanaConfiguracion.dispose();
