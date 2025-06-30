@@ -49,9 +49,11 @@ public class ControladorConfiguracion implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
 		
-		if (comando.equals(Utils.INGRESAR) || comando.equals(Utils.REGISTRARSE)){
+		if (comando.equals(Utils.INGRESAR))
 			this.iniciarSesion(comando);
-		}else if(comando.equals(Utils.CONFIG_REGISTRO)) {
+		else if (comando.equals(Utils.REGISTRARSE))
+			this.registrarUsuario(comando);
+		else if (comando.equals(Utils.CONFIG_REGISTRO)) {
 			this.dialogConfiguracion.getConfiguracion();
 			this.clave = this.dialogConfiguracion.getClave();
 			this.tecnicaEncriptado = this.dialogConfiguracion.getTecnica();
@@ -59,62 +61,78 @@ public class ControladorConfiguracion implements ActionListener{
 		}
 	}
 
+	
+	public void registrarUsuario(String modo) {
+		String nickname = this.ventanaConfiguracion.getNickname();
+		if (!nickname.equals("")) {
+			if(modo.equals(Utils.REGISTRARSE)) {
+				dialogConfiguracion= new DialogConfiguracion(this.ventanaConfiguracion,this,modo);
+				dialogConfiguracion.setVisible(true);
+				establecerConexion(Utils.ID_REG,nickname);
+			}
+		}
+		else {
+			Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
+		}
+	}
+	
+	public void iniciarSesion(String modo) {
+		String nickname = this.ventanaConfiguracion.getNickname();
+		
+		if (!nickname.equals("")) {
+			if (modo.equals(Utils.INGRESAR)) {
+				dialogConfiguracion= new DialogConfiguracion(this.ventanaConfiguracion,this,modo);
+				dialogConfiguracion.setVisible(true);
+				establecerConexion(Utils.ID_LOGIN,nickname);
+			}
+		}
+		else {
+			Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
+		}
+	}
+	
+	
 	/**
 	 * Manda una request al servidor para crear un nuevo usuario
 	 * la ventana de configuracion y se abre la ventana principal.
 	 * Caso contrario se muestra un mensaje de error.
 	 */
-	private void iniciarSesion(String modo) { 
+	private void establecerConexion(String tipoRequest,String nickname) { 
 		Integer puertoServidorActivo = 0;
-		String nickname = this.ventanaConfiguracion.getNickname();
 		
 		try {
-			if(!nickname.equals("")) {
-				Request request;
+			Request request = (Request)this.reqFactory.getRequest(tipoRequest,nickname);
 				
-				if(modo.equals(Utils.INGRESAR)) {
-					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN,nickname);
-				}
-				else {
-					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
-				}
-				
-				//Aca me conecto al monitor y pido el puerto del servidor activo
-				// el puerto es el que se le pasa al servidorAPI
-				ServidorAPI servidor = new ServidorAPI();
-				puertoServidorActivo = servidor.getPuertoServidorActivo();	
-				
-				if (puertoServidorActivo != -1) { //Si el puerto es -1, significa que no hay servidores activos
-					servidor.iniciarApi(puertoServidorActivo); 
-					
-					Thread hiloServer = new Thread(servidor); 
-					hiloServer.start();
-					servidor.enviarRequest(request);
-					OKResponse response = (OKResponse)servidor.getResponse(); //bloqueante
-					if((response != null) && (response.isSuccess() == true)) {
-						
-						dialogConfiguracion= new DialogConfiguracion(this.ventanaConfiguracion, this, modo);
-						dialogConfiguracion.setVisible(true);
-						
-						this.controladorPrincipal = new ControladorPrincipal(this, servidor);
-						this.controladorPrincipal.crearSesion(nickname, servidor,tipoArchivo,this.clave, this.tecnicaEncriptado);
-						servidor.setControladorListo();
-						
-						this.ventanaConfiguracion.dispose();
-						this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
-					}else {
-						Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
-						servidor.setEstado(false);
-						//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
-					}
-				}
-				else {
-					throw new IOException();
-				}
-			}else {
-				Utils.mostrarError("Por favor, ingrese todo los campos.", ventanaConfiguracion);
-			}
+			//Aca me conecto al monitor y pido el puerto del servidor activo
+			// el puerto es el que se le pasa al servidorAPI
+			ServidorAPI servidor = new ServidorAPI();
+			puertoServidorActivo = servidor.getPuertoServidorActivo();	
 			
+			if (puertoServidorActivo != -1) { //Si el puerto es -1, significa que no hay servidores activos
+				servidor.iniciarApi(puertoServidorActivo); 
+				
+				Thread hiloServer = new Thread(servidor); 
+				hiloServer.start();
+				servidor.enviarRequest(request);
+				OKResponse response = (OKResponse)servidor.getResponse(); //bloqueante
+				
+				if((response != null) && (response.isSuccess() == true)) {
+					this.controladorPrincipal = new ControladorPrincipal(this, servidor);
+					this.controladorPrincipal.crearSesion(nickname, servidor,tipoArchivo,this.clave, this.tecnicaEncriptado);
+					servidor.setControladorListo();
+					
+					this.ventanaConfiguracion.dispose();
+					this.controladorPrincipal.setTitulo("Sistema de mensajeria - "+nickname);
+				}
+				else {
+					Utils.mostrarError(response.getMensajeError(), this.ventanaConfiguracion); //Esto se puede remplazar por un mensaje del servidor
+					servidor.setEstado(false);
+					//Nota, si llega a este else, entonces es pq response puede ser null, entonces no le puedo pedir el mensaje
+				}
+			}
+			else {
+				throw new IOException();
+			}
 		} 
 		catch (FueraDeRangoException e) {
 			Utils.mostrarError(e.getMessage(), ventanaConfiguracion);

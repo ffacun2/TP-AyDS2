@@ -117,14 +117,14 @@ public class Usuario {
 				//obtengo el objeto con la referencia correcta
 				nuevo = agenda.get(i);
 				if (nuevo.getConversacion() == null)
-					crearConversacion(nuevo);
+					crearConversacion(nuevo.getNickname());
 				nuevo.getConversacion().agregarMensaje(mensaje);
 			}
 			return nuevo.getNickname();
 		}
 		else {
 			agregarContacto(contacto);
-			crearConversacion(contacto);
+			crearConversacion(contacto.getNickname());
 			contacto.getConversacion().agregarMensaje(mensaje);
 			return contacto.getNickname();
 		}

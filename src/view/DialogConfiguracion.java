@@ -3,8 +3,6 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,12 +19,12 @@ import controller.ControladorConfiguracion;
 import utils.Utils;
 
 public class DialogConfiguracion extends JDialog{
+	private static final long serialVersionUID = 1L;
 	private JFrame ventana;
 	private JComboBox<String> comboBoxTipoArchivo = null;
 	private JComboBox<String> comboBoxTecnicaEncriptado;
 	private JTextField textFieldClave;
 	private JButton botonAceptar;
-	private ControladorConfiguracion controlador;
 	
 	private String clave;
 	private String tecnica;
@@ -34,7 +32,6 @@ public class DialogConfiguracion extends JDialog{
 	
 	public DialogConfiguracion(JFrame ventana, ControladorConfiguracion controlador, String modo) {
 		this.ventana = ventana;
-		this.controlador = controlador;
 		setTitle("Configuracion");
 		setResizable(false);
 		setLocationRelativeTo(ventana);
@@ -99,7 +96,6 @@ public class DialogConfiguracion extends JDialog{
 				tipoArchivo = this.comboBoxTipoArchivo.getSelectedItem().toString();
 			}
 			
-//			this.controlador.setConfiguracion(clave, tecnica, tipoArchivo);
 			this.dispose();
 		}else {
 			Utils.mostrarError("Error: ingresar clave valida", ventana);
