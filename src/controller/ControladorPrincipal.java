@@ -28,7 +28,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private VentanaPrincipal ventanaPrincipal;
 	private DialogSeleccionarContacto dialogContactos;
 	private Usuario usuario; //vuela
-	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
 //	private PersistenciaFactory factory; //vuela
 //	private ContactoSerializador contactoSerializador; //vuela
@@ -185,7 +184,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void crearConversacion(Contacto contacto) {
  		try {
  			if (this.usuario.crearConversacion(contacto))
- 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+ 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto.getNickname());
  			else
 				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
  		}
@@ -251,7 +250,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 				if (this.contactoActivo != null && this.contactoActivo.equals(contacto)) 
 					this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
 				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(contacto))) 
-					this.ventanaPrincipal.notificacion(contacto);
+					this.ventanaPrincipal.notificacion(contacto.getNickname());
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.ventanaPrincipal);

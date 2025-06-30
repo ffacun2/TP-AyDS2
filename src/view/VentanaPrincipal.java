@@ -48,6 +48,8 @@ public class VentanaPrincipal extends JFrame {
 	private JPanel panelBotonesConversaciones;
 	private ControladorPrincipal controlador;
 	
+	private String nickActivo;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -187,12 +189,12 @@ public class VentanaPrincipal extends JFrame {
 		this.btnNueConv.setEnabled(!cond);
 	}
 	
-	public void agregarNuevoBotonConversacion(Contacto contacto) {
+	public void agregarNuevoBotonConversacion(String nicknameContacto) {
 
-		JButton boton = new JButton(contacto.toString());
+		JButton boton = new JButton(nicknameContacto);
 		boton.addActionListener(controlador);
 		boton.setActionCommand(Utils.MENSAJE);
-		boton.putClientProperty("contacto", contacto);
+		boton.putClientProperty("contacto", nicknameContacto);
 		boton.setPreferredSize(new Dimension(this.panelBotonesConversaciones.getWidth()-6, 25));
 		boton.setMinimumSize(new Dimension(10, 25));
 		boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
@@ -231,21 +233,21 @@ public class VentanaPrincipal extends JFrame {
 	 * Marca el boton correspondiente al contacto con un "*"
 	 * @param contacto: Contacto con el cual ya se tiene una conversacion. 
 	 */
-	public void notificacion(Contacto contacto) {
+	public void notificacion(String nicknameContacto) {
 		Component[] botones = this.panelBotonesConversaciones.getComponents();
 		JButton botonActual = (JButton) botones[0];
 		int i=0; 
 		
-		while((i<botones.length) && (!botonActual.getClientProperty("contacto").equals(contacto))) {
+		while((i<botones.length) && (!botonActual.getClientProperty("contacto").equals(nicknameContacto))) {
 			i++;
 			botonActual = (JButton) botones[i];
 		}
 		
-		if(botonActual.getClientProperty("contacto").equals(contacto)) {
+		if(botonActual.getClientProperty("contacto").equals(nicknameContacto)) {
 			this.panelBotonesConversaciones.remove(i);
-			this.agregarNuevoBotonConversacion(contacto);
+			this.agregarNuevoBotonConversacion(nicknameContacto);
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
-			botonActual.setText("*"+ contacto);
+			botonActual.setText("*"+ nicknameContacto);
 			this.setBorder(botonActual, BorderFactory.createLineBorder(Color.green,2));
 //			contacto.setMsjPendiente(true);
 		}
@@ -272,4 +274,10 @@ public class VentanaPrincipal extends JFrame {
 		    this.dispose();
 		}
 	}
+	
+	public String getNickActivo() {
+		return this.nickActivo;
+	}
+	
+	
 }
