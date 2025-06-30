@@ -53,6 +53,9 @@ public class ControladorConfiguracion implements ActionListener{
 			this.iniciarSesion(comando);
 		}else if(comando.equals(Utils.CONFIG_REGISTRO)) {
 			this.dialogConfiguracion.getConfiguracion();
+			this.clave = this.dialogConfiguracion.getClave();
+			this.tecnicaEncriptado = this.dialogConfiguracion.getTecnica();
+			this.tipoArchivo = this.dialogConfiguracion.getTipoArchivo();
 		}
 	}
 
@@ -130,13 +133,6 @@ public class ControladorConfiguracion implements ActionListener{
 	
 	public void cerrar() {
 		this.controladorPrincipal.cerrarConfig();
-	}
-	
-	public void setConfiguracion(String clave, String tecnicaEncriptado, String tipoArchivo) {
-		this.clave = clave;
-		this.tecnicaEncriptado = tecnicaEncriptado;
-		this.tipoArchivo = tipoArchivo;
-		System.out.println("Entro: " + clave + " " + tecnicaEncriptado + " " + tipoArchivo);
 	}
 	
 	public String seleccionarTipoArchivo() {

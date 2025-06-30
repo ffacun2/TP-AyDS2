@@ -28,6 +28,10 @@ public class DialogConfiguracion extends JDialog{
 	private JButton botonAceptar;
 	private ControladorConfiguracion controlador;
 	
+	private String clave;
+	private String tecnica;
+	private String tipoArchivo;
+	
 	public DialogConfiguracion(JFrame ventana, ControladorConfiguracion controlador, String modo) {
 		this.ventana = ventana;
 		this.controlador = controlador;
@@ -86,20 +90,31 @@ public class DialogConfiguracion extends JDialog{
 	}
 	
 	public void getConfiguracion() {
-		String clave = textFieldClave.getText();
+		this.clave = textFieldClave.getText();
 		if(!clave.equals("")) {
-			String tecnica = this.comboBoxTecnicaEncriptado.getSelectedItem().toString();
+			this.tecnica = this.comboBoxTecnicaEncriptado.getSelectedItem().toString();
 			
-			String tipoArchivo = null;
+			this.tipoArchivo = null;
 			if(this.comboBoxTipoArchivo != null) {
 				tipoArchivo = this.comboBoxTipoArchivo.getSelectedItem().toString();
 			}
 			
-			this.controlador.setConfiguracion(clave, tecnica, tipoArchivo);
+//			this.controlador.setConfiguracion(clave, tecnica, tipoArchivo);
 			this.dispose();
 		}else {
 			Utils.mostrarError("Error: ingresar clave valida", ventana);
 		}
-		
+	}
+	
+	public String getClave() {
+		return this.clave;
+	}
+	
+	public String getTecnica() {
+		return this.tecnica;
+	}
+	
+	public String getTipoArchivo() {
+		return this.tipoArchivo;
 	}
 }	

@@ -44,15 +44,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private ControladorConfiguracion controladorConfiguracion;
 	private VentanaPrincipal ventanaPrincipal;
 	private DialogSeleccionarContacto dialogContactos;
-	private Usuario usuario;
+	private Usuario usuario; //vuela
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
-	private PersistenciaFactory factory;
-	private ContactoSerializador contactoSerializador;
-	private MensajeSerializador mensajeSerializador;
-	private Encriptador encriptador;
-	private String claveEncriptado;
-	private RequestFactory reqFactory;
+	private PersistenciaFactory factory; //vuela
+	private ContactoSerializador contactoSerializador; //vuela
+	private MensajeSerializador mensajeSerializador;//vuela
+	private Encriptador encriptador; //vuela
+	private String claveEncriptado; //vuela
+	private RequestFactory reqFactory; //vuela
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor, String clave, String tecnicaEncriptado) {
 		this.controladorConfiguracion = controladorConfiguracion;
@@ -428,8 +428,8 @@ public class ControladorPrincipal implements ActionListener, Observer {
  		else {
  			this.setPersistencia(ext.toUpperCase(), nickname);
  			try {
- 				PersistenciaFactory.crearArchivo(".", nickname+"-contactos", ext);
- 				PersistenciaFactory.crearArchivo(".", nickname+"-mensajes", ext);
+ 				PersistenciaFactory.crearArchivo(nickname+"-contactos", ext);
+ 				PersistenciaFactory.crearArchivo(nickname+"-mensajes", ext);
  		 		}
  			catch (Exception e) {
  				e.printStackTrace();

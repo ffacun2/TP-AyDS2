@@ -13,7 +13,7 @@ public class MainPersisntencia {
 		
 		ContactoSerializador contactoSerializador = factory.crearContactoSerializador();
 		try {
-			PersistenciaFactory.crearArchivo(".", "user"+"-contactos", "xml");
+			PersistenciaFactory.crearArchivo("user"+"-contactos", "xml");
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

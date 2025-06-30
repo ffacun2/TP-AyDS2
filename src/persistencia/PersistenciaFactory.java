@@ -45,8 +45,8 @@ public abstract class  PersistenciaFactory {
 	}
 	
 	
-	public static void crearArchivo(String directorio, String nombre, String ext) throws Exception {
-		File file = new File(directorio, nombre + "." + ext);
+	public static void crearArchivo(String nombre, String ext) throws Exception {
+		File file = new File(".", nombre + "." + ext);
 		if (!file.exists()) {
 			if (!file.createNewFile()) {
 				throw new Exception("No se pudo crear el archivo: " + file.getAbsolutePath());
