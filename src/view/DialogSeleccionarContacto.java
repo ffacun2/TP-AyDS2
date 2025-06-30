@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import controller.ControladorPrincipal;
-import model.Contacto;
 import utils.Utils;
 
 public class DialogSeleccionarContacto extends JDialog{

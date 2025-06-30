@@ -27,7 +27,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import controller.ControladorPrincipal;
-import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import utils.Utils;

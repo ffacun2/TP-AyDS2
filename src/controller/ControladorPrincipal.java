@@ -10,7 +10,6 @@ import javax.swing.JButton;
 import cliente.ServidorAPI;
 import exceptions.ContactoRepetidoException;
 import exceptions.ExtensionNotFoundException;
-import model.Contacto;
 import model.Mensaje;
 import model.Usuario;
 import requests.DirectoriosResponse;
@@ -120,7 +119,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 *  @param nickname - nombre del usuario
 	 */
 	public void crearUsuario(String nickname, ServidorAPI servidor) {
-			this.usuario = new Usuario(nickname, servidor);
+			this.usuario = new Usuario(nickname, servidor,this);
 	}
 	
 	public void agregarContacto(String nickContacto) {
@@ -224,17 +223,26 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	public void cargarMensaje(Mensaje mensaje) {
  		try {
- 			String contacto = this.usuario.cargarMensaje(mensaje);
  			String contactoActivo = this.ventanaPrincipal.getNickActivo();
- 			
-			if (contactoActivo != null && contactoActivo == contacto) 
+ 			this.usuario.cargarMensaje(mensaje);
+			if (contactoActivo != null && contactoActivo == mensaje.getNickEmisor()) 
 				this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(contactoActivo).getConversacion());
-			if (contactoActivo == null || (contactoActivo != null && contactoActivo != contacto)) 
-				this.ventanaPrincipal.notificacion(contacto);
+			if (contactoActivo == null || (contactoActivo != null && contactoActivo != mensaje.getNickEmisor())) {
+				agregarBotonConversacion(mensaje.getNickEmisor());
+				this.notificacion(mensaje.getNickEmisor());
+			}
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.ventanaPrincipal);
 		}
+ 	}
+ 	
+ 	public void notificacion(String nickname) {
+ 		this.ventanaPrincipal.notificacion(nickname);
+ 	}
+ 	
+ 	public void agregarBotonConversacion(String nickname) {
+ 		this.ventanaPrincipal.agregarNuevoBotonConversacion(nickname);
  	}
  	
  	public void setTitulo(String title) {

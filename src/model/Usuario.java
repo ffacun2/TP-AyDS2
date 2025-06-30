@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import cliente.ServidorAPI;
 import config.ConfigEncriptado;
+import controller.ControladorPrincipal;
 import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
 import exceptions.ExtensionNotFoundException;
@@ -30,7 +31,7 @@ public class Usuario {
 	private ArrayList<Contacto> contactos;
 	@JsonIgnore
 	private ServidorAPI servidor;
-	
+	private ControladorPrincipal controlador;
 	private PersistenciaFactory factory;
 	private ContactoSerializador contactoSerializador;
 	private MensajeSerializador mensajeSerializador;
@@ -40,9 +41,10 @@ public class Usuario {
 	
 	
 	@SuppressWarnings("exports")
-	public Usuario(String nickname, ServidorAPI servidor) {
+	public Usuario(String nickname, ServidorAPI servidor,ControladorPrincipal controller) {
 		this.nickname = nickname;
 		this.servidor = servidor;
+		this.controlador = controller;
 		this.contactos = new ArrayList<Contacto>();
 	}
 
@@ -107,7 +109,7 @@ public class Usuario {
 		return false;
 	}
 
-	public String cargarMensaje(Mensaje mensaje) throws ContactoRepetidoException {
+	public void cargarMensaje(Mensaje mensaje) throws ContactoRepetidoException {
 		Contacto contacto = new Contacto(mensaje.getNickEmisor());
 		Contacto nuevo = null;
 		ArrayList<Contacto> agenda = getContactos();
@@ -122,13 +124,11 @@ public class Usuario {
 					crearConversacion(nuevo.getNickname());
 				nuevo.getConversacion().agregarMensaje(mensaje);
 			}
-			return nuevo.getNickname();
 		}
 		else {
 			agregarContacto(mensaje.getNickEmisor());
-			crearConversacion(contacto.getNickname());
-			contacto.getConversacion().agregarMensaje(mensaje);
-			return contacto.getNickname();
+			crearConversacion(mensaje.getNickEmisor());
+			obtenerContacto(mensaje.getNickEmisor()).getConversacion().agregarMensaje(mensaje);
 		}
 	}
 	
