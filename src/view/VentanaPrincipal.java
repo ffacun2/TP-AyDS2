@@ -193,8 +193,8 @@ public class VentanaPrincipal extends JFrame {
 
 		JButton boton = new JButton(nicknameContacto);
 		boton.addActionListener(controlador);
-		boton.setActionCommand(Utils.MENSAJE);
-		boton.putClientProperty("contacto", nicknameContacto);
+		boton.setActionCommand(Utils.SELEC_CONVERSACION);
+		boton.putClientProperty("nickname", nicknameContacto);
 		boton.setPreferredSize(new Dimension(this.panelBotonesConversaciones.getWidth()-6, 25));
 		boton.setMinimumSize(new Dimension(10, 25));
 		boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
@@ -238,12 +238,12 @@ public class VentanaPrincipal extends JFrame {
 		JButton botonActual = (JButton) botones[0];
 		int i=0; 
 		
-		while((i<botones.length) && (!botonActual.getClientProperty("contacto").equals(nicknameContacto))) {
+		while((i<botones.length) && (!botonActual.getClientProperty("nickname").equals(nicknameContacto))) {
 			i++;
 			botonActual = (JButton) botones[i];
 		}
 		
-		if(botonActual.getClientProperty("contacto").equals(nicknameContacto)) {
+		if(botonActual.getClientProperty("nickname").equals(nicknameContacto)) {
 			this.panelBotonesConversaciones.remove(i);
 			this.agregarNuevoBotonConversacion(nicknameContacto);
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
@@ -279,5 +279,8 @@ public class VentanaPrincipal extends JFrame {
 		return this.nickActivo;
 	}
 	
+	public void setNickActivo(String nickname) {
+		this.nickActivo = nickname;
+	}
 	
 }

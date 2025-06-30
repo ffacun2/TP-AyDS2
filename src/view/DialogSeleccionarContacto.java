@@ -18,10 +18,10 @@ import utils.Utils;
 public class DialogSeleccionarContacto extends JDialog{
 	private static final long serialVersionUID = 1L;
 	
-	private JComboBox<Contacto> comboBox;
+	private JComboBox<String> comboBox;
 	private JButton botonAceptar;
 	
-	public DialogSeleccionarContacto(JFrame ventana, ControladorPrincipal controlador, ArrayList<Contacto> listaContactos, String mode) {
+	public DialogSeleccionarContacto(JFrame ventana, ControladorPrincipal controlador, ArrayList<String> listaContactos, String mode) {
 		if (!mode.equals(Utils.MOSTRAR_AGENDA))
 			setTitle("Seleccione Contacto");
 		else
@@ -34,11 +34,11 @@ public class DialogSeleccionarContacto extends JDialog{
 		JPanel panelPrincipal = new JPanel();
 		panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
 		
-		comboBox = new JComboBox<Contacto>();
+		comboBox = new JComboBox<String>();
 		comboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		
-		for(Contacto contacto: listaContactos) {
-			comboBox.addItem(contacto);
+		for(String nickContacto: listaContactos) {
+			comboBox.addItem(nickContacto);
 		}
 		
 		panelPrincipal.add(comboBox);
@@ -55,8 +55,8 @@ public class DialogSeleccionarContacto extends JDialog{
 		setContentPane(panelPrincipal);
 	}
 	
-	public Contacto getContactoElegido() {
-		return (Contacto)this.comboBox.getSelectedItem();
+	public String getContactoElegido() {
+		return (String)this.comboBox.getSelectedItem();
 	}
 
 }
