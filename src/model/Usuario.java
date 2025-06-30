@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import cliente.ServidorAPI;
+import config.ConfigEncriptado;
 import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
 import exceptions.ExtensionNotFoundException;
@@ -79,7 +80,21 @@ public class Usuario {
 		this.contactoSerializador.serializar(contacto);
 	}
 	
-	public boolean crearConversacion(Contacto contacto) throws NullPointerException {
+	public Contacto obtenerContacto(String nickname) {
+		int i = 0;
+		
+		while (i < this.contactos.size() && !this.contactos.get(i).getNickname().equals(nickname)) {
+			i++;
+		}
+		if (i < this.contactos.size())
+			return this.contactos.get(i);
+		else
+			return null;
+	}
+	
+	public boolean crearConversacion(String nickContacto) throws NullPointerException {
+		Contacto contacto = obtenerContacto(nickContacto);
+		
 		if (contacto == null) 
 			throw new NullPointerException("El contacto no puede ser nulo");
 		
@@ -90,7 +105,7 @@ public class Usuario {
 		return false;
 	}
 
-	public Contacto cargarMensaje(Mensaje mensaje) throws ContactoRepetidoException {
+	public String cargarMensaje(Mensaje mensaje) throws ContactoRepetidoException {
 		Contacto contacto = new Contacto(mensaje.getNickEmisor());
 		Contacto nuevo = null;
 		ArrayList<Contacto> agenda = getContactos();
@@ -105,19 +120,22 @@ public class Usuario {
 					crearConversacion(nuevo);
 				nuevo.getConversacion().agregarMensaje(mensaje);
 			}
-			return nuevo;
+			return nuevo.getNickname();
 		}
 		else {
 			agregarContacto(contacto);
 			crearConversacion(contacto);
 			contacto.getConversacion().agregarMensaje(mensaje);
-			return contacto;
+			return contacto.getNickname();
 		}
 	}
 	
 	
-	public void iniciarSesion (String ext) throws ExtensionNotFoundException {
+	public void iniciarSesion (String ext,String clave,String tecnicaEncriptado) throws ExtensionNotFoundException, Exception {
 		inicializarPersistencia(ext);
+		this.encriptador = new Encriptador();
+		this.encriptador.setTecnica(ConfigEncriptado.getTecnicaEncriptado(tecnicaEncriptado));
+		this.claveEncriptado = clave;
 	}
 	
 	
@@ -139,8 +157,8 @@ public class Usuario {
 	}
 	
 	
-	public void inicializarPersistencia(String ext) throws ExtensionNotFoundException {
-		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
+	public void inicializarPersistencia(String ext) throws ExtensionNotFoundException, Exception {
+		Optional<String> extension = PersistenciaFactory.buscoArchivo("", nickname);
 		
 		if (extension.isPresent()) {
 			this.factory = persistenciaFactory(extension.get(), getNickname());
@@ -157,8 +175,9 @@ public class Usuario {
 			this.contactoSerializador = this.factory.crearContactoSerializador();
 			this.mensajeSerializador = this.factory.crearMensajeSerializador();
 			//Crear archivosss
+			this.contactoSerializador.crearArchivoContacto();
+			this.mensajeSerializador.crearArchivoMensaje();
 		}
-		
 	}
 	
 	private void cargarPersistencia() {
@@ -192,11 +211,11 @@ public class Usuario {
 	private PersistenciaFactory persistenciaFactory(String extension, String nickname) {
  		switch (extension) {
 			case "JSON":
-				return new JsonPersistenciaFactory(".",nickname);
+				return new JsonPersistenciaFactory("",nickname);
 			case "XML":
-				return new XmlPersistenciaFactory(".",nickname);
+				return new XmlPersistenciaFactory("",nickname);
 			case "TXT":
-				return new TxtPersistenciaFactory(".",nickname);
+				return new TxtPersistenciaFactory("",nickname);
 		}
 		return null;
  	}
