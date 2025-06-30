@@ -3,6 +3,7 @@ package requests;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import cliente.ServidorAPI;
 import interfaces.IRecibible;
@@ -17,8 +18,14 @@ public class DirectoriosResponse implements Serializable, IRecibible{
 		this.nicks = nicks;
 	}
 	
-	public ArrayList<Contacto> getNicks () {
-		return this.nicks;
+	public ArrayList<String> getNicks () {
+		Iterator<Contacto> it = this.nicks.iterator();
+		ArrayList<String> lista = new ArrayList<String>();
+		
+		while (it.hasNext()) {
+			lista.add(it.next().getNickname());
+		}
+		return lista;
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
 			//Llama a la ventada de dialog con los contactos
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.CREAR_CONVERSACION);
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getDirectorio(), Utils.CREAR_CONVERSACION);
 			this.dialogContactos.setVisible(true);	
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
@@ -73,40 +73,38 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			}
 		}else if(comando.equals(Utils.CONFIRMAR_CONTACTO)){
 			//Esto se llama desde el boton del dialog
-			Contacto contacto = this.dialogContactos.getContactoElegido();
-			if (contacto == null) {
+			String nickContacto = this.dialogContactos.getContactoElegido();
+			if (nickContacto == null) {
 				Utils.mostrarError("Seleccione un contacto", this.ventanaPrincipal);
 			}
 			else {
 				this.dialogContactos.dispose();
-				this.crearConversacion(contacto);
-				this.contactoActivo = contacto;
-				this.contactoActivo.setVisto(true);
-				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+				this.crearConversacion(nickContacto);
+				this.ventanaPrincipal.setNickActivo(nickContacto);
+				this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(nickContacto).getConversacion());
 				this.ventanaPrincipal.bloquearMsj(false);
 			}			
-		}else if(comando.equals(Utils.MENSAJE)) {			
+		}else if(comando.equals(Utils.SELEC_CONVERSACION)) {
+			//Cuando el usuario apreta el boton de una conversacion
 			JButton boton =(JButton) e.getSource();
-			Contacto contacto = (Contacto) boton.getClientProperty("contacto"); //Devuelve el objeto Contacto asociado al boton
-			this.contactoActivo = contacto;
-			this.contactoActivo.setVisto(true);
-			boton.setText(contacto.getNickname());
+			String nickContacto = (String) boton.getClientProperty("nickname"); //Devuelve el objeto Contacto asociado al boton
+			boton.setText(nickContacto);
 			this.ventanaPrincipal.setBorder(boton, null);
-			this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
+			this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(nickContacto).getConversacion());
 			this.ventanaPrincipal.bloquearMsj(false);
 
 		}else if(comando.equals(Utils.AGREGAR_CONTACTO)) {
-			Contacto contacto = this.dialogContactos.getContactoElegido();
-				if (contacto == null) {
+			String nickContacto = this.dialogContactos.getContactoElegido();
+				if (nickContacto == null) {
 					Utils.mostrarError("Seleccione un contacto valido", this.ventanaPrincipal);
 				}
 				else {
 					this.dialogContactos.dispose();
-					this.agregarContacto(contacto);
+					this.agregarContacto(nickContacto);
 				}
 			this.ventanaPrincipal.bloqueoAgrContacto(false);
 		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getContactos(), Utils.MOSTRAR_AGENDA);
+			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getDirectorio(), Utils.MOSTRAR_AGENDA);
 			this.dialogContactos.setVisible(true);
 		}
 	}
@@ -125,9 +123,9 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			this.usuario = new Usuario(nickname, servidor);
 	}
 	
-	public void agregarContacto(Contacto contacto) {
+	public void agregarContacto(String nickContacto) {
 		try {
-			this.usuario.agregarContacto(contacto);
+			this.usuario.agregarContacto(nickContacto);
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
@@ -172,12 +170,12 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * Crea una nueva conversacion con el contacto seleccionado
 	 * @param contacto - contacto seleccionado de la lista de contactos
 	 */
- 	public void crearConversacion(Contacto contacto) {
+ 	public void crearConversacion(String nickContacto) {
  		try {
- 			if (this.usuario.crearConversacion(contacto))
- 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto.getNickname());
+ 			if (this.usuario.crearConversacion(nickContacto))
+ 				this.ventanaPrincipal.agregarNuevoBotonConversacion(nickContacto);
  			else
-				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
+				this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(nickContacto).getConversacion());
  		}
  		catch(NullPointerException e) {
  			Utils.mostrarError("No se selecciono ningun contacto", ventanaPrincipal);
@@ -192,21 +190,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 *  El mensaje sale del campo de texto.
  	 * @param mensaje - mensaje a enviar
  	 */
- 	protected void enviarMensaje(String mensaje) {
- 		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
+ 	protected void enviarMensaje(String cuerpo) {
 		try {
-			this.usuario.enviarMensaje(msjObj);
-			
-			this.contactoActivo.agregarMensaje(msjObj);
-			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-
-		} catch (IOException e) {
-			try {
-				Thread.sleep(2000);
-			}
-			catch(InterruptedException ie) {}
-			if(this.servidor.getEstado())
-				enviarMensaje(mensaje);
+			this.usuario.enviarMensaje(cuerpo,this.ventanaPrincipal.getNickActivo());
+			this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(this.ventanaPrincipal.getNickActivo()).getConversacion());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -238,11 +225,11 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	public void cargarMensaje(Mensaje mensaje) {
  		try {
  			String contacto = this.usuario.cargarMensaje(mensaje);
- 			String contactoActivo = this.ventanaPrincipal.getContactoActivo();
+ 			String contactoActivo = this.ventanaPrincipal.getNickActivo();
  			
-			if (contactoActivo != null && contactoActivo.equals(contacto)) 
-				this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-			if (contactoActivo == null || (contactoActivo != null && !contactoActivo.equals(contacto))) 
+			if (contactoActivo != null && contactoActivo == contacto) 
+				this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(contactoActivo).getConversacion());
+			if (contactoActivo == null || (contactoActivo != null && contactoActivo != contacto)) 
 				this.ventanaPrincipal.notificacion(contacto);
 		}
 		catch (ContactoRepetidoException e) {

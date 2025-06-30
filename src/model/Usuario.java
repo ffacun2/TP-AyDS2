@@ -3,6 +3,7 @@ package model;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,14 +71,15 @@ public class Usuario {
 		this.servidor = server;
 	}
 
-	public void agregarContacto(Contacto contacto) throws ContactoRepetidoException{
+	public void agregarContacto(String nickContacto) throws ContactoRepetidoException{
 		for(Contacto aux: this.contactos) {
-			if(aux.equals(contacto)) {
+			if(aux.getNickname() == nickContacto) {
 				throw new ContactoRepetidoException();
 			}
 		}
-		this.contactos.add(contacto);
-		this.contactoSerializador.serializar(contacto);
+		Contacto nuevo = new Contacto(nickContacto);
+		this.contactos.add(nuevo);
+		this.contactoSerializador.serializar(nuevo);
 	}
 	
 	public Contacto obtenerContacto(String nickname) {
@@ -117,14 +119,14 @@ public class Usuario {
 				//obtengo el objeto con la referencia correcta
 				nuevo = agenda.get(i);
 				if (nuevo.getConversacion() == null)
-					crearConversacion(nuevo);
+					crearConversacion(nuevo.getNickname());
 				nuevo.getConversacion().agregarMensaje(mensaje);
 			}
 			return nuevo.getNickname();
 		}
 		else {
-			agregarContacto(contacto);
-			crearConversacion(contacto);
+			agregarContacto(mensaje.getNickEmisor());
+			crearConversacion(contacto.getNickname());
 			contacto.getConversacion().agregarMensaje(mensaje);
 			return contacto.getNickname();
 		}
@@ -150,7 +152,8 @@ public class Usuario {
 	 * @throws IOException: Hay un problema al escribir los datos en el stream.  
 	 * @throws  
 	 */
-	public void enviarMensaje(Mensaje mensaje) throws UnknownHostException, IOException {
+	public void enviarMensaje(String cuerpo, String nickContacto) throws UnknownHostException, IOException {
+		Mensaje mensaje = new Mensaje(this.nickname,nickContacto,cuerpo);
 		Mensaje mensajeEncriptado = this.encriptador.encriptarMensaje(mensaje, this.claveEncriptado);
 		this.servidor.enviarRequest(mensajeEncriptado);
 		this.mensajeSerializador.serializar(mensaje);
@@ -228,6 +231,14 @@ public class Usuario {
 					"]\n}\n";
 	}
 	
-	
+	public ArrayList<String> getDirectorio(){
+		Iterator<Contacto> it = this.contactos.iterator();
+		ArrayList<String> listaNicknames = new ArrayList<String>();
+		
+		while (it.hasNext()) {
+			listaNicknames.add(it.next().getNickname());
+		}
+		return listaNicknames;
+	}
 	
 }
