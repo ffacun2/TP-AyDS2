@@ -14,14 +14,13 @@ import model.Contacto;
 import persistencia.ContactoList;
 import persistencia.ContactoSerializador;
 
-public class XmlContactoSerializador implements ContactoSerializador {
+public class XmlContactoSerializador extends ContactoSerializador {
 	
-	private String path;
 	private XmlMapper mapper;
 	private XmlContactoDeserializador deserializo;
 	
 	public XmlContactoSerializador (String path) {
-		this.path = path;
+		super(path);
 		this.mapper = new XmlMapper();
 		this.deserializo = new XmlContactoDeserializador(path);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT); // Para formatear el XML de salida
@@ -32,7 +31,7 @@ public class XmlContactoSerializador implements ContactoSerializador {
 		ArrayList<Contacto> contactosList;
 		contactosList = new ArrayList<>(deserializo.deserializar());
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.path))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(getPath()))) {
 			contactosList.add(contacto);
 			writer.write(mapper.writeValueAsString(new ContactoList(contactosList)));
 		}
@@ -40,7 +39,7 @@ public class XmlContactoSerializador implements ContactoSerializador {
 			throw new RuntimeException("Error al serializar contacto a XML", e);
 		}
 		catch (IOException e) {
-			throw new RuntimeException("Error al escribir en el archivo: " + this.path, e);
+			throw new RuntimeException("Error al escribir en el archivo: " + getPath(), e);
 		}
 		
 	}

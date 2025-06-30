@@ -8,28 +8,28 @@ import persistencia.PersistenciaFactory;
 
 public class XmlPersistenciaFactory extends PersistenciaFactory {
 	
-	public XmlPersistenciaFactory (String nickname, String extension) {
-		super(nickname,extension);
+	public XmlPersistenciaFactory (String directorio, String nickname) {
+		super(directorio,nickname);
 	}
 
 	@Override
 	public ContactoSerializador crearContactoSerializador() {
-		return new XmlContactoSerializador(getNickname()+"-contactos."+getExtension());
+		return new XmlContactoSerializador(getDirectorio()+getNickname()+"-contactos.xml");
 	}
 
 	@Override
 	public MensajeSerializador crearMensajeSerializador() {
-		return new XmlMensajeSerializador(getNickname()+"-mensajes."+getExtension());
+		return new XmlMensajeSerializador(getDirectorio()+getNickname()+"-mensajes.xml");
 	}
 
 	@Override
 	public ContactoDeserializador crearContactoDeserializador() {
-		return new XmlContactoDeserializador(getNickname()+"-contactos."+getExtension());
+		return new XmlContactoDeserializador(getDirectorio()+getNickname()+"-contactos.xml");
 	}
 
 	@Override
 	public MensajeDeserializador crearMensajeDeserializador() {
-		return new XmlMensajeDeserializador(getNickname()+"-mensajes."+getExtension());
+		return new XmlMensajeDeserializador(getDirectorio()+getNickname()+"-mensajes.xml");
 	}
 	
 }

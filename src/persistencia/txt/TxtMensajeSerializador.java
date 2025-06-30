@@ -8,18 +8,17 @@ import java.io.IOException;
 import model.Mensaje;
 import persistencia.MensajeSerializador;
 
-public class TxtMensajeSerializador implements MensajeSerializador {
+public class TxtMensajeSerializador extends MensajeSerializador {
 
-	private String path;
 	
 	public TxtMensajeSerializador (String path) {
-		this.path = path;
+		super(path);
 	}
 	
 	@Override
 	public void serializar(Mensaje mensaje) {
 		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.path,true))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(getPath(),true))) {
 			writer.write(mensaje.getNickEmisor() + 
 					"," + mensaje.getNickReceptor() + 
 					"," + mensaje.getHora() + 
@@ -28,8 +27,7 @@ public class TxtMensajeSerializador implements MensajeSerializador {
 			writer.newLine();
 		}
 		catch (IOException e) {
-			throw new RuntimeException("Error al abrir el archivo "+this.path, e);
+			throw new RuntimeException("Error al abrir el archivo "+getPath(), e);
 		}
 	}
-
 }

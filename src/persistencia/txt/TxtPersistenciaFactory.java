@@ -14,22 +14,22 @@ public class TxtPersistenciaFactory extends PersistenciaFactory {
 	
 	@Override
 	public ContactoSerializador crearContactoSerializador() {
-		return new TxtContactoSerializador(getNickname()+"-contactos."+getExtension());
+		return new TxtContactoSerializador(getDirectorio()+getNickname()+"-contactos.txt");
 	}
 
 	@Override
 	public MensajeSerializador crearMensajeSerializador() {
-		return new TxtMensajeSerializador(getNickname()+"-mensajes."+getExtension());
+		return new TxtMensajeSerializador(getDirectorio()+getNickname()+"-mensajes.txt");
 	}
 
 	@Override
 	public ContactoDeserializador crearContactoDeserializador() {
-		return new TxtContactoDeserializador(getNickname()+"-contactos."+getExtension());
+		return new TxtContactoDeserializador(getDirectorio()+getNickname()+"-contactos.txt");
 	}
 
 	@Override
 	public MensajeDeserializador crearMensajeDeserializador() {
-		return new TxtMensajeDeserializador(getNickname()+"-mensajes."+getExtension());
+		return new TxtMensajeDeserializador(getDirectorio()+getNickname()+"-mensajes.txt");
 	}
 	
 }

@@ -1,35 +1,18 @@
 package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 
 import cliente.ServidorAPI;
-import config.ConfigEncriptado;
-import encriptacion.Encriptador;
 import exceptions.ContactoRepetidoException;
+import exceptions.ExtensionNotFoundException;
 import model.Contacto;
-import model.Conversacion;
 import model.Mensaje;
 import model.Usuario;
-import persistencia.ContactoDeserializador;
-import persistencia.ContactoSerializador;
-import persistencia.MensajeDeserializador;
-import persistencia.MensajeSerializador;
-import persistencia.PersistenciaFactory;
-import persistencia.json.JsonPersistenciaFactory;
-import persistencia.txt.TxtPersistenciaFactory;
-import persistencia.xml.XmlPersistenciaFactory;
 import requests.DirectoriosResponse;
 import requests.OKResponse;
 import requests.RequestFactory;
@@ -47,24 +30,23 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	private Usuario usuario; //vuela
 	private Contacto contactoActivo; //representa el contacto que tiene el chat abierto
 	private ServidorAPI servidor;
-	private PersistenciaFactory factory; //vuela
-	private ContactoSerializador contactoSerializador; //vuela
-	private MensajeSerializador mensajeSerializador;//vuela
-	private Encriptador encriptador; //vuela
-	private String claveEncriptado; //vuela
+//	private PersistenciaFactory factory; //vuela
+//	private ContactoSerializador contactoSerializador; //vuela
+////	private MensajeSerializador mensajeSerializador;//vuela
+//	private Encriptador encriptador; //vuela
+//	private String claveEncriptado; //vuela
 	private RequestFactory reqFactory; //vuela
 	
 	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor, String clave, String tecnicaEncriptado) {
 		this.controladorConfiguracion = controladorConfiguracion;
 		this.servidor = servidor;
 		this.servidor.addObserver(this);
-		this.encriptador = new Encriptador();
+//		this.encriptador = new Encriptador();
 		
-		this.encriptador.setTecnica(ConfigEncriptado.getTecnicaEncriptado(tecnicaEncriptado)); //Aca se setea el tipo de encriptacion
-		this.claveEncriptado = clave;
+//		this.encriptador.setTecnica(ConfigEncriptado.getTecnicaEncriptado(tecnicaEncriptado)); //Aca se setea el tipo de encriptacion
+//		this.claveEncriptado = clave;
 		this.reqFactory = new RequestFactory();
 		this.mostrarVentanaPrincipal();
-		System.out.println(claveEncriptado);
 	}
 	
 	public VentanaPrincipal getVentanaPrincipal() {
@@ -156,7 +138,6 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	public void agregarContacto(Contacto contacto) {
 		try {
 			this.usuario.agregarContacto(contacto);
-			this.contactoSerializador.serializar(contacto);
 		}
 		catch (ContactoRepetidoException e) {
 			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
@@ -202,16 +183,18 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	 * @param contacto - contacto seleccionado de la lista de contactos
 	 */
  	public void crearConversacion(Contacto contacto) {
- 		if(contacto == null) {
-			Utils.mostrarError("No se selecciono ningun contacto", ventanaPrincipal);
-		}else {
-			if(contacto.getConversacion() == null) {
-				contacto.setConversacion(new Conversacion());
-				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-			}else {
+ 		try {
+ 			if (this.usuario.crearConversacion(contacto))
+ 				this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
+ 			else
 				this.ventanaPrincipal.cargarConversacion(contacto.getConversacion());
-			}
-		}
+ 		}
+ 		catch(NullPointerException e) {
+ 			Utils.mostrarError("No se selecciono ningun contacto", ventanaPrincipal);
+ 		}
+ 		catch (Exception e) {
+ 			e.printStackTrace();
+ 		}
  	}
  	
  	/**
@@ -221,23 +204,22 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 */
  	protected void enviarMensaje(String mensaje) {
  		Mensaje msjObj = new Mensaje(this.usuario.getNickname(),this.contactoActivo.getNickname(),mensaje);
+		try {
+			this.usuario.enviarMensaje(msjObj);
+			
+			this.contactoActivo.agregarMensaje(msjObj);
+			this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
+
+		} catch (IOException e) {
 			try {
-				Mensaje msjEncriptado = this.encriptador.encriptarMensaje(msjObj, this.claveEncriptado); //Encripta antes de enviar
-				this.usuario.enviarMensaje(msjEncriptado, contactoActivo);
-				System.out.println(msjObj.toString());
-				this.contactoActivo.agregarMensaje(msjObj);
-				this.ventanaPrincipal.cargarConversacion(this.contactoActivo.getConversacion());
-				this.mensajeSerializador.serializar(msjObj);
-			} catch (IOException e) {
-				try {
-					Thread.sleep(2000);
-				}
-				catch(InterruptedException ie) {}
-				if(this.servidor.getEstado())
-					enviarMensaje(mensaje);
-			} catch (Exception e) {
-				e.printStackTrace();
+				Thread.sleep(2000);
 			}
+			catch(InterruptedException ie) {}
+			if(this.servidor.getEstado())
+				enviarMensaje(mensaje);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
  	}
  	
  	/**
@@ -248,8 +230,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	@Override
 	public void update(Observable o, Object arg) {
 		if(arg instanceof Mensaje) {
-			Mensaje msj = this.encriptador.desencriptarMensaje((Mensaje)arg, claveEncriptado); //Desencripta antes de seguir
-			this.cargarMensaje(msj);
+			this.cargarMensaje((Mensaje)arg);
 		}
 		else if (arg instanceof String) {
 			if(((String)arg).equals(Utils.RECONEXION))
@@ -265,42 +246,15 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param mensaje - mensaje a cargar
  	 */
  	public void cargarMensaje(Mensaje mensaje) {
-		Contacto contacto = new Contacto( mensaje.getNickEmisor());
-		ArrayList<Contacto> agenda = this.usuario.getContactos();
-		int i;
-		//Si el contacto existe, se agrega el mensaje a la conversacion y se Modifica el panel del contacto
-		//Para avisar que tiene un nuevo mensaje
-		if (agenda.contains(contacto)) {
-			i = agenda.indexOf(contacto);
-			if(i != -1 && agenda.get(i) != null) {
-				Contacto nuevo = agenda.get(i);
-				if (nuevo.getConversacion() == null )
-					this.crearConversacion(nuevo);
-				nuevo.getConversacion().agregarMensaje(mensaje);
-				
-				if (this.contactoActivo != null && this.contactoActivo.equals(agenda.get(i))) {
+ 		try {
+ 			Contacto contacto = this.usuario.cargarMensaje(mensaje);
+				if (this.contactoActivo != null && this.contactoActivo.equals(contacto)) 
 					this.ventanaPrincipal.cargarConversacion(contactoActivo.getConversacion());
-				}
-				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(agenda.get(i)))) {
-					this.ventanaPrincipal.notificacion(agenda.get(i));
-					nuevo.setVisto(false);
-				}
-			}
+				if (this.contactoActivo == null || (this.contactoActivo != null && !this.contactoActivo.equals(contacto))) 
+					this.ventanaPrincipal.notificacion(contacto);
 		}
-		else {
-			//Si el contacto no existe, se agrega a la lista de contactos y se crea una nueva conversacion
-			this.agregarContacto(contacto);
-			contacto.setConversacion(new Conversacion());
-			contacto.getConversacion().agregarMensaje(mensaje);
-			this.ventanaPrincipal.agregarNuevoBotonConversacion(contacto);
-			this.ventanaPrincipal.notificacion(contacto);
-			this.ventanaPrincipal.bloqueoNueConv(false);
-		}
-		
-		try {
-			this.mensajeSerializador.serializar(mensaje);
-		} catch (Exception e) {
-			e.printStackTrace();
+		catch (ContactoRepetidoException e) {
+			Utils.mostrarError("El contacto ya se encuentra agendado", this.ventanaPrincipal);
 		}
  	}
  	
@@ -386,72 +340,13 @@ public class ControladorPrincipal implements ActionListener, Observer {
  	 * @param ext - extension del archivo de persistencia (json, xml, txt)
  	 */
  	public void crearSesion(String nickname, ServidorAPI servidor,String ext) {
- 		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
- 		ContactoDeserializador contactoDeserializador = null;
- 		MensajeDeserializador mensajeDeserializador = null;
- 		this.crearUsuario(nickname, servidor);
- 		//Si el usuario ya esta registrado, el archivo deberia existir
- 		if (extension.isPresent()) {
- 			try {
- 				this.setPersistencia(extension.get().toUpperCase(), nickname);
- 				contactoDeserializador = factory.crearContactoDeserializador();
- 				mensajeDeserializador = factory.crearMensajeDeserializador();
-
- 				List<Contacto> contactosList = contactoDeserializador.deserializar();
-				List<Mensaje> mensajes = mensajeDeserializador.deserializar();
-				Map<String, Contacto> mapa = contactosList.stream().collect(Collectors.toMap(Contacto::getNickname,c -> c));
-				
-				//Le cargo los mensajes a los contactos
-				for(Mensaje mensaje : mensajes) {
-					Contacto contacto = mapa.get(mensaje.getNickReceptor());
-					if (contacto == null)
-						contacto = mapa.get(mensaje.getNickEmisor());
-					if (contacto.getConversacion() == null)
-						contacto.setConversacion(new Conversacion());
-					contacto.agregarMensaje(mensaje);
-				}
-				this.usuario.setContactos(new ArrayList<>(mapa.values()));
-				// Le seteo los botones de conversacion al usuario
-				for(Contacto contacto : this.usuario.getContactos()) {
-					if (contacto.getConversacion() != null) {
-						this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
-						if (!contacto.isVisto()) {
-							this.ventanaPrincipal.notificacion(contacto);
-						}
-					}
-				}
- 			} 
- 			catch (Exception e) {
- 				e.printStackTrace();
- 			}
- 		}
- 		else {
- 			this.setPersistencia(ext.toUpperCase(), nickname);
- 			try {
- 				PersistenciaFactory.crearArchivo(nickname+"-contactos", ext);
- 				PersistenciaFactory.crearArchivo(nickname+"-mensajes", ext);
- 		 		}
- 			catch (Exception e) {
- 				e.printStackTrace();
- 			}
- 		}
- 	}
- 	
- 	//Se peude usar factory method para crear la persistencia ???
- 	public void setPersistencia(String extension, String nickname) {
- 		switch (extension) {
-			case "JSON":
-				this.factory = new JsonPersistenciaFactory(nickname,extension);
-				break;
-			case "XML":
-				this.factory = new XmlPersistenciaFactory(nickname,extension);
-				break;
-			case "TXT":
-				this.factory = new TxtPersistenciaFactory(nickname,extension);
-				break;
+ 		try {
+ 			crearUsuario(nickname, servidor);
+			this.usuario.iniciarSesion(ext);
+		} 
+ 		catch (ExtensionNotFoundException e) {
+			e.printStackTrace();
 		}
- 		this.contactoSerializador = this.factory.crearContactoSerializador();
- 		this.mensajeSerializador = this.factory.crearMensajeSerializador();
  	}
  	
 }

@@ -71,9 +71,11 @@ public class ControladorConfiguracion implements ActionListener{
 		try {
 			if(!nickname.equals("")) {
 				Request request;
+				
 				if(modo.equals(Utils.INGRESAR)) {
 					request = (Request)this.reqFactory.getRequest(Utils.ID_LOGIN,nickname);
-				}else {
+				}
+				else {
 					request = (Request)this.reqFactory.getRequest(Utils.ID_REG, nickname);
 				}
 				
