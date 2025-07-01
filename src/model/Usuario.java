@@ -145,12 +145,12 @@ public class Usuario implements Observer{
 	
 	
 	public void inicializarPersistencia(String ext) throws ExtensionNotFoundException, Exception {
-		Optional<String> extension = PersistenciaFactory.buscoArchivo("", nickname);
+		Optional<String> extension = PersistenciaFactory.buscoArchivo(".", nickname);
 		
 		if (extension.isPresent()) {
 			this.factory = persistenciaFactory(extension.get(), getNickname());
 			if (this.factory == null)
-				throw new ExtensionNotFoundException("La extension " + ext + " no es valida");
+				throw new ExtensionNotFoundException("La extension " + extension.get() + " no es valida");
 			this.contactoSerializador = this.factory.crearContactoSerializador();
 			this.mensajeSerializador = this.factory.crearMensajeSerializador();
 			cargarPersistencia();
@@ -193,7 +193,7 @@ public class Usuario implements Observer{
 	}
 
 	private PersistenciaFactory persistenciaFactory(String extension, String nickname) {
- 		switch (extension) {
+ 		switch (extension.toUpperCase()) {
 			case "JSON":
 				return new JsonPersistenciaFactory("",nickname);
 			case "XML":
@@ -252,18 +252,15 @@ public class Usuario implements Observer{
 			this.mensajeRecibido((Mensaje)arg);
 		}
 		else if (arg instanceof String) {
-			if(((String)arg).equals(Utils.RECONEXION))
+			if (((String) arg).equals(Utils.RECONEXION)) {
 				try {
-//					this.servidor.setEstado(false);
-					if (this.servidor.reconectar(this.nickname)) {
-					}
-					else {
-						this.servidor.setEstado(false);
+					if (!this.servidor.reconectar(this.nickname)) {
 						this.controlador.mostrarError("Conexion perdida");
 					}
 				} catch (IOException e) {
 					this.controlador.mostrarError(e.getMessage());
 				}
+			}
 		}
 	}
  	

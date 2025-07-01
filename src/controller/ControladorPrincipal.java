@@ -229,9 +229,6 @@ public class ControladorPrincipal implements ActionListener {
  			crearUsuario(nickname, servidor);
 			this.usuario.iniciarSesion(ext,clave,tecnicaEncriptado);
 		} 
- 		catch (ExtensionNotFoundException e) {
-			e.printStackTrace();
-		}
  		catch (Exception e) {
  			e.printStackTrace();
  		}
