@@ -88,6 +88,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 			JButton boton =(JButton) e.getSource();
 			String nickContacto = (String) boton.getClientProperty("nickname"); //Devuelve el objeto Contacto asociado al boton
 			boton.setText(nickContacto);
+			this.ventanaPrincipal.setNickActivo(nickContacto);
 			this.ventanaPrincipal.setBorder(boton, null);
 			this.ventanaPrincipal.cargarConversacion(this.usuario.obtenerContacto(nickContacto).getConversacion());
 			this.ventanaPrincipal.bloquearMsj(false);
