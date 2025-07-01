@@ -5,35 +5,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 
-import cliente.ServidorAPI;
+import cliente.ClienteAPI;
 import exceptions.ContactoRepetidoException;
-import exceptions.ExtensionNotFoundException;
 import model.Usuario;
-import requests.DirectoriosResponse;
 import utils.Utils;
 import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
 
 
-@SuppressWarnings("deprecation")
 public class ControladorPrincipal implements ActionListener {
 	
-	private ControladorConfiguracion controladorConfiguracion;
 	private VentanaPrincipal ventanaPrincipal;
 	private DialogSeleccionarContacto dialogContactos;
-	private Usuario usuario; //vuela
-	private ServidorAPI servidor;
+	private Usuario usuario;
 	
-	public ControladorPrincipal(ControladorConfiguracion controladorConfiguracion, ServidorAPI servidor) {
-		this.controladorConfiguracion = controladorConfiguracion;
-		this.servidor = servidor;
-		this.mostrarVentanaPrincipal();
+	public ControladorPrincipal(Usuario usuario) {
+		this.usuario = usuario;
 	}
 	
-	public VentanaPrincipal getVentanaPrincipal() {
-		return this.ventanaPrincipal;
-	}
 	
 	/**
 	 * Si el evento se obtiene del boton CREAR_CONTACTO, se abre la una ventana para ingresar los datos del contacto y crearlo.
@@ -47,16 +38,11 @@ public class ControladorPrincipal implements ActionListener {
 		String comando = e.getActionCommand();
 		
 		if (comando.equals(Utils.MOSTRAR_DIRECTORIO)) {
-			try {
-				this.mostrarDirectorio();
-			} catch (ClassNotFoundException e1) {
-				Utils.mostrarError(e1.getMessage(), ventanaPrincipal);
-			}
+			this.mostrarDirectorio();
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
 			//Llama a la ventada de dialog con los contactos
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getAgenda(), Utils.CREAR_CONVERSACION);
-			this.dialogContactos.setVisible(true);	
+			mostrarDialogContactos(ventanaPrincipal, this, this.usuario.getAgenda(), Utils.CREAR_CONVERSACION);
 		}
 		else if ( comando.equals(Utils.ENVIAR_MENSAJE)) {
 			if (!this.ventanaPrincipal.getMensaje().isEmpty()) {
@@ -97,8 +83,7 @@ public class ControladorPrincipal implements ActionListener {
 				}
 			this.ventanaPrincipal.bloqueoAgrContacto(false);
 		}else if(comando.equals(Utils.MOSTRAR_AGENDA)) {
-			this.dialogContactos = new DialogSeleccionarContacto(ventanaPrincipal, this, this.usuario.getAgenda(), Utils.MOSTRAR_AGENDA);
-			this.dialogContactos.setVisible(true);
+			mostrarDialogContactos(ventanaPrincipal, this, this.usuario.getAgenda(), Utils.MOSTRAR_AGENDA);
 		}
 	}
 	
@@ -112,7 +97,7 @@ public class ControladorPrincipal implements ActionListener {
 	 *  @param puerto - puerto del usuario
 	 *  @param nickname - nombre del usuario
 	 */
-	public void crearUsuario(String nickname, ServidorAPI servidor) {
+	public void crearUsuario(String nickname, ClienteAPI servidor) {
 			this.usuario = new Usuario(nickname, servidor,this);
 	}
 	
@@ -121,7 +106,7 @@ public class ControladorPrincipal implements ActionListener {
 			this.usuario.agregarContacto(nickContacto);
 		}
 		catch (ContactoRepetidoException e) {
-			Utils.mostrarError("El contacto ya se encuentra agendado", this.controladorConfiguracion.getVentanaConfig());
+			Utils.mostrarError("El contacto ya se encuentra agendado", this.ventanaPrincipal);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -129,14 +114,11 @@ public class ControladorPrincipal implements ActionListener {
 		
 	}
 
-
-
-	public void mostrarDirectorio() throws ClassNotFoundException{	
+	public void mostrarDirectorio() {	
 		ArrayList<String> nicks;
 		try {
 			nicks = this.usuario.getDirectorio();
-			this.dialogContactos  = new DialogSeleccionarContacto(this.ventanaPrincipal, this, nicks, Utils.MODO_AGR_CONTACTO);
-			this.dialogContactos.setVisible(true);
+			mostrarDialogContactos(this.ventanaPrincipal,this, nicks, Utils.MODO_AGR_CONTACTO);
 		} 
 		catch (Exception ex) {
 			Utils.mostrarError(ex.getMessage(), ventanaPrincipal);
@@ -192,10 +174,10 @@ public class ControladorPrincipal implements ActionListener {
  		this.ventanaPrincipal.setTitle(title);
  	}
  	
- 	public void mostrarVentanaPrincipal() {
+ 	public void mostrarVentanaPrincipal(JFrame ventana) {
  		this.ventanaPrincipal = new VentanaPrincipal();
  		this.ventanaPrincipal.setControlador(this);
- 		this.ventanaPrincipal.setLocationRelativeTo(this.controladorConfiguracion.getVentanaConfig());
+ 		this.ventanaPrincipal.setLocationRelativeTo(ventana);
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
  		this.ventanaPrincipal.bloqueoNueConv(false);
@@ -224,7 +206,7 @@ public class ControladorPrincipal implements ActionListener {
  	 * @param servidor - servidor al que se conecta el usuario
  	 * @param ext - extension del archivo de persistencia (json, xml, txt)
  	 */
- 	public void crearSesion(String nickname, ServidorAPI servidor,String ext, String clave, String tecnicaEncriptado) {
+ 	public void crearSesion(String nickname, ClienteAPI servidor,String ext, String clave, String tecnicaEncriptado) {
  		try {
  			crearUsuario(nickname, servidor);
 			this.usuario.iniciarSesion(ext,clave,tecnicaEncriptado);
@@ -237,6 +219,11 @@ public class ControladorPrincipal implements ActionListener {
  	public void mostrarError(String mensajeError) {
  		Utils.mostrarError(mensajeError, this.ventanaPrincipal);
  		this.ventanaPrincipal.dispose();
+ 	}
+ 	
+ 	public void mostrarDialogContactos(VentanaPrincipal ventana, ControladorPrincipal controlador, ArrayList<String> nicks, String modo) {
+ 		this.dialogContactos = new DialogSeleccionarContacto(ventana, controlador, nicks, modo);
+ 		this.dialogContactos.setVisible(true);
  	}
  	
 }

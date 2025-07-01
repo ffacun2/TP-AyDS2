@@ -22,7 +22,7 @@ import requests.RequestFactory;
 import utils.Utils;
 
 @SuppressWarnings("deprecation")
-public class ServidorAPI extends Observable implements Runnable {
+public class ClienteAPI extends Observable implements Runnable {
 	
 	private Socket socket;
 	private ObjectInputStream input;
@@ -36,7 +36,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	private IRecibible lastResponse;
 
-	public ServidorAPI() throws UnknownHostException, IOException {
+	public ClienteAPI() {
 		this.lastResponse = null;
 		this.estado = true;
 		this.controladorListo = false;
@@ -162,7 +162,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	}
 	
 	public void iniciarApi (int puerto) throws UnknownHostException, IOException {
-		System.out.println(puerto);
+		System.out.println("> metodo iniciarApi -> "+puerto);
 		this.setEstado(true);
 		this.socket = new Socket("localhost",puerto);
 		this.output = new ObjectOutputStream(socket.getOutputStream());
@@ -219,5 +219,13 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	public void enviarRequestDirectorio(String nickname) throws IOException{
 		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_DIRECTORIO, nickname)); 
+	}
+	
+	public void enviarRequestRegistrar(String nickname) throws IOException {
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_REGISTRO, nickname));
+	}
+	
+	public void enviarRequestLogin(String nickname) throws IOException {
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGIN, nickname));
 	}
 }

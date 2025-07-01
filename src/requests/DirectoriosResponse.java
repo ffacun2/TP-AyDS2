@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import cliente.ServidorAPI;
+import cliente.ClienteAPI;
 import interfaces.IRecibible;
 import model.Contacto;
 
@@ -29,7 +29,7 @@ public class DirectoriosResponse implements Serializable, IRecibible{
 	}
 
 	@Override
-	public void manejarResponse(ServidorAPI servidor) throws IOException {
+	public void manejarResponse(ClienteAPI servidor) throws IOException {
 		servidor.setResponse(this);
 	}
 	

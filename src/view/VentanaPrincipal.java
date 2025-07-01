@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -49,19 +48,6 @@ public class VentanaPrincipal extends JFrame {
 	
 	private String nickActivo;
 	
-	/**
-	 * Launch the application.
-	 */
-	
-	 public static void main(String[] args) { EventQueue.invokeLater(new
-	  Runnable() { public void run() { try { VentanaPrincipal frame = new
-	  VentanaPrincipal();
-	  frame.setVisible(true); } catch (Exception e) { e.printStackTrace(); } } });
-	  }
-
-	/**
-	 * Create the frame.
-	 */
 	public VentanaPrincipal() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 503, 312);
