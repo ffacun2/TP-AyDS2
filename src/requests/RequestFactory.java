@@ -23,7 +23,7 @@ public class RequestFactory {
 		case Utils.ID_MENSAJE -> {
 			return new RequestMensaje((Mensaje)arg);
 		}
-		case Utils.ID_REG -> {
+		case Utils.ID_REGISTRO -> {
 			return new RequestRegistro((String)arg);
 		}
 		default -> {

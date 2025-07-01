@@ -12,19 +12,18 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import model.Mensaje;
 import persistencia.MensajeSerializador;
 
-public class JsonMensajeSerializador implements MensajeSerializador {
+public class JsonMensajeSerializador extends MensajeSerializador {
 
-	private String path;
 	private JsonMapper mapper;
 	
 	public JsonMensajeSerializador (String path) {
-		this.path = path;
+		super(path);
 		this.mapper = new JsonMapper();
 	}
 	
 	@Override
 	public void serializar(Mensaje mensaje) {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.path, true))){
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(getPath(), true))){
 			writer.write(mapper.writeValueAsString(mensaje));
 			writer.newLine();
 		} 
@@ -32,7 +31,7 @@ public class JsonMensajeSerializador implements MensajeSerializador {
 			throw new RuntimeException("Error serializando mensaje a JSON", e);
 		}
 		catch (IOException e) {
-			throw new RuntimeException("Error al leer el archivo: "+this.path, e);
+			throw new RuntimeException("Error al leer el archivo: "+getPath(), e);
 		}
 	}
 

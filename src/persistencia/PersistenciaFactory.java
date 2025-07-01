@@ -5,11 +5,11 @@ import java.util.Optional;
 
 public abstract class  PersistenciaFactory {
 	private String nickname;
-	private String extension;
+	private String directorio;
 	
-	public PersistenciaFactory(String nickname, String extension) {
+	public PersistenciaFactory(String directorio, String nickname) {
 		this.nickname = nickname;
-		this.extension = extension;
+		this.directorio = directorio;
 	}
 
 	public abstract ContactoSerializador crearContactoSerializador();
@@ -45,23 +45,11 @@ public abstract class  PersistenciaFactory {
 	}
 	
 	
-	public static void crearArchivo(String nombre, String ext) throws Exception {
-		File file = new File(".", nombre + "." + ext);
-		if (!file.exists()) {
-			if (!file.createNewFile()) {
-				throw new Exception("No se pudo crear el archivo: " + file.getAbsolutePath());
-			}
-		}
-		else {
-			throw new Exception("El archivo ya existe: " + file.getAbsolutePath());
-		}
-	}
-	
 	protected String getNickname() {
 		return this.nickname;
 	}
 	
-	protected String getExtension() {
-		return this.extension;
+	protected String getDirectorio() {
+		return this.directorio;
 	}
 }

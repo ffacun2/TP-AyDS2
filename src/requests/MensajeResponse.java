@@ -3,7 +3,7 @@ package requests;
 import java.io.IOException;
 import java.time.LocalTime;
 
-import cliente.ServidorAPI;
+import cliente.ClienteAPI;
 import interfaces.IRecibible;
 import model.Mensaje;
 
@@ -46,7 +46,7 @@ public class MensajeResponse implements IRecibible{
 	}
 
 	@Override
-	public void manejarResponse(ServidorAPI servidor) throws IOException {
+	public void manejarResponse(ClienteAPI servidor) throws IOException {
 		servidor.mensajeRecibido(this);
 	}
 	

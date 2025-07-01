@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,7 +26,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import controller.ControladorPrincipal;
-import model.Contacto;
 import model.Conversacion;
 import model.Mensaje;
 import utils.Utils;
@@ -48,19 +46,8 @@ public class VentanaPrincipal extends JFrame {
 	private JPanel panelBotonesConversaciones;
 	private ControladorPrincipal controlador;
 	
-	/**
-	 * Launch the application.
-	 */
+	private String nickActivo;
 	
-	 public static void main(String[] args) { EventQueue.invokeLater(new
-	  Runnable() { public void run() { try { VentanaPrincipal frame = new
-	  VentanaPrincipal();
-	  frame.setVisible(true); } catch (Exception e) { e.printStackTrace(); } } });
-	  }
-
-	/**
-	 * Create the frame.
-	 */
 	public VentanaPrincipal() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 503, 312);
@@ -187,12 +174,12 @@ public class VentanaPrincipal extends JFrame {
 		this.btnNueConv.setEnabled(!cond);
 	}
 	
-	public void agregarNuevoBotonConversacion(Contacto contacto) {
+	public void agregarNuevoBotonConversacion(String nicknameContacto) {
 
-		JButton boton = new JButton(contacto.toString());
+		JButton boton = new JButton(nicknameContacto);
 		boton.addActionListener(controlador);
-		boton.setActionCommand(Utils.MENSAJE);
-		boton.putClientProperty("contacto", contacto);
+		boton.setActionCommand(Utils.SELEC_CONVERSACION);
+		boton.putClientProperty("nickname", nicknameContacto);
 		boton.setPreferredSize(new Dimension(this.panelBotonesConversaciones.getWidth()-6, 25));
 		boton.setMinimumSize(new Dimension(10, 25));
 		boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
@@ -205,7 +192,7 @@ public class VentanaPrincipal extends JFrame {
 	
 	public void cargarConversacion(Conversacion conversacion) {
 		/**
-		 * Aca se deveria cargar la conversacion correspondiente al contacto
+		 * Aca se deberia cargar la conversacion correspondiente al contacto
 		 * puse nicknameusuario como parametro para hacer un formato de chat tipo
 		 * "Contacto:......"
 		 * "Usuario:......"
@@ -231,21 +218,21 @@ public class VentanaPrincipal extends JFrame {
 	 * Marca el boton correspondiente al contacto con un "*"
 	 * @param contacto: Contacto con el cual ya se tiene una conversacion. 
 	 */
-	public void notificacion(Contacto contacto) {
+	public void notificacion(String nicknameContacto) {
 		Component[] botones = this.panelBotonesConversaciones.getComponents();
 		JButton botonActual = (JButton) botones[0];
 		int i=0; 
 		
-		while((i<botones.length) && (!botonActual.getClientProperty("contacto").equals(contacto))) {
+		while((i<botones.length) && (!botonActual.getClientProperty("nickname").equals(nicknameContacto))) {
 			i++;
 			botonActual = (JButton) botones[i];
 		}
 		
-		if(botonActual.getClientProperty("contacto").equals(contacto)) {
+		if(botonActual.getClientProperty("nickname").equals(nicknameContacto)) {
 			this.panelBotonesConversaciones.remove(i);
-			this.agregarNuevoBotonConversacion(contacto);
+			this.agregarNuevoBotonConversacion(nicknameContacto);
 			botonActual = (JButton)this.panelBotonesConversaciones.getComponent(0);
-			botonActual.setText("*"+ contacto);
+			botonActual.setText("*"+ nicknameContacto);
 			this.setBorder(botonActual, BorderFactory.createLineBorder(Color.green,2));
 //			contacto.setMsjPendiente(true);
 		}
@@ -272,4 +259,14 @@ public class VentanaPrincipal extends JFrame {
 		    this.dispose();
 		}
 	}
+	
+	public String getNickActivo() {
+		return this.nickActivo;
+	}
+	
+	public void setNickActivo(String nickname) {
+		this.nickActivo = nickname;
+	}
+	
+	
 }

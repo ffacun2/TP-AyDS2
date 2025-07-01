@@ -14,16 +14,15 @@ import model.Mensaje;
 import persistencia.MensajeList;
 import persistencia.MensajeSerializador;
 
-public class XmlMensajeSerializador implements MensajeSerializador {
+public class XmlMensajeSerializador extends MensajeSerializador {
 
-	private String path;
 	private XmlMapper mapper;
 	private XmlMensajeDeserializador deserializador;
 	
 	public XmlMensajeSerializador(String path) {
-		this.path = path;
+		super(path);
 		this.mapper = new XmlMapper();
-		this.deserializador = new XmlMensajeDeserializador(this.path);
+		this.deserializador = new XmlMensajeDeserializador(path);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT); // Para formatear el XML de salida
 	}
 	
@@ -32,7 +31,7 @@ public class XmlMensajeSerializador implements MensajeSerializador {
 		ArrayList<Mensaje> mensajesList;
 		mensajesList = new ArrayList<>(deserializador.deserializar());
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.path))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(getPath()))) {
 			mensajesList.add(mensaje);
 			writer.write(mapper.writeValueAsString(new MensajeList(mensajesList)));
 		} 
@@ -40,7 +39,7 @@ public class XmlMensajeSerializador implements MensajeSerializador {
 			throw new RuntimeException("Error al serializar mensaje a XML", e);
 		}
 		catch (IOException e) {
-			throw new RuntimeException("Error al escribir en el archivo: " + this.path, e);
+			throw new RuntimeException("Error al escribir en el archivo: " + getPath(), e);
 		}
 	}
 

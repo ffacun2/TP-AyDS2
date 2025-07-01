@@ -8,17 +8,15 @@ import java.io.IOException;
 import model.Contacto;
 import persistencia.ContactoSerializador;
 
-public class TxtContactoSerializador implements ContactoSerializador {
+public class TxtContactoSerializador extends ContactoSerializador {
 
-	private String path;
-	
 	public TxtContactoSerializador (String path) {
-		this.path = path;
+		super(path);
 	}
 	
 	@Override
 	public void serializar(Contacto contacto) {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.path, true))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(getPath(), true))) {
 			writer.write(contacto.getNickname());
 			writer.newLine();
 		}
@@ -26,4 +24,5 @@ public class TxtContactoSerializador implements ContactoSerializador {
 			throw new RuntimeException("Error al serializando contacto en txt",e);
 		}
 	}
+
 }

@@ -41,6 +41,9 @@ public class Contacto implements Serializable, SerializableTxt {
 	}
 	
 	public void agregarMensaje(Mensaje msj) {
+		if (this.conversacion == null) {
+			this.conversacion = new Conversacion();
+		}
 		this.conversacion.agregarMensaje(msj);
 	}
 
