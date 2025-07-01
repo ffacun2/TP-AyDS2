@@ -17,6 +17,8 @@ import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
 import requests.MensajeResponse;
+import requests.OKResponse;
+import requests.RequestFactory;
 import utils.Utils;
 
 @SuppressWarnings("deprecation")
@@ -27,6 +29,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	private ObjectOutputStream output;
 	private boolean estado;
 	
+	private RequestFactory reqFactory;
 	private final Object lock = new Object();
 	private boolean controladorListo;
 	private ArrayList<Mensaje> bufferMensajes;
@@ -38,6 +41,7 @@ public class ServidorAPI extends Observable implements Runnable {
 		this.estado = true;
 		this.controladorListo = false;
 		this.bufferMensajes = new ArrayList<Mensaje>();
+		this.reqFactory = new RequestFactory();
 	}
 	
 	@Override
@@ -76,7 +80,7 @@ public class ServidorAPI extends Observable implements Runnable {
 		catch (Exception e) { //Reintento
 			e.printStackTrace();
 			try {
-				Thread.sleep(4000);
+				Thread.sleep(6000);
 			}
 			catch (InterruptedException ie) {
 				throw new RuntimeException("Reintento interrumpido",ie);
@@ -157,6 +161,7 @@ public class ServidorAPI extends Observable implements Runnable {
 	
 	public void iniciarApi (int puerto) throws UnknownHostException, IOException {
 		System.out.println(puerto);
+		this.setEstado(true);
 		this.socket = new Socket("localhost",puerto);
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		output.flush();
@@ -168,4 +173,31 @@ public class ServidorAPI extends Observable implements Runnable {
 		return config.obtenerPuertoActivo();
 	}
 
+	public boolean reconectar(String nickUsuario) throws IOException{
+		int puerto = this.getPuertoServidorActivo();
+		if (puerto == -1)
+			throw new IOException();
+		
+		
+		this.iniciarApi(puerto);
+//		new Thread(this).start();
+		this.setControladorListo();
+		
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGIN, nickUsuario));
+		OKResponse res = (OKResponse)this.getResponse();
+		if (res.isSuccess())
+			return true;
+		else {
+			this.setEstado(false);
+			return false;
+		}
+	}
+	
+	public void enviarRequestLogout(String nickname) throws IOException{
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGOUT, nickname));
+	}
+	
+	public void enviarRequestDirectorio(String nickname) throws IOException{
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_DIRECTORIO, nickname)); 
+	}
 }

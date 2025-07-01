@@ -206,7 +206,7 @@ public class VentanaPrincipal extends JFrame {
 	
 	public void cargarConversacion(Conversacion conversacion) {
 		/**
-		 * Aca se deveria cargar la conversacion correspondiente al contacto
+		 * Aca se deberia cargar la conversacion correspondiente al contacto
 		 * puse nicknameusuario como parametro para hacer un formato de chat tipo
 		 * "Contacto:......"
 		 * "Usuario:......"
@@ -281,5 +281,6 @@ public class VentanaPrincipal extends JFrame {
 	public void setNickActivo(String nickname) {
 		this.nickActivo = nickname;
 	}
+	
 	
 }

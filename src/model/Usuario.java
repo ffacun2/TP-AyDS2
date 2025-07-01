@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,8 +27,11 @@ import persistencia.PersistenciaFactory;
 import persistencia.json.JsonPersistenciaFactory;
 import persistencia.txt.TxtPersistenciaFactory;
 import persistencia.xml.XmlPersistenciaFactory;
+import requests.DirectoriosResponse;
+import utils.Utils;
 
-public class Usuario {
+@SuppressWarnings("deprecation")
+public class Usuario implements Observer{
 	private String nickname;
 	private ArrayList<Contacto> contactos;
 	@JsonIgnore
@@ -44,6 +49,7 @@ public class Usuario {
 	public Usuario(String nickname, ServidorAPI servidor,ControladorPrincipal controller) {
 		this.nickname = nickname;
 		this.servidor = servidor;
+		this.servidor.addObserver(this);
 		this.controlador = controller;
 		this.contactos = new ArrayList<Contacto>();
 	}
@@ -108,30 +114,6 @@ public class Usuario {
 		}
 		return false;
 	}
-
-	public void cargarMensaje(Mensaje mensaje) throws ContactoRepetidoException {
-		Contacto contacto = new Contacto(mensaje.getNickEmisor());
-		Contacto nuevo = null;
-		ArrayList<Contacto> agenda = getContactos();
-		int i;
-		//La comparacion se hace por nombre y no por referencia
-		if (agenda.contains(contacto)) {
-			i = agenda.indexOf(contacto);
-			if (i != -1 && agenda.get(i) != null) {
-				//obtengo el objeto con la referencia correcta
-				nuevo = agenda.get(i);
-				if (nuevo.getConversacion() == null)
-					crearConversacion(nuevo.getNickname());
-				nuevo.getConversacion().agregarMensaje(mensaje);
-			}
-		}
-		else {
-			agregarContacto(mensaje.getNickEmisor());
-			crearConversacion(mensaje.getNickEmisor());
-			obtenerContacto(mensaje.getNickEmisor()).getConversacion().agregarMensaje(mensaje);
-		}
-	}
-	
 	
 	public void iniciarSesion (String ext,String clave,String tecnicaEncriptado) throws ExtensionNotFoundException, Exception {
 		inicializarPersistencia(ext);
@@ -156,7 +138,9 @@ public class Usuario {
 		Mensaje mensaje = new Mensaje(this.nickname,nickContacto,cuerpo);
 		Mensaje mensajeEncriptado = this.encriptador.encriptarMensaje(mensaje, this.claveEncriptado);
 		this.servidor.enviarRequest(mensajeEncriptado);
+		this.obtenerContacto(nickContacto).agregarMensaje(mensaje);
 		this.mensajeSerializador.serializar(mensaje);
+		this.controlador.notificar(nickContacto);
 	}
 	
 	
@@ -203,10 +187,7 @@ public class Usuario {
 		// Le seteo los botones de conversacion al usuario
 		for(Contacto contacto : getContactos()) {
 			if (contacto.getConversacion() != null) {
-//				this.getVentanaPrincipal().agregarNuevoBotonConversacion(contacto);
-				if (!contacto.isVisto()) {
-//					this.ventanaPrincipal.notificacion(contacto);
-				}
+				this.controlador.agregarBotonConversacion(contacto.getNickname());
 			}
 		}
 	}
@@ -231,7 +212,7 @@ public class Usuario {
 					"]\n}\n";
 	}
 	
-	public ArrayList<String> getDirectorio(){
+	public ArrayList<String> getAgenda(){
 		Iterator<Contacto> it = this.contactos.iterator();
 		ArrayList<String> listaNicknames = new ArrayList<String>();
 		
@@ -240,5 +221,60 @@ public class Usuario {
 		}
 		return listaNicknames;
 	}
-	
+
+	public void mensajeRecibido(Mensaje mensaje) {
+		boolean wasNull = false;
+		Mensaje msjDesencriptado = this.encriptador.desencriptarMensaje(mensaje, claveEncriptado);
+		Contacto contacto = this.obtenerContacto(mensaje.getNickEmisor());
+		
+		if (contacto == null) { //El contacto es nuevo
+			wasNull = true;
+			try {
+				this.agregarContacto(mensaje.getNickEmisor());
+				contacto = this.obtenerContacto(mensaje.getNickEmisor());
+			}
+			catch (ContactoRepetidoException e) {
+				System.out.println("Error fatal");
+			}
+		}
+		if (wasNull) {
+			this.controlador.agregarConversacion(mensaje.getNickEmisor());
+		}
+		contacto.agregarMensaje(msjDesencriptado);
+		this.mensajeSerializador.serializar(msjDesencriptado);
+		this.controlador.notificar(mensaje.getNickEmisor());
+
+	}
+
+ 	@Override
+	public void update(Observable o, Object arg) {
+		if(arg instanceof Mensaje) {
+			this.mensajeRecibido((Mensaje)arg);
+		}
+		else if (arg instanceof String) {
+			if(((String)arg).equals(Utils.RECONEXION))
+				try {
+//					this.servidor.setEstado(false);
+					if (this.servidor.reconectar(this.nickname)) {
+					}
+					else {
+						this.servidor.setEstado(false);
+						this.controlador.mostrarError("Conexion perdida");
+					}
+				} catch (IOException e) {
+					this.controlador.mostrarError(e.getMessage());
+				}
+		}
+	}
+ 	
+ 	public void cerrarSesion() throws IOException{
+		this.servidor.setEstado(false);
+		this.servidor.enviarRequestLogout(this.nickname);
+ 	}
+ 	
+ 	public ArrayList<String> getDirectorio() throws IOException{
+ 		this.servidor.enviarRequestDirectorio(this.nickname);
+ 		DirectoriosResponse res = (DirectoriosResponse)servidor.getResponse();
+ 		return res.getNicks();
+ 	}
 }
