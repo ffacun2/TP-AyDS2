@@ -12,59 +12,66 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Observable;
 
+import config.ConfigServer;
 import interfaces.IEnviable;
 import interfaces.IRecibible;
 import model.Mensaje;
 import requests.MensajeResponse;
+import requests.OKResponse;
+import requests.RequestFactory;
 import utils.Utils;
 
 @SuppressWarnings("deprecation")
-public class ServidorAPI extends Observable implements Runnable {
+public class ClienteAPI extends Observable implements Runnable {
 	
 	private Socket socket;
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
-	private boolean estado;
+	private volatile boolean estado;
 	
+	private RequestFactory reqFactory;
 	private final Object lock = new Object();
 	private boolean controladorListo;
 	private ArrayList<Mensaje> bufferMensajes;
 	
 	private IRecibible lastResponse;
 
-	public ServidorAPI() throws UnknownHostException, IOException {
+	public ClienteAPI() {
 		this.lastResponse = null;
 		this.estado = true;
 		this.controladorListo = false;
 		this.bufferMensajes = new ArrayList<Mensaje>();
+		this.reqFactory = new RequestFactory();
 	}
 	
 	@Override
 	public void run() {
-		System.out.println("Iniciando ServerAPi "+socket.getPort());
-		while(estado) {
-			IRecibible res;
+		System.out.println("Iniciando ServerAPI " + socket.getPort());
+		while (estado && socket != null && !socket.isClosed()) {
 			try {
 				socket.setSoTimeout(3000);
-				res = (IRecibible)this.input.readObject();
+				IRecibible res = (IRecibible) this.input.readObject();
 				res.manejarResponse(this);
-				
 			}
-			catch (SocketTimeoutException e) {} // No hace nada, es para que cicle el input y no quede bloqueado (para cerra sesion)
+			catch (SocketTimeoutException e) {
+			}
 			catch (EOFException | SocketException e) {
 				try {
 					Thread.sleep(3000);
-				}catch (Exception eh) {}
-				System.out.println("catch 1");
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				this.setChanged();
 				this.notifyObservers(Utils.RECONEXION);
-			} catch (ClassNotFoundException | IOException e) {
-				System.out.println("catch 2");
+				break;
+			} 
+			catch (ClassNotFoundException | IOException e) {
 				this.setChanged();
 				this.notifyObservers(Utils.RECONEXION);
+				break; 
 			}
 		}
-		System.out.println("Cerrando serverApi "+socket.getPort());
+		System.out.println("Finalizando hilo ServerAPI");
 	}
 	
 	public void enviarRequest(IEnviable env) throws IOException {
@@ -75,7 +82,7 @@ public class ServidorAPI extends Observable implements Runnable {
 		catch (Exception e) { //Reintento
 			e.printStackTrace();
 			try {
-				Thread.sleep(4000);
+				Thread.sleep(6000);
 			}
 			catch (InterruptedException ie) {
 				throw new RuntimeException("Reintento interrumpido",ie);
@@ -154,30 +161,71 @@ public class ServidorAPI extends Observable implements Runnable {
 		}
 	}
 	
-	public void iniciarApi (String ip, int puerto) throws UnknownHostException, IOException {
-		this.socket = new Socket(ip,puerto);
+	public void iniciarApi (int puerto) throws UnknownHostException, IOException {
+		System.out.println("> metodo iniciarApi -> "+puerto);
+		this.setEstado(true);
+		this.socket = new Socket("localhost",puerto);
 		this.output = new ObjectOutputStream(socket.getOutputStream());
+		output.flush();
 		this.input = new ObjectInputStream(socket.getInputStream());
 	}
 	
-	public Integer getPuertoServidorActivo() throws IOException{
-		try (
-			Socket socket = new Socket("localhost",Utils.PUERTO_MONITOR);
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());			
-			) {
-
-			out.writeObject("SOLICITAR_PUERTO");
-			out.flush();
-			
-			socket.setSoTimeout(3000);
-			return (Integer) in.readObject();
-			
-		}
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public Integer getPuertoServidorActivo() {
+		ConfigServer config = new ConfigServer(".properties");
+		return config.obtenerPuertoActivo();
 	}
 
+	public void cerrarConexion() {
+	    try {
+	        if (input != null) input.close();
+	        if (output != null) output.close();
+	        if (socket != null && !socket.isClosed()) socket.close();
+	    } catch (IOException e) {
+	        System.err.println("Error cerrando conexión: " + e.getMessage());
+	    }
+	}
+	
+	public boolean reconectar(String nickUsuario) throws IOException {
+		cerrarConexion();
+
+		int puerto = this.getPuertoServidorActivo();
+		if (puerto == -1) return false;
+
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
+		}
+
+		this.iniciarApi(puerto);
+		Thread hilo = new Thread(this);
+		hilo.setDaemon(true);
+		hilo.start();
+
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGIN, nickUsuario));
+		OKResponse res = (OKResponse) this.getResponse();
+
+		if (res.isSuccess()) {
+			this.setControladorListo();
+			return true;
+		}
+		return false;
+	}
+	
+	public void enviarRequestLogout(String nickname) throws IOException{
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGOUT, nickname));
+	}
+	
+	public void enviarRequestDirectorio(String nickname) throws IOException{
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_DIRECTORIO, nickname)); 
+	}
+	
+	public void enviarRequestRegistrar(String nickname) throws IOException {
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_REGISTRO, nickname));
+	}
+	
+	public void enviarRequestLogin(String nickname) throws IOException {
+		this.enviarRequest(this.reqFactory.getRequest(Utils.ID_LOGIN, nickname));
+	}
 }

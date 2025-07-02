@@ -3,6 +3,8 @@ package model;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 
 import interfaces.IEnviable;
 import interfaces.IServidor;
@@ -14,11 +16,30 @@ public class Mensaje implements IEnviable {
 	private String nickReceptor;
 	private LocalTime  hora;
 	
+	public Mensaje() {
+	}
+	
 	public Mensaje(String nickEmisor,String nickReceptor,String cuerpo) {
 		this.cuerpo = cuerpo;
 		this.nickEmisor = nickEmisor;
 		this.nickReceptor = nickReceptor;
 		this.hora = LocalTime.now();
+	}
+	
+	public void setCuerpo(String cuerpo) {
+		this.cuerpo = cuerpo;
+	}
+
+	public void setNickEmisor(String nickEmisor) {
+		this.nickEmisor = nickEmisor;
+	}
+
+	public void setNickReceptor(String nickReceptor) {
+		this.nickReceptor = nickReceptor;
+	}
+
+	public void setHora(String hora) {
+		this.hora = LocalTime.parse(hora, DateTimeFormatter.ofPattern("HH:mm:ss"));
 	}
 
 	public String getCuerpo() {
@@ -29,8 +50,8 @@ public class Mensaje implements IEnviable {
 		return nickEmisor;
 	}
 
-	public LocalTime getHora() {
-		return hora;
+	public String getHora() {
+		return hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 	}
 	
 	public String getNickReceptor() {
@@ -39,7 +60,7 @@ public class Mensaje implements IEnviable {
 	
 	@Override
 	public String toString() {
-		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor;
+		String texto = this.cuerpo + " - " + this.hora + " - " + this.nickEmisor+", \n";
 		return texto;
 	}
 

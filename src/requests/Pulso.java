@@ -2,11 +2,9 @@ package requests;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
 
 import interfaces.IEnviable;
 import interfaces.IServidor;
-import servidor.HandleCliente;
 import servidor.Servidor;
 
 public class Pulso implements IEnviable {

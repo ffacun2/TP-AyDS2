@@ -3,7 +3,7 @@ package requests;
 import java.io.IOException;
 import java.io.Serializable;
 
-import cliente.ServidorAPI;
+import cliente.ClienteAPI;
 import interfaces.IRecibible;
 
 public class OKResponse implements IRecibible, Serializable{
@@ -40,7 +40,7 @@ public class OKResponse implements IRecibible, Serializable{
 	}
 
 	@Override
-	public void manejarResponse(ServidorAPI servidor) throws IOException {
+	public void manejarResponse(ClienteAPI servidor) throws IOException {
 		servidor.setResponse(this);
 	}
 }

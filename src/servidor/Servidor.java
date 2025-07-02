@@ -21,7 +21,7 @@ import requests.RequestDirectorio;
 import requests.RequestLogin;
 import requests.RequestLogout;
 import requests.RequestRegistro;
-import utils.Utils;
+import requests.Sync;
 
 /*
  * Clase que representa el servidor del sistema
@@ -36,16 +36,17 @@ import utils.Utils;
 public class Servidor implements Runnable, IServidor {
 
 	private int puerto;
-	private boolean estado = false; //true si el servidor esta activo, false si no lo esta
-	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
+	private boolean estado; //true si el servidor esta activo, false si no lo esta
 	private ConcurrentHashMap<String,HandleCliente> directorio;
+	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
+	private Resincronizacion resincronizacion; //Encargada de enviar la peticion a los servidores secundarios
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
 		this.puerto = puerto;
 		this.estado = true; //el servidor se inicia en estado activo
-		this.serverSocket = new ServerSocket(puerto);
+		this.serverSocket = new ServerSocket(this.puerto);
 		this.directorio = new ConcurrentHashMap<String,HandleCliente>();
 	}
 
@@ -53,24 +54,21 @@ public class Servidor implements Runnable, IServidor {
 	public void run() {
 		try {
 			while (this.estado) {
-//				System.out.println("Escuchando en el puerto: "+ this.puerto +" ...");
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre server y usuario
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
-//				System.out.println("Conexion con: "+socket.getPort());
 				this.out = new ObjectOutputStream(socket.getOutputStream());
 				this.in = new ObjectInputStream(socket.getInputStream());
-				
 								
 				IEnviable req = (IEnviable)in.readObject();
-//				System.out.println("Recibe pulso en servidor");
-				//Por ahora manejor Ping/Pong
-				// Conviene mandar lista de directorios? asi voy guardando backup en monitor
-				// vendria a ser resincronizacion?
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Se cerró el socket del servidor :"+this.puerto);
+		}
+		finally {
+			this.cerrarSocketServer();
+			this.resincronizacion.setEstado(false); //Detiene la resincronizacion
 		}
 		System.out.println("Cerrando");
 	}
@@ -84,7 +82,6 @@ public class Servidor implements Runnable, IServidor {
 		        contacto.add(new Contacto(aux));
 		    }
 		}
-		
 		return contacto;
 	}
 	
@@ -133,7 +130,7 @@ public class Servidor implements Runnable, IServidor {
 			this.directorio.put(nick, hCliente);
 			hilo.start();
 			
-			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
+			resincronizacion.distribuirPeticion(new Sync(generarSnapShot()));
 		}
 	}
 	
@@ -150,7 +147,6 @@ public class Servidor implements Runnable, IServidor {
 	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		System.out.println("llego a is");
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			if (!cliente.getEstado()) {
@@ -163,17 +159,14 @@ public class Servidor implements Runnable, IServidor {
 				new Thread(cliente).start();
 				cliente.getOutput().writeObject(new OKResponse(true));
 				cliente.getOutput().flush();
-				System.out.println("Inicio sesion");
 				cliente.mandarMsjPendientes();
 			}
 			else {
-				System.out.println("inic ses.ya coenctado");
 				out.writeObject(new OKResponse(false,"El usuario ya esta conectado."));
 			}
 		}
 		else {
-			System.out.println("inic ses.No existe");
-			out.writeObject(new OKResponse(false,"No usuario existente"));
+			out.writeObject(new OKResponse(false,"Usuario no registrado"));
 			socket.close();
 		}
 	}
@@ -213,29 +206,56 @@ public class Servidor implements Runnable, IServidor {
 		this.directorio.get(nick).enviarDirectorio(this.getAgenda(nick));
 	}
 	
+	/**
+	 * Maneja el mensaje recibido de un cliente, verifica si el receptor esta conectado.
+	 * Si el receptor esta conectado, se envia el mensaje al cliente correspondiente.
+	 * Si el receptor no esta conectado, se guarda el mensaje pendiente en el cliente
+	 * y se envia un snapshot de los mensajes pendientes a los servidores secundarios.
+	 * @param mensaje Objeto Mensaje que contiene el nick del receptor y el cuerpo del mensaje
+	 * 
+	 */
 	public void handleMensaje(Mensaje mensaje) throws IOException {
 		String nickReceptor = mensaje.getNickReceptor();
 		HandleCliente cliente = this.directorio.get(nickReceptor);
 		
 		if(cliente.getEstado()) {
-			System.out.println(mensaje.toString());
 			cliente.enviarMensaje(mensaje);
 		}else {
 			cliente.addMensajePendiente(mensaje);
-//			System.out.println("Llegado un mensaje para un usuario desconectado");
-			new Thread(() -> enviarSnapShot(generarSnapShot())).start();
+			resincronizacion.distribuirPeticion(new Sync(generarSnapShot()));
 		}
 	}
 	
 	
+	/**
+	 * Maneja el pulso de tipo PING, enviando un PONG de vuelta al monitor.
+	 * Este metodo se utiliza para verificar que el servidor esta activo y
+	 * responde a las peticiones de los clientes.
+	 * 
+	 * @param pulso Objeto Pulso que contiene el mensaje PING
+	 * @param socket Socket de conexion entre servidor y monitor
+	 * @throws IOException Si se pierde la conexion
+	 */
 	public void handleHeartBeat(Pulso pulso,Socket socket) throws IOException {
-//		System.out.println("Mando PONG desde servidor");
-		if (pulso.getMensaje().equals("PING")) {			
+		if (pulso.getMensaje().equals("PING")) {
+			if (this.resincronizacion == null) {
+				this.resincronizacion = new Resincronizacion(this.puerto,this);
+				new Thread(this.resincronizacion).start();
+				
+				for (String cliente : this.directorio.keySet()) {
+					System.out.println(cliente);
+				}
+			}
 			out.writeObject(new Pulso("PONG"));
 			out.flush();
 		}
 	}
 	
+	/**
+	 * Genera una lista de los clientes registrados en el servidor, para enviarlo a
+	 * los servidores secundarios y mantener la sincronizacion.
+	 * @return Una lista de objetos HandleClienteDTO que contienen el nick, mensajes pendientes y estado de cada cliente.
+	 */
 	public List<HandleClienteDTO> generarSnapShot() {
 		List<HandleClienteDTO> snapshot = new ArrayList<>();
 		
@@ -249,29 +269,19 @@ public class Servidor implements Runnable, IServidor {
 		return snapshot;
 	}
 	
-	public void enviarSnapShot (List<HandleClienteDTO> snapshot) {
-		try (
-			Socket socket = new Socket("localhost",Utils.PUERTO_SYNC);
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			) {
-			
-			out.writeObject(snapshot);
-			out.flush();
-		}
-		catch(IOException e) {
-			e.getStackTrace();
-		}
-		
-	}
 	
+	/**
+	 * Guarda la lista de clientes y sus mensajes pendientes en el directorio del servidor.
+	 * Esta lista es enviada por el servidor activo a los servidores secundarios.
+	 * @param snapshot
+	 */
 	public void guardarSnapShot(List<HandleClienteDTO> snapshot) {
-		
+		System.out.println("snaphost");
 		for (HandleClienteDTO elemento : snapshot) {
 			HandleCliente cliente = new HandleCliente(elemento.getMensajesPendientes(),this);
 			this.directorio.put(elemento.getNickName(), cliente);
 		}
 	}
-	
 	
 	public void cerrarSocketServer() {
 		try {
@@ -280,5 +290,5 @@ public class Servidor implements Runnable, IServidor {
 			e.printStackTrace();
 		}
 	}
-
+	
 }
