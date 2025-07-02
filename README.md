@@ -48,7 +48,7 @@ El sistema incorpora una arquitectura tolerante a fallos para garantizar alta di
 
 ## 🛠️ Tecnologías utilizadas
 
-- Java 17
+- Java 
 - Swing (para UI)
 - Jackson (serialización JSON/XML)
 - TXT personalizado
