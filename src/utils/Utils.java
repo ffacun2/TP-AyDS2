@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class Utils {
-	public static String INGRESAR = "INGRESAR";
+	public static String BTN_INGRESAR = "INGRESAR";
 	public static String CREAR_CONVERSACION = "CREAR_CONVERSACION";
 	public static String CREAR_CONTACTO = "CREAR_CONTACTO";
 	public static String ENVIAR_MENSAJE = "ENVIAR_MENSAJE";
@@ -13,12 +13,23 @@ public class Utils {
 	public static String TITULO = "Sistema de mensajeria instantanea";
 	public static String TITULO_AGR_CONTACTO = "Agregar contacto";
 	public static String CONFIRMAR_CONTACTO = "Aceptar contacto nueva conversacion";
-	public static String MENSAJE = "mensaje conversacion";
-	public static String REGISTRARSE = "REGISTRARSE";
+	public static String SELEC_CONVERSACION = "mensaje conversacion";
+	public static String BTN_REGISTRARSE = "REGISTRARSE";
 	public static String AGREGAR_CONTACTO = "AGREGAR_CONTACTO";
 	public static String MOSTRAR_DIRECTORIO = "MOSTRAR_DIRECTORIO";
 	public static String MOSTRAR_AGENDA = "MOSTRAR_AGENDA";
-	public static int PUERTO_SERVER = 8888;
+	public static String BTN_ACCEPT_CONFIG_REGISTRO = "CONFIG_REGISTRO";
+	
+	
+	public static String[] TIPOS_ARCHIVO = {"JSON", "XML", "TXT"};
+	public static final String ID_CONVERSACION = "CONVERSACION";
+	public static final String ID_MENSAJE = "MENSAJE";
+	public static final String ID_CONTACTO = "CONTACTO";
+
+	public static final String ID_LOGOUT = "LOGOUT";
+	public static final String ID_REGISTRO = "REGISTRO";
+	public static final String ID_DIRECTORIO = "DIRECTORIO";
+	public static final String ID_LOGIN = "LOGIN";
 	
 	
 	public static void mostrarError(String mensaje,JFrame ventana) {

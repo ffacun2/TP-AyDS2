@@ -1,12 +1,12 @@
 package main;
 
-import controller.ControladorConfiguracion;
+import controller.ControladorInicio;
 
 public class MainCliente {
 	
 	public static void main(String[] args) {
 		
-			new ControladorConfiguracion();
+			new ControladorInicio();
 
 	}
 	

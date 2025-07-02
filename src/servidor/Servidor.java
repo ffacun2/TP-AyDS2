@@ -19,38 +19,52 @@ import requests.RequestLogin;
 import requests.RequestLogout;
 import requests.RequestRegistro;
 
-
-public class Servidor implements Runnable, IServidor{
+/*
+ * Clase que representa el servidor del sistema
+ * Se encarga de gestionar las conexiones de los clientes
+ * y de enviar los mensajes entre ellos
+ * Crea el socket del servidor y lo pone a escuchar en el puerto indicado
+ * Recibe los mensajes de los clientes y los procesa
+ * Crea un hilo para cada cliente que se conecta
+ * El servidor se ejecuta en un hilo separado y se detiene cuando se cierra la ventana
+ * 
+ */
+public class Servidor implements Runnable, IServidor {
 
 	private int puerto;
-	private ServerSocket serverSocket; //recibe
+	private boolean estado; //true si el servidor esta activo, false si no lo esta
 	private ConcurrentHashMap<String,HandleCliente> directorio;
+	private ServerSocket serverSocket; //socket del servidor para escuchar conexiones de Usuarios
 	private ObjectInputStream in;
+	private ObjectOutputStream out;
 	
 	public Servidor(int puerto) throws IOException, IllegalArgumentException {
-		this.puerto = puerto;		
-		this.serverSocket = new ServerSocket(puerto);
+		this.puerto = puerto;
+		this.estado = true; //el servidor se inicia en estado activo
+		this.serverSocket = new ServerSocket(this.puerto);
 		this.directorio = new ConcurrentHashMap<String,HandleCliente>();
 	}
 
 	@Override
 	public void run() {
 		try {
-			while (true) {
-				System.out.println("Escuchando en el puerto: "+ this.puerto +" ...");
+			while (this.estado) {
 				Socket socket = serverSocket.accept(); //Este socket establece la conexion entre server y usuario
 				// Esta instruccion solo se ejecuta cuando se crea un usuario
 				
-				System.out.println("Conexion con: "+socket.getPort());
-
-				in = new ObjectInputStream(socket.getInputStream());
-				
+				this.out = new ObjectOutputStream(socket.getOutputStream());
+				this.in = new ObjectInputStream(socket.getInputStream());
+								
 				IEnviable req = (IEnviable)in.readObject();
 				req.manejarRequest(this,socket);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Se cerró el socket del servidor :"+this.puerto);
 		}
+		finally {
+			this.cerrarSocketServer();
+		}
+		System.out.println("Cerrando");
 	}
 	
 	public ArrayList<Contacto> getAgenda(String nickname) {
@@ -62,10 +76,27 @@ public class Servidor implements Runnable, IServidor{
 		        contacto.add(new Contacto(aux));
 		    }
 		}
-		
 		return contacto;
 	}
 	
+	
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+		if (!estado) 
+			this.detenerServidor();
+	}
+	
+	public boolean getEstado() {
+		return this.estado;
+	}
+	
+	public void detenerServidor() {
+		try {
+			serverSocket.close();
+		}
+		catch (IOException e) {
+		}
+	}
 	
 	/**
 	 * Al recibir el request re registro, se verifica que el nick no este en uso y se procede a crear en caso
@@ -77,22 +108,22 @@ public class Servidor implements Runnable, IServidor{
 	 */
 	public void handleRegistro(RequestRegistro req, Socket socket) throws IOException { //OK
 		String nick = req.getNickname();
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
-			out.writeObject(new OKResponse(false,"Usuario ya registrado"));
+			this.out.writeObject(new OKResponse(false,"Usuario ya registrado"));
 			socket.close();
 		}
 		else {
-			out.writeObject(new OKResponse(true));
+			this.out.writeObject(new OKResponse(true));
 			HandleCliente hCliente = new HandleCliente(socket,this);
-			hCliente.setInput(in);
-			hCliente.setOutput(out);
+			hCliente.setOutput(this.out);
+			hCliente.setInput(this.in);
 			
 			Thread hilo = new Thread(hCliente);
 			hCliente.setHilo(hilo);
 			
 			this.directorio.put(nick, hCliente);
 			hilo.start();
+			
 		}
 	}
 	
@@ -109,17 +140,18 @@ public class Servidor implements Runnable, IServidor{
 	public void handleIniciarSesion(RequestLogin req, Socket socket) throws IOException { 
 		String nick = req.getNickname();
 		HandleCliente cliente;
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		if (this.directorio.containsKey(nick)) {
 			cliente = this.directorio.get(nick);
 			if (!cliente.getEstado()) {
 				//Actualiza socket, input y output
 				cliente.setSocket(socket);
-				cliente.setInput(in);
-				cliente.setOutput(out);
-				new Thread(cliente).start();
+				cliente.setOutput(this.out);
+				cliente.setInput(this.in);
 				cliente.setEstado(true);
+
+				new Thread(cliente).start();
 				cliente.getOutput().writeObject(new OKResponse(true));
+				cliente.getOutput().flush();
 				cliente.mandarMsjPendientes();
 			}
 			else {
@@ -127,7 +159,7 @@ public class Servidor implements Runnable, IServidor{
 			}
 		}
 		else {
-			out.writeObject(new OKResponse(false,"No usuario existente"));
+			out.writeObject(new OKResponse(false,"Usuario no registrado"));
 			socket.close();
 		}
 	}
@@ -149,6 +181,7 @@ public class Servidor implements Runnable, IServidor{
 			cliente.getOutput().writeObject(new OKResponse(true));
 			cliente.setEstado(false);
 			cliente.getSocket().close();
+			
 		}
 	}
 	
@@ -166,6 +199,14 @@ public class Servidor implements Runnable, IServidor{
 		this.directorio.get(nick).enviarDirectorio(this.getAgenda(nick));
 	}
 	
+	/**
+	 * Maneja el mensaje recibido de un cliente, verifica si el receptor esta conectado.
+	 * Si el receptor esta conectado, se envia el mensaje al cliente correspondiente.
+	 * Si el receptor no esta conectado, se guarda el mensaje pendiente en el cliente
+	 * y se envia un snapshot de los mensajes pendientes a los servidores secundarios.
+	 * @param mensaje Objeto Mensaje que contiene el nick del receptor y el cuerpo del mensaje
+	 * 
+	 */
 	public void handleMensaje(Mensaje mensaje) throws IOException {
 		String nickReceptor = mensaje.getNickReceptor();
 		HandleCliente cliente = this.directorio.get(nickReceptor);
@@ -176,5 +217,13 @@ public class Servidor implements Runnable, IServidor{
 			cliente.addMensajePendiente(mensaje);
 		}
 	}
-
+	
+	public void cerrarSocketServer() {
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -16,7 +17,7 @@ import requests.DirectoriosResponse;
 import requests.MensajeResponse;
 
 @SuppressWarnings("deprecation")
-public class HandleCliente extends Observable implements Runnable{
+public class HandleCliente extends Observable implements Runnable {
 	
 	private Servidor servidor;
 	private Socket socket;
@@ -34,17 +35,36 @@ public class HandleCliente extends Observable implements Runnable{
 		this.estado = true;
 	}
 	
+	public HandleCliente(List<Mensaje> msjPendiente, Servidor servidor) {
+		this.mensajesPendientes = msjPendiente;
+		this.servidor = servidor;
+		this.estado = false;
+	}
+	
 	@Override
 	public void run() {
-		while (estado) {
+		System.out.println("Iniciando HandleCliente");
+		while (estado && servidor.getEstado()) {
+			try {
 				IEnviable req;
-				try {
-					req = (IEnviable)this.input.readObject();
-					req.manejarRequest(servidor,this.socket);
-				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
-				}
+				
+				socket.setSoTimeout(2000);
+				req = (IEnviable)this.input.readObject();
+				req.manejarRequest(servidor,this.socket);
+			}
+			catch (SocketTimeoutException e) {
+				//No hace nada, si se pasa de 2 seg vuelve a ejecutar
+				//Es para controlar el estado del servidor
+			}
+			catch (ClassNotFoundException | IOException e) {
+				this.estado = false;
+			}	
 		}
+		try {
+			socket.close();
+		}catch (Exception e) {
+		}
+		System.out.println("Cerrando handleCliente");
 	}
 
 	public void mandarMsjPendientes() throws IOException {

@@ -2,16 +2,25 @@ package model;
 
 import java.io.Serializable;
 
-public class Contacto implements Serializable{
+import interfaces.SerializableTxt;
+
+public class Contacto implements Serializable, SerializableTxt {
 	private static final long serialVersionUID = 1L;
 	private String nickname;
+	private boolean visto = true;
 	private Conversacion conversacion;
-
+	
+	public Contacto() {
+	}
 	
 	public Contacto(String nickname) {
 		this.nickname = nickname;
 
 		this.conversacion = null;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public String getNickname() {
@@ -27,6 +36,9 @@ public class Contacto implements Serializable{
 	}
 	
 	public void agregarMensaje(Mensaje msj) {
+		if (this.conversacion == null) {
+			this.conversacion = new Conversacion();
+		}
 		this.conversacion.agregarMensaje(msj);
 	}
 
@@ -42,7 +54,20 @@ public class Contacto implements Serializable{
 	
 	@Override
 	public String toString() {
-		String texto = this.nickname;
-		return texto;
+		return nickname;
 	}
+
+	@Override
+	public String toTxt() {
+		return "#Contacto:" + this.nickname;
+	}
+	
+	public boolean isVisto() {
+		return visto;
+	}
+	
+	public void setVisto(boolean cond) {
+		this.visto = cond;
+	}
+
 }
