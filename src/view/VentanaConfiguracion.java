@@ -2,7 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -26,24 +25,7 @@ public class VentanaConfiguracion extends JFrame {
 	private JPanel contentPane;
 	private JTextField textFieldIp;
 	private JTextField textFieldPuerto;
-	private JTextField textFieldNickname;
-
-	/**
-	 * Launch the application.
-	 */
-	
-	  public static void main(String[] args) { 
-		  //TESTING
-		  
-		  EventQueue.invokeLater(new Runnable() { public void run() { 
-		  try { VentanaConfiguracion frame = new VentanaConfiguracion("Sistema de mensajeria instantanea",new ControladorConfiguracion(),Utils.MODO_CONFIG);
-		  //frame.setVisible(true);
-		  } catch (Exception e) {
-			  e.printStackTrace(); }
-		  } }
-		  );
-	  }
-	 
+	private JTextField textFieldNickname; 
 
 
 	/**

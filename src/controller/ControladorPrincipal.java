@@ -18,6 +18,7 @@ import view.DialogSeleccionarContacto;
 import view.VentanaPrincipal;
 
 
+@SuppressWarnings("deprecation")
 public class ControladorPrincipal implements ActionListener, Observer {
 	
 	private ControladorConfiguracion controladorConfiguracion;
@@ -47,7 +48,7 @@ public class ControladorPrincipal implements ActionListener, Observer {
 		String comando = e.getActionCommand();
 		
 		if (comando.equals(Utils.CREAR_CONTACTO)) {
-			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,Utils.MODO_AGR_CONTACTO);
+			this.controladorConfiguracion.mostrarVentanaConfiguracion(Utils.TITULO_AGR_CONTACTO,ventanaPrincipal,Utils.MODO_AGR_CONTACTO);
 			this.ventanaPrincipal.bloqueoAgrContacto(true);
 		}
 		else if (comando.equals(Utils.CREAR_CONVERSACION)) {
@@ -203,10 +204,10 @@ public class ControladorPrincipal implements ActionListener, Observer {
 	}
  	
  	
- 	public void mostrarVentanaPrincipal() {
+ 	public void mostrarVentanaPrincipal(ControladorConfiguracion controladorConfiguracion) {
  		this.ventanaPrincipal = new VentanaPrincipal("Sistema de Mensajeria Instantanea: " + this.usuario.getNickname());
  		this.ventanaPrincipal.setControlador(this);
- 		this.ventanaPrincipal.setLocationRelativeTo(null);
+ 		this.ventanaPrincipal.setLocationRelativeTo(controladorConfiguracion.getVentanaConfig());
  		this.ventanaPrincipal.setVisible(true);
  		this.ventanaPrincipal.bloquearMsj(true);
  		this.ventanaPrincipal.bloqueoNueConv(true);

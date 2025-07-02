@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+
 import exceptions.FueraDeRangoException;
 import model.Servidor;
 import utils.Utils;
@@ -17,7 +19,7 @@ public class ControladorConfiguracion implements ActionListener{
 	
 	public ControladorConfiguracion() {
 		//Esta ventana config es la que se abre al inicio de la aplicacion, para crear el usuario
-		this.mostrarVentanaConfiguracion(Utils.TITULO, Utils.MODO_CONFIG);
+		this.mostrarVentanaConfiguracion(Utils.TITULO, ventanaConfiguracion,Utils.MODO_CONFIG);
 		this.controladorPrincipal = new ControladorPrincipal(this); //TODO Chequear si esta bien que el controlador config cree el otro controlador
 	}
 	
@@ -51,6 +53,7 @@ public class ControladorConfiguracion implements ActionListener{
 	 * Caso contrario se muestra un mensaje de error.
 	 * Quien determine si el usuario se crea correctamente es el cliente usuario que lanza error de socket.
 	 */
+	@SuppressWarnings("deprecation")
 	private void crearUsuario() { //TODO Volver a chequear responsabilidades, si es de este controlador o del otro crear el usuario
 		
 		String ip = this.ventanaConfiguracion.getIp();
@@ -70,8 +73,8 @@ public class ControladorConfiguracion implements ActionListener{
 							this.ventanaConfiguracion.getIp()
 							)
 				) {
+				this.controladorPrincipal.mostrarVentanaPrincipal(this);
 				this.ventanaConfiguracion.dispose();
-				this.controladorPrincipal.mostrarVentanaPrincipal();
 			}
 			else {
 				Utils.mostrarError("No se ha podido crear el usuario. Verifique los datos ingresados.",this.ventanaConfiguracion);
@@ -112,9 +115,9 @@ public class ControladorConfiguracion implements ActionListener{
 	/**
 	 *	 Muestra la ventana de configuracion, para agregar un contacto. 
 	 */
-	public void mostrarVentanaConfiguracion(String title, String mode) {
+	public void mostrarVentanaConfiguracion(String title, JFrame componente, String mode) {
 		this.ventanaConfiguracion = new VentanaConfiguracion(title, this, mode);
-		this.ventanaConfiguracion.setLocationRelativeTo(null);
+		this.ventanaConfiguracion.setLocationRelativeTo(componente);
 		this.ventanaConfiguracion.setVisible(true);
 	}
 	
